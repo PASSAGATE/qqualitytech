@@ -14,44 +14,69 @@ const navigation = [
 export function SiteHeader({ activeHref }: { activeHref: string }) {
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/85 shadow-sm backdrop-blur-xl">
-      <div className="mx-auto flex h-20 w-full max-w-[1600px] items-center justify-between px-5 sm:px-8 lg:px-12">
-        <Link
-          href="/"
-          className="text-[1.75rem] font-black tracking-[-0.08em] text-primary"
-        >
-          QqualityTech
-        </Link>
-
-        <div className="hidden items-center gap-7 lg:flex">
-          {navigation.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={
-                item.href === activeHref
-                  ? "border-b-2 border-secondary pb-1 text-sm font-semibold tracking-tight text-secondary"
-                  : "text-sm font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
-              }
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
+      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+        <div className="flex h-20 items-center justify-between">
           <Link
-            href="/contact"
-            className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+            href="/"
+            className="text-[1.75rem] font-black tracking-[-0.08em] text-primary"
           >
-            상담 및 견적 요청
+            QqualityTech
           </Link>
-          <button
-            type="button"
-            aria-label="메뉴 열기"
-            className="inline-flex rounded-md border border-outline-variant/80 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary lg:hidden"
-          >
-            메뉴
-          </button>
+
+          <div className="hidden items-center gap-7 lg:flex">
+            {navigation.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={
+                  item.href === activeHref
+                    ? "border-b-2 border-secondary pb-1 text-sm font-semibold tracking-tight text-secondary"
+                    : "text-sm font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
+                }
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/contact"
+              className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+            >
+              상담 및 견적 요청
+            </Link>
+            <details className="group lg:hidden">
+              <summary className="inline-flex list-none items-center rounded-md border border-outline-variant/80 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary [&::-webkit-details-marker]:hidden">
+                메뉴
+              </summary>
+
+              <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
+                <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className={
+                        item.href === activeHref
+                          ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
+                          : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+
+                  <Link
+                    href="/contact"
+                    className="mt-2 inline-flex items-center justify-center rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:hidden"
+                  >
+                    상담 및 견적 요청
+                  </Link>
+                </div>
+              </div>
+            </details>
+          </div>
         </div>
       </div>
     </nav>

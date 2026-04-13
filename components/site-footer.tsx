@@ -30,13 +30,13 @@ export function SiteFooter() {
               href="/contact"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-white transition-colors hover:bg-secondary"
             >
-              <FooterIcon icon={Share2} className="size-4" />
+              <FooterIcon icon={Share2} className="size-4 text-white" />
             </Link>
             <Link
               href="/"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-white transition-colors hover:bg-secondary"
             >
-              <FooterIcon icon={Globe} className="size-4" />
+              <FooterIcon icon={Globe} className="size-4 text-white" />
             </Link>
           </div>
         </div>
