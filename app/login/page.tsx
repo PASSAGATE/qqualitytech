@@ -1,0 +1,199 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { ArrowRight, Lock, User } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "관리자 로그인 | QqualityTech",
+  description:
+    "QqualityTech 관리자 시스템 로그인 페이지에서 권한이 있는 계정으로 접속할 수 있습니다.",
+};
+
+function Icon({
+  icon: IconComponent,
+  className = "",
+}: {
+  icon: LucideIcon;
+  className?: string;
+}) {
+  return (
+    <IconComponent
+      aria-hidden="true"
+      className={className}
+      strokeWidth={1.8}
+    />
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-6 py-10 text-on-surface antialiased">
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUwLLTo-AsFizg7NyMViKQTiKt7EpEMc72MBPGpo-mJRDgtxet4b6zNQ6Tr0aw1tw9YaAj4UIoO_KY7_hGMiotWngwuq9IybEHmj_0apdTg9yJY7Ksl6JBvb0jF9uplzQITMc_B6RnM7QoP5RvfTg6Zk8744zklfctHCezxKbFtaWNFsNSI0yoezST5NtzInIqWI9nqIR0O9gFCo8JOPuqZ6jfgAHY_husDuv5DqD4RLZ1hROybvHaQLGvVGpQwf9BczYk1L-UC0Fz"
+          alt="Modern high-tech industrial facility interior with precision machinery"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,21,42,0.92)_0%,rgba(16,42,67,0.85)_100%)]" />
+      </div>
+
+      <div className="pointer-events-none fixed bottom-0 right-0 z-20 h-1 w-1/4 bg-secondary/30" />
+      <div className="pointer-events-none fixed bottom-12 right-12 z-10 hidden select-none text-[100px] font-black uppercase text-white/[0.03] lg:block">
+        Master
+      </div>
+
+      <div className="relative z-10 grid w-full max-w-[1200px] gap-0 md:grid-cols-12">
+        <section className="hidden flex-col justify-center pr-12 md:col-span-7 md:flex">
+          <div className="mb-8">
+            <span className="mb-4 inline-block bg-secondary px-3 py-1 text-xs font-bold tracking-[0.28em] text-white uppercase">
+              Precision Engineering
+            </span>
+            <h1 className="text-5xl font-black leading-[1.1] tracking-[-0.03em] text-white lg:text-7xl">
+              QualityTech
+              <br />
+              <span className="text-[#ffb693]">EQUIP-MASTER</span>
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-on-primary-container">
+              산업용 장비의 정밀 측정 및 유지보수 관리를 위한 통합 스마트
+              솔루션. 최고 수준의 엔지니어링 표준을 디지털로 경험하십시오.
+            </p>
+          </div>
+
+          <div className="mt-12 flex gap-12">
+            <div>
+              <div className="text-3xl font-bold text-white">99.9%</div>
+              <div className="text-sm font-medium text-on-primary-container">
+                정밀도 정확성
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">24/7</div>
+              <div className="text-sm font-medium text-on-primary-container">
+                실시간 모니터링
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="flex items-center md:col-span-5">
+          <div className="w-full border border-white/20 bg-white/95 p-8 shadow-[0px_16px_48px_rgba(23,28,31,0.08)] backdrop-blur-md md:p-12">
+            <div className="mb-10 text-center md:hidden">
+              <Link
+                href="/"
+                className="text-2xl font-black tracking-tight text-primary"
+              >
+                QualityTech
+              </Link>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                관리자 시스템 로그인
+              </p>
+            </div>
+
+            <div className="mb-10 hidden md:block">
+              <h2 className="text-2xl font-bold tracking-tight text-primary">
+                관리자 로그인
+              </h2>
+              <p className="mt-2 text-sm text-on-surface-variant">
+                시스템 권한이 있는 관리자 계정으로 접속하십시오.
+              </p>
+            </div>
+
+            <form className="space-y-6">
+              <div className="space-y-2">
+                <label
+                  htmlFor="admin-id"
+                  className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant"
+                >
+                  <Icon icon={User} className="size-[18px]" />
+                  관리자 아이디
+                </label>
+                <input
+                  id="admin-id"
+                  name="id"
+                  type="text"
+                  placeholder="아이디를 입력하세요"
+                  className="w-full border-b-2 border-transparent bg-surface-container-highest px-4 py-3 font-medium text-primary outline-none transition-all focus:border-secondary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="admin-pw"
+                  className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant"
+                >
+                  <Icon icon={Lock} className="size-[18px]" />
+                  비밀번호
+                </label>
+                <input
+                  id="admin-pw"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full border-b-2 border-transparent bg-surface-container-highest px-4 py-3 font-medium text-primary outline-none transition-all focus:border-secondary"
+                />
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <label className="group flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary/20"
+                  />
+                  <span className="text-sm text-on-surface-variant transition-colors group-hover:text-primary">
+                    로그인 상태 유지
+                  </span>
+                </label>
+                <a
+                  href="#"
+                  className="text-sm font-semibold text-secondary transition-colors hover:text-[#fd7629]"
+                >
+                  아이디/비밀번호 찾기
+                </a>
+              </div>
+
+              <button
+                type="submit"
+                className="inline-flex w-full items-center justify-center gap-2 bg-secondary py-4 text-base font-bold tracking-[0.03em] text-white transition-all hover:bg-[#fd7629] active:scale-[0.98]"
+              >
+                로그인
+                <Icon icon={ArrowRight} className="size-5" />
+              </button>
+            </form>
+
+            <div className="mt-12 flex flex-col items-center gap-4 border-t border-outline-variant/20 pt-8">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-center">
+                <a
+                  href="#"
+                  className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
+                >
+                  이용약관
+                </a>
+                <span className="text-[11px] text-outline-variant">|</span>
+                <a
+                  href="#"
+                  className="text-[11px] font-bold text-on-surface-variant transition-colors hover:text-primary"
+                >
+                  개인정보처리방침
+                </a>
+                <span className="text-[11px] text-outline-variant">|</span>
+                <Link
+                  href="/contact"
+                  className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
+                >
+                  고객지원
+                </Link>
+              </div>
+              <p className="text-center text-[10px] font-medium tracking-[0.28em] text-outline-variant uppercase">
+                © 2024 QualityTech Industrial Systems Inc.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
