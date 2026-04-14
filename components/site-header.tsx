@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const navigation = [
   { label: "홈", href: "/" },
@@ -7,18 +8,16 @@ const navigation = [
   { label: "시험장비", href: "/equipment" },
   { label: "시공사례", href: "/cases" },
   { label: "블로그", href: "/blog" },
-  { label: "FAQ", href: "/#faq" },
   { label: "문의하기", href: "/contact" },
 ] as const;
 
-export function SiteHeader({
-  activeHref,
-  showAdminMenu = false,
-}: {
-  activeHref: string;
-  showAdminMenu?: boolean;
-}) {
-  const navigationItems = showAdminMenu
+export async function SiteHeader({ activeHref }: { activeHref: string }) {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+
+  const navigationItems = user
     ? [...navigation, { label: "관리자", href: "/admin" as const }]
     : navigation;
 
@@ -52,7 +51,7 @@ export function SiteHeader({
           <div className="flex items-center gap-3">
             <Link
               href="/contact"
-              className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+              className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
             >
               상담 및 견적 요청
             </Link>

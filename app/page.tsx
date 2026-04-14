@@ -26,9 +26,6 @@ import { blogPreviewPosts } from "./blog/data";
 import { homeFieldCasePreview } from "./cases/data";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export const dynamic = "force-dynamic";
 
 const services: Array<{
   icon: LucideIcon;
@@ -154,14 +151,9 @@ function Icon({
 }
 
 export default async function Home() {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-
   return (
     <div className="bg-surface text-on-surface">
-      <SiteHeader activeHref="/" showAdminMenu={Boolean(user)} />
+      <SiteHeader activeHref="/" />
 
       <main>
         <header
@@ -185,7 +177,7 @@ export default async function Home() {
               <span className="mb-6 inline-flex rounded-sm border border-secondary/30 bg-secondary/20 px-4 py-1.5 text-sm font-bold tracking-[0.28em] text-secondary">
                 INDUSTRIAL PRECISION
               </span>
-              <h1 className="mb-8 text-5xl font-black leading-[1.05] tracking-[-0.08em] text-white md:text-7xl">
+              <h1 className="mb-7 text-5xl font-black leading-[1.05] tracking-[0.09em] text-white md:text-6xl">
                 건설 품질관리와 시험장비,
                 <br />
                 신뢰할 수 있는 전문 솔루션
@@ -204,7 +196,7 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/equipment"
-                  className="inline-flex rounded-md border border-white/20 bg-surface-container-highest/10 px-10 py-5 text-lg font-bold text-white backdrop-blur-md transition-all hover:bg-white/10 active:scale-95"
+                  className="inline-flex rounded-md border border-white/20 bg-surface-container-highest px-10 py-5 text-lg font-bold text-white backdrop-blur-md transition-all hover:bg-white active:scale-95"
                 >
                   시험장비 보기
                 </Link>
@@ -561,7 +553,7 @@ export default async function Home() {
               </a>
               <a
                 href="mailto:contact@qqualitytech.com"
-                className="inline-flex items-center gap-3 rounded-md border border-white/20 bg-white/10 px-12 py-5 text-xl font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
+                className="inline-flex items-center gap-3 rounded-md border border-white/20 bg-white px-12 py-5 text-xl font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
               >
                 <Icon icon={Mail} className="size-6" />
                 온라인 문의 작성
