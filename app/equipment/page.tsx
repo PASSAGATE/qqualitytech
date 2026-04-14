@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
-import { featuredEquipment } from "./data";
+import { fetchFeaturedEquipment } from "./repository";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "시험장비 목록 | QqualityTech",
@@ -45,7 +47,9 @@ function Icon({
   );
 }
 
-export default function EquipmentPage() {
+export default async function EquipmentPage() {
+  const featuredEquipment = await fetchFeaturedEquipment(4);
+
   return (
     <div className="bg-surface text-on-surface">
       <SiteHeader activeHref="/equipment" />

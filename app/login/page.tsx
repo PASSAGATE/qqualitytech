@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight, Lock, User } from "lucide-react";
+import { loginAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "관리자 로그인 | QqualityTech",
@@ -26,7 +27,13 @@ function Icon({
   );
 }
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { error } = await searchParams;
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-6 py-10 text-on-surface antialiased">
       <div className="fixed inset-0 z-0">
@@ -102,20 +109,22 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="space-y-6">
+            <form action={loginAction} className="space-y-6">
               <div className="space-y-2">
                 <label
-                  htmlFor="admin-id"
+                  htmlFor="admin-email"
                   className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant"
                 >
                   <Icon icon={User} className="size-[18px]" />
-                  관리자 아이디
+                  관리자 이메일
                 </label>
                 <input
-                  id="admin-id"
-                  name="id"
-                  type="text"
-                  placeholder="아이디를 입력하세요"
+                  id="admin-email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="admin@company.com"
                   className="w-full border-b-2 border-transparent bg-surface-container-highest px-4 py-3 font-medium text-primary outline-none transition-all focus:border-secondary"
                 />
               </div>
@@ -132,10 +141,18 @@ export default function LoginPage() {
                   id="admin-pw"
                   name="password"
                   type="password"
+                  required
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="w-full border-b-2 border-transparent bg-surface-container-highest px-4 py-3 font-medium text-primary outline-none transition-all focus:border-secondary"
                 />
               </div>
+
+              {error ? (
+                <p className="rounded-sm bg-[#fde8e8] px-4 py-2 text-sm font-semibold text-[#b42318]">
+                  {error}
+                </p>
+              ) : null}
 
               <div className="flex items-center justify-between py-2">
                 <label className="group flex cursor-pointer items-center gap-2">

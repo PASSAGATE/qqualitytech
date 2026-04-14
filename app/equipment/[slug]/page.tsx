@@ -17,28 +17,21 @@ import {
 import { SiteFooter } from "../../../components/site-footer";
 import { SiteHeader } from "../../../components/site-header";
 import {
-  equipmentCatalog,
-  getEquipmentBySlug,
   type EquipmentFeature,
 } from "../data";
+import { fetchEquipmentBySlug, fetchEquipmentCatalog } from "../repository";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return equipmentCatalog.map((item) => ({
-    slug: item.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = getEquipmentBySlug(slug);
+  const item = await fetchEquipmentBySlug(slug);
 
   if (!item) {
     return {
@@ -134,11 +127,13 @@ function getFallbackFeatures(title: string): EquipmentFeature[] {
 
 export default async function EquipmentDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const item = getEquipmentBySlug(slug);
+  const item = await fetchEquipmentBySlug(slug);
 
   if (!item) {
     notFound();
   }
+
+  const equipmentCatalog = await fetchEquipmentCatalog();
 
   const gallery =
     item.gallery.length > 0
@@ -167,7 +162,9 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
           specification: spec.value,
         }));
   const relatedItems = item.relatedSlugs
-    .map((relatedSlug) => getEquipmentBySlug(relatedSlug))
+    .map((relatedSlug) =>
+      equipmentCatalog.find((catalogItem) => catalogItem.slug === relatedSlug),
+    )
     .filter((relatedItem) => relatedItem !== undefined)
     .slice(0, 3);
 
