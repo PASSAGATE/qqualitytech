@@ -8,11 +8,10 @@ import {
   Headset,
   MessageSquare,
   Search,
-  SlidersHorizontal,
 } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
-import { fetchFeaturedEquipment } from "./repository";
+import { fetchAdminEquipmentRows } from "./repository";
 
 export const dynamic = "force-dynamic";
 
@@ -22,14 +21,18 @@ export const metadata: Metadata = {
     "QqualityTech의 전문 시험장비 카탈로그에서 콘크리트, 토질, 아스팔트, 금속 및 비파괴 시험 장비를 확인하세요.",
 };
 
-const categories = [
-  { label: "전체보기", active: true },
-  { label: "콘크리트" },
-  { label: "토질" },
-  { label: "아스팔트" },
-  { label: "금속/철강" },
-  { label: "비파괴 시험" },
-];
+const typeFilters = [
+  { label: "전체보기", value: "all" },
+  { label: "판매 장비", value: "sale" },
+  { label: "임대 장비", value: "rental" },
+] as const;
+
+const statusFilters = [
+  { label: "전체 상태", value: "all" },
+  { label: "가능", value: "available" },
+  { label: "판매 완료", value: "sold" },
+  { label: "임대 중", value: "rented" },
+] as const;
 
 function Icon({
   icon: IconComponent,
@@ -47,8 +50,43 @@ function Icon({
   );
 }
 
-export default async function EquipmentPage() {
-  const featuredEquipment = await fetchFeaturedEquipment(4);
+type EquipmentPageProps = {
+  searchParams: Promise<{ q?: string; type?: string; status?: string; sort?: string }>;
+};
+
+export default async function EquipmentPage({ searchParams }: EquipmentPageProps) {
+  const { q, type, status, sort } = await searchParams;
+  const searchQuery = (q ?? "").trim().toLowerCase();
+  const selectedType = (type ?? "all").toLowerCase();
+  const selectedStatus = (status ?? "all").toLowerCase();
+  const selectedSort = (sort ?? "latest").toLowerCase();
+
+  const equipmentRows = await fetchAdminEquipmentRows();
+  const publicRows = equipmentRows.filter((row) => row.visible);
+  const filteredRows = publicRows.filter((row) => {
+    const matchesQuery =
+      searchQuery.length === 0 ||
+      row.item.title.toLowerCase().includes(searchQuery) ||
+      row.item.model.toLowerCase().includes(searchQuery) ||
+      row.item.summary.toLowerCase().includes(searchQuery);
+    const matchesType =
+      selectedType === "all" || row.typeValue.toLowerCase() === selectedType;
+    const matchesStatus =
+      selectedStatus === "all" || row.statusValue.toLowerCase() === selectedStatus;
+
+    return matchesQuery && matchesType && matchesStatus;
+  });
+
+  const sortedRows = [...filteredRows].sort((a, b) => {
+    if (selectedSort === "name_asc") {
+      return a.item.title.localeCompare(b.item.title, "ko");
+    }
+    if (selectedSort === "name_desc") {
+      return b.item.title.localeCompare(a.item.title, "ko");
+    }
+    // latest: keep repository order (created_at desc)
+    return 0;
+  });
 
   return (
     <div className="bg-surface text-on-surface">
@@ -72,7 +110,10 @@ export default async function EquipmentPage() {
         </section>
 
         <section className="sticky top-24 z-40 mb-12">
-          <div className="flex flex-col items-center gap-6 rounded-xl bg-surface-container-lowest p-4 shadow-sm lg:flex-row">
+          <form
+            method="get"
+            className="flex flex-col items-center gap-6 rounded-xl bg-surface-container-lowest p-4 shadow-sm lg:flex-row"
+          >
             <div className="group relative w-full lg:w-96">
               <Icon
                 icon={Search}
@@ -80,58 +121,108 @@ export default async function EquipmentPage() {
               />
               <input
                 type="text"
+                name="q"
+                defaultValue={q ?? ""}
                 placeholder="장비 명칭 또는 모델 번호 검색"
                 className="w-full rounded-md border-none bg-surface-container-highest py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-secondary"
               />
             </div>
 
             <div className="flex flex-1 flex-wrap gap-2">
-              {categories.map((category) => (
+              {typeFilters.map((filter) => (
                 <button
-                  key={category.label}
-                  type="button"
+                  key={filter.value}
+                  type="submit"
+                  name="type"
+                  value={filter.value}
                   className={
-                    category.active
+                    selectedType === filter.value
                       ? "rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition-all"
                       : "rounded-full bg-surface-container-high px-5 py-2 text-sm font-semibold text-on-surface-variant transition-all hover:bg-surface-container-highest"
                   }
                 >
-                  {category.label}
+                  {filter.label}
                 </button>
               ))}
             </div>
 
-            <div className="hidden h-10 w-px bg-outline-variant lg:block" />
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-bold uppercase text-on-surface-variant">
+                상태
+              </label>
+              <select
+                name="status"
+                defaultValue={selectedStatus}
+                className="rounded-md border-none bg-surface-container-high px-3 py-2 text-sm font-semibold text-on-surface-variant outline-none focus:ring-2 focus:ring-secondary"
+              >
+                {statusFilters.map((filter) => (
+                  <option key={filter.value} value={filter.value}>
+                    {filter.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-bold uppercase text-on-surface-variant">
+                정렬
+              </label>
+              <select
+                name="sort"
+                defaultValue={selectedSort}
+                className="rounded-md border-none bg-surface-container-high px-3 py-2 text-sm font-semibold text-on-surface-variant outline-none focus:ring-2 focus:ring-secondary"
+              >
+                <option value="latest">최신 등록순</option>
+                <option value="name_asc">이름 오름차순</option>
+                <option value="name_desc">이름 내림차순</option>
+              </select>
+            </div>
 
             <button
-              type="button"
-              className="flex items-center gap-2 px-4 text-sm font-bold text-primary"
+              type="submit"
+              className="rounded-md bg-secondary px-4 py-2 text-sm font-bold text-white transition-all hover:opacity-90"
             >
-              <Icon icon={SlidersHorizontal} className="size-5" />
-              필터 상세설정
+              필터 적용
             </button>
-          </div>
+            <Link
+              href="/equipment"
+              className="text-sm font-bold text-secondary transition-colors hover:underline"
+            >
+              필터 초기화
+            </Link>
+          </form>
         </section>
 
         <section className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {featuredEquipment.map((item) => (
+          {sortedRows.length === 0 ? (
+            <article className="col-span-full rounded-md border border-outline-variant/20 bg-surface-container-lowest p-10 text-center">
+              <h3 className="text-xl font-bold text-primary">
+                검색 결과가 없습니다
+              </h3>
+              <p className="mt-2 text-sm text-on-surface-variant">
+                다른 검색어 또는 필터 조건으로 다시 시도해 주세요.
+              </p>
+            </article>
+          ) : null}
+
+          {sortedRows.map((row) => (
             <article
-              key={item.slug}
+              key={row.equipmentId}
               className="group flex flex-col overflow-hidden rounded-sm bg-surface-container-lowest transition-all hover:-translate-y-1"
             >
               <div className="relative h-64 overflow-hidden">
                 <Image
-                  src={item.image}
-                  alt={item.alt}
+                  src={row.item.image}
+                  alt={row.item.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                {item.badge ? (
+                {row.featured ? (
                   <div
-                    className={`absolute top-4 right-4 rounded-sm px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] ${item.badgeTone ?? "bg-secondary text-white"}`}
+                    className="absolute top-4 right-4 rounded-sm bg-secondary px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white"
                   >
-                    {item.badge}
+                    FEATURED
                   </div>
                 ) : null}
               </div>
@@ -139,22 +230,25 @@ export default async function EquipmentPage() {
               <div className="flex flex-1 flex-col p-6">
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-outline">
-                    {item.category}
+                    {row.typeLabel}
                   </span>
                   <span className="text-xs font-black text-secondary">
-                    {item.model}
+                    {row.item.model}
                   </span>
                 </div>
 
                 <h2 className="mb-4 text-xl font-extrabold leading-tight text-primary">
-                  {item.title}
+                  {row.item.title}
                 </h2>
 
                 <div className="mb-6 flex-1 space-y-2">
-                  {item.specs.map((spec, index) => (
+                  {(row.item.specs.length > 0
+                    ? row.item.specs
+                    : [{ label: "상태", value: row.status.label }]
+                  ).slice(0, 3).map((spec, index) => (
                     <div
                       key={spec.label}
-                      className={`flex justify-between text-xs ${index < item.specs.length - 1 ? "border-b border-outline-variant/10 pb-2" : ""}`}
+                      className={`flex justify-between text-xs ${index < 2 ? "border-b border-outline-variant/10 pb-2" : ""}`}
                     >
                       <span className="font-medium text-on-surface-variant">
                         {spec.label}
@@ -167,7 +261,7 @@ export default async function EquipmentPage() {
                 </div>
 
                 <Link
-                  href={`/equipment/${item.slug}`}
+                  href={`/equipment/${row.item.slug}`}
                   className="inline-flex w-full items-center justify-center gap-2 bg-surface-container-high py-3 text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
                 >
                   상세 스펙 보기
