@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         pathname: "/aida-public/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
     ],
   },
 };

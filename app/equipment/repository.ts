@@ -3,6 +3,11 @@ import { equipmentCatalog, type EquipmentItem } from "./data";
 
 type EquipmentDbRow = {
   id?: string | number | null;
+  name?: string | null;
+  model_code?: string | null;
+  image_url?: string | null;
+  image_urls?: unknown;
+  type?: string | null;
   slug?: string | null;
   category?: string | null;
   category_label?: string | null;
@@ -31,9 +36,16 @@ type EquipmentDbRow = {
 };
 
 export type EquipmentAdminRow = {
+  equipmentId: string;
   id: string;
   item: EquipmentItem;
+  name: string;
+  modelCode: string;
+  description: string;
+  imageUrls: string[];
+  typeValue: string;
   typeLabel: string;
+  statusValue: string;
   status: { label: string; tone: "active" | "maintenance" | "warning" | "inactive" };
   featured: boolean;
   visible: boolean;
@@ -127,33 +139,81 @@ function toTechnicalSpecArray(input: unknown): EquipmentItem["technicalSpecs"] {
     .filter((entry) => entry.item && entry.specification);
 }
 
+function slugify(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
+  return normalized.replace(/^-|-$/g, "");
+}
+
+function toCategoryLabel(category: string): string {
+  const normalized = category.toLowerCase();
+  if (normalized === "sale") return "판매 장비";
+  if (normalized === "rental") return "임대 장비";
+  return "기타 장비";
+}
+
 function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
-  const slug = row.slug?.trim();
-  const title = row.title?.trim();
-  const image = row.image?.trim();
+  const fallbackSlug =
+    typeof row.id === "string" || typeof row.id === "number"
+      ? `equipment-${String(row.id).slice(0, 8).toLowerCase()}`
+      : "";
+  const slugBase = row.slug?.trim() || row.name?.trim() || fallbackSlug;
+  const slug = slugBase ? slugify(slugBase) || fallbackSlug : fallbackSlug;
+  const title = row.title?.trim() || row.name?.trim();
+  const imageUrlList = asStringArray(row.image_urls);
+  const image =
+    row.image?.trim() || row.image_url?.trim() || imageUrlList[0] || "";
+  const category = row.category?.trim() || row.type?.trim() || "GENERAL";
   const fallback = slug
     ? equipmentCatalog.find((item) => item.slug === slug)
     : undefined;
 
-  if (!slug || !title || !image) {
+  if (!slug || !title) {
     return fallback ?? null;
   }
 
+  const galleryFromImageUrls =
+    imageUrlList.length > 0
+      ? imageUrlList.map((url, index) => ({
+          image: url,
+          alt: row.alt?.trim() || title || `equipment image ${index + 1}`,
+        }))
+      : [];
+
   return {
     slug,
-    category: row.category?.trim() || fallback?.category || "GENERAL",
+    category: category || fallback?.category || "GENERAL",
     categoryLabel:
-      row.category_label?.trim() || fallback?.categoryLabel || "기타 장비",
+      row.category_label?.trim() ||
+      fallback?.categoryLabel ||
+      toCategoryLabel(category),
     cardTag: row.card_tag?.trim() || fallback?.cardTag || "GENERAL",
-    model: row.model?.trim() || fallback?.model || "MODEL: -",
-    itemCode: row.item_code?.trim() || fallback?.itemCode || slug.toUpperCase(),
+    model:
+      row.model?.trim() ||
+      (row.model_code?.trim() ? `MODEL: ${row.model_code.trim()}` : "") ||
+      fallback?.model ||
+      "MODEL: -",
+    itemCode:
+      row.item_code?.trim() ||
+      row.model_code?.trim() ||
+      fallback?.itemCode ||
+      slug.toUpperCase(),
     catalogCategory:
       row.catalog_category?.trim() || fallback?.catalogCategory || "산업 장비",
-    title,
+    title: title || fallback?.title || "장비",
     summary: row.summary?.trim() || fallback?.summary || "",
     description: row.description?.trim() || fallback?.description || "",
-    image,
-    alt: row.alt?.trim() || fallback?.alt || title,
+    image:
+      image ||
+      fallback?.image ||
+      equipmentCatalog[0]?.image ||
+      "",
+    alt: row.alt?.trim() || fallback?.alt || title || "equipment",
     badge: row.badge?.trim() || fallback?.badge,
     badgeTone: row.badge_tone?.trim() || fallback?.badgeTone,
     specs: toEquipmentSpecArray(row.specs).length
@@ -161,6 +221,8 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
       : fallback?.specs || [],
     gallery: toGalleryArray(row.gallery).length
       ? toGalleryArray(row.gallery)
+      : galleryFromImageUrls.length > 0
+        ? galleryFromImageUrls
       : fallback?.gallery || [],
     features: toFeatureArray(row.features).length
       ? toFeatureArray(row.features)
@@ -179,19 +241,35 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
 function toStatus(status: string | null | undefined) {
   const normalized = status?.toLowerCase().trim();
 
-  if (normalized === "active" || normalized === "running") {
-    return { label: "운영중", tone: "active" as const };
+  if (
+    normalized === "active" ||
+    normalized === "running" ||
+    normalized === "available"
+  ) {
+    return { value: "available", label: "운영중", tone: "active" as const };
   }
 
-  if (normalized === "maintenance") {
-    return { label: "점검중", tone: "maintenance" as const };
+  if (normalized === "rented") {
+    return { value: "rented", label: "임대중", tone: "maintenance" as const };
   }
 
-  if (normalized === "warning" || normalized === "attention") {
-    return { label: "점검 필요", tone: "warning" as const };
+  if (normalized === "sold") {
+    return { value: "sold", label: "판매완료", tone: "inactive" as const };
   }
 
-  return { label: "비활성", tone: "inactive" as const };
+  if (normalized === "maintenance" || normalized === "in_maintenance") {
+    return { value: "in_maintenance", label: "점검중", tone: "maintenance" as const };
+  }
+
+  if (
+    normalized === "warning" ||
+    normalized === "attention" ||
+    normalized === "needs_attention"
+  ) {
+    return { value: "needs_attention", label: "점검 필요", tone: "warning" as const };
+  }
+
+  return { value: "inactive", label: "비활성", tone: "inactive" as const };
 }
 
 function formatDate(dateInput: string | null | undefined): string {
@@ -279,9 +357,16 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
 
   if (!rows || rows.length === 0) {
     return equipmentCatalog.slice(0, 6).map((item, index) => ({
+      equipmentId: `local-${index + 1}`,
       id: `EQ-${2024 - Math.floor(index / 3)}-${String(index + 1).padStart(3, "0")}`,
       item,
+      name: item.title,
+      modelCode: item.model.replace("MODEL: ", ""),
+      description: item.description,
+      imageUrls: item.gallery.map((galleryItem) => galleryItem.image),
+      typeValue: "sale",
       typeLabel: item.categoryLabel,
+      statusValue: "available",
       status:
         index % 4 === 0
           ? { label: "점검중", tone: "maintenance" }
@@ -301,14 +386,36 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
         return null;
       }
 
+      const statusInfo = toStatus(row.status);
+      const rawType = row.type?.trim()?.toLowerCase() || row.category?.trim()?.toLowerCase() || "sale";
+      const rawId =
+        typeof row.id === "string" || typeof row.id === "number"
+          ? String(row.id)
+          : "";
+      const shortId =
+        typeof row.id === "string"
+          ? row.id.slice(0, 8).toUpperCase()
+          : typeof row.id === "number"
+            ? String(row.id)
+            : String(index + 1).padStart(3, "0");
+
       return {
-        id:
-          typeof row.id === "string" || typeof row.id === "number"
-            ? `EQ-${row.id}`
-            : item.itemCode || `EQ-${index + 1}`,
+        equipmentId: rawId || `local-${index + 1}`,
+        id: `EQ-${shortId}`,
         item,
+        name: row.name?.trim() || item.title,
+        modelCode: row.model_code?.trim() || item.model.replace("MODEL: ", ""),
+        description: row.description?.trim() || item.description,
+        imageUrls:
+          asStringArray(row.image_urls).length > 0
+            ? asStringArray(row.image_urls)
+            : row.image_url?.trim()
+              ? [row.image_url.trim()]
+              : [item.image],
+        typeValue: rawType,
         typeLabel: row.category_label?.trim() || item.categoryLabel,
-        status: toStatus(row.status),
+        statusValue: statusInfo.value,
+        status: { label: statusInfo.label, tone: statusInfo.tone },
         featured: row.is_featured ?? Boolean(item.badge),
         visible: row.is_visible ?? true,
         manager: row.manager_name?.trim() || "관리자",
