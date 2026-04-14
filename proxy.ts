@@ -51,7 +51,7 @@ export async function proxy(request: NextRequest) {
   if (!user && isAdminRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("error", "Iltimos, avval tizimga kiring.");
+    url.searchParams.set("error", "관리자 페이지는 로그인 후 이용할 수 있습니다.");
     return NextResponse.redirect(url);
   }
 

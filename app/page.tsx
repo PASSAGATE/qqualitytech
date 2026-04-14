@@ -26,6 +26,9 @@ import { blogPreviewPosts } from "./blog/data";
 import { homeFieldCasePreview } from "./cases/data";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 const services: Array<{
   icon: LucideIcon;
@@ -150,10 +153,15 @@ function Icon({
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+
   return (
     <div className="bg-surface text-on-surface">
-      <SiteHeader activeHref="/" />
+      <SiteHeader activeHref="/" showAdminMenu={Boolean(user)} />
 
       <main>
         <header

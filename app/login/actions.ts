@@ -14,7 +14,7 @@ export async function loginAction(formData: FormData) {
   const password = typeof passwordValue === "string" ? passwordValue : "";
 
   if (!email || !password) {
-    redirect(toLoginError("Email va parol kiritilishi shart."));
+    redirect(toLoginError("이메일과 비밀번호를 입력해 주세요."));
   }
 
   const supabase = await createServerSupabaseClient();
@@ -22,7 +22,7 @@ export async function loginAction(formData: FormData) {
   if (!supabase) {
     redirect(
       toLoginError(
-        "Supabase sozlanmagan. NEXT_PUBLIC_SUPABASE_URL va NEXT_PUBLIC_SUPABASE_ANON_KEY ni tekshiring.",
+        "Supabase 환경 설정이 없습니다. NEXT_PUBLIC_SUPABASE_URL과 NEXT_PUBLIC_SUPABASE_ANON_KEY를 확인해 주세요.",
       ),
     );
   }
@@ -33,7 +33,7 @@ export async function loginAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(toLoginError(error.message));
+    redirect(toLoginError(`로그인에 실패했습니다: ${error.message}`));
   }
 
   redirect("/admin");

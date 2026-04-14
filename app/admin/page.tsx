@@ -11,15 +11,13 @@ import {
   Eye,
   EyeOff,
   LayoutDashboard,
+  House,
   LogOut,
   MoreVertical,
   Plus,
-  ScrollText,
   Search,
   Settings,
-  ShieldCheck,
   Star,
-  Users,
   Wrench,
 } from "lucide-react";
 import { logoutAction } from "./actions";
@@ -37,10 +35,12 @@ export const metadata: Metadata = {
 const sideNavigation: Array<{
   label: string;
   icon: LucideIcon;
+  href: string;
   active?: boolean;
 }> = [
-  { label: "대시보드", icon: LayoutDashboard },
-  { label: "장비 관리", icon: Wrench, active: true },
+  { label: "홈페이지", icon: House, href: "/" },
+  { label: "대시보드", icon: LayoutDashboard, href: "/admin" },
+  { label: "장비 관리", icon: Wrench, href: "/admin", active: true },
   // { label: "유지보수", icon: ShieldCheck },
   // { label: "사용자 설정", icon: Users },
   // { label: "시스템 로그", icon: ScrollText },
@@ -95,7 +95,7 @@ export default async function AdminPage() {
 
   if (!supabase) {
     redirect(
-      "/login?error=Supabase%20sozlanmagan.%20NEXT_PUBLIC_SUPABASE_URL%20va%20NEXT_PUBLIC_SUPABASE_ANON_KEY%20kerak.",
+      "/login?error=Supabase%20%ED%99%98%EA%B2%BD%20%EC%84%A4%EC%A0%95%EC%9D%B4%20%EC%97%86%EC%8A%B5%EB%8B%88%EB%8B%A4.%20NEXT_PUBLIC_SUPABASE_URL%20%EA%B3%BC%20NEXT_PUBLIC_SUPABASE_ANON_KEY%EB%A5%BC%20%ED%99%95%EC%9D%B8%ED%95%B4%20%EC%A3%BC%EC%84%B8%EC%9A%94.",
     );
   }
 
@@ -104,7 +104,9 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?error=Iltimos,%20avval%20tizimga%20kiring.");
+    redirect(
+      "/login?error=%EA%B4%80%EB%A6%AC%EC%9E%90%20%ED%8E%98%EC%9D%B4%EC%A7%80%EB%8A%94%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%ED%9B%84%20%EC%9D%B4%EC%9A%A9%ED%95%A0%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.",
+    );
   }
 
   const equipmentAdminRows = await fetchAdminEquipmentRows();
@@ -133,9 +135,9 @@ export default async function AdminPage() {
 
         <nav className="flex flex-col gap-1 px-3 pb-4 xl:flex-1 xl:overflow-y-auto xl:pb-0">
           {sideNavigation.map((item) => (
-            <button
+            <Link
               key={item.label}
-              type="button"
+              href={item.href}
               className={
                 item.active
                   ? "inline-flex w-full items-center gap-3 rounded-sm border-r-4 border-secondary bg-surface-container px-4 py-3 text-left font-bold text-primary"
@@ -144,7 +146,7 @@ export default async function AdminPage() {
             >
               <Icon icon={item.icon} className="size-5" />
               <span>{item.label}</span>
-            </button>
+            </Link>
           ))}
         </nav>
 

@@ -11,7 +11,17 @@ const navigation = [
   { label: "문의하기", href: "/contact" },
 ] as const;
 
-export function SiteHeader({ activeHref }: { activeHref: string }) {
+export function SiteHeader({
+  activeHref,
+  showAdminMenu = false,
+}: {
+  activeHref: string;
+  showAdminMenu?: boolean;
+}) {
+  const navigationItems = showAdminMenu
+    ? [...navigation, { label: "관리자", href: "/admin" as const }]
+    : navigation;
+
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/85 shadow-sm backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
@@ -24,7 +34,7 @@ export function SiteHeader({ activeHref }: { activeHref: string }) {
           </Link>
 
           <div className="hidden items-center gap-7 lg:flex">
-            {navigation.map((item) => (
+            {navigationItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -53,7 +63,7 @@ export function SiteHeader({ activeHref }: { activeHref: string }) {
 
               <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
-                  {navigation.map((item) => (
+                  {navigationItems.map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
