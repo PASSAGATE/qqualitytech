@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   EQUIPMENT_STATUS_VALUES,
@@ -37,6 +38,99 @@ function extractStoragePathFromPublicUrl(url: string, bucket: string) {
 
   const path = url.slice(markerIndex + marker.length);
   return path ? decodeURIComponent(path) : null;
+}
+
+type EquipmentImageRow = {
+  image_urls?: unknown;
+};
+
+function isMissingColumnError(message: string, column: string) {
+  const normalized = message.toLowerCase();
+  return normalized.includes(column.toLowerCase()) && normalized.includes("column");
+}
+
+async function runEquipmentUpdateWithImageFallback(
+  supabase: SupabaseClient,
+  equipmentId: string,
+  payload: Record<string, unknown>,
+) {
+  const attemptPayload: Record<string, unknown> = { ...payload };
+  const { error } = await supabase
+    .from("equipment")
+    .update(attemptPayload)
+    .eq("id", equipmentId);
+
+  return error ?? null;
+}
+
+async function runEquipmentInsertWithImageFallback(
+  supabase: SupabaseClient,
+  payload: Record<string, unknown>,
+) {
+  const attemptPayload: Record<string, unknown> = { ...payload };
+  let { error } = await supabase.from("equipment").insert(attemptPayload);
+
+  if (error && "image_urls" in attemptPayload) {
+    const message = error.message ?? "";
+    if (isMissingColumnError(message, "image_urls")) {
+      delete attemptPayload.image_urls;
+      ({ error } = await supabase.from("equipment").insert(attemptPayload));
+    }
+  }
+
+  return error ?? null;
+}
+
+async function loadEquipmentImageUrls(
+  supabase: SupabaseClient,
+  equipmentId: string,
+) {
+  let dataRow: EquipmentImageRow | null = null;
+  let errorMessage: string | null = null;
+
+  const selectCandidates = ["image_urls"];
+
+  for (const candidate of selectCandidates) {
+    const result = await supabase
+      .from("equipment")
+      .select(candidate)
+      .eq("id", equipmentId)
+      .single();
+
+    if (!result.error) {
+      dataRow = result.data as EquipmentImageRow | null;
+      errorMessage = null;
+      break;
+    }
+
+    const message = result.error.message.toLowerCase();
+    const missingImageUrls = message.includes("image_urls") && message.includes("column");
+
+    if (missingImageUrls) {
+      continue;
+    }
+
+    errorMessage = result.error.message;
+    break;
+  }
+
+  if (errorMessage || !dataRow) {
+    return {
+      imageUrls: [] as string[],
+      errorMessage: errorMessage ?? "장비 정보를 찾을 수 없습니다.",
+    };
+  }
+
+  const imageUrls = Array.isArray(dataRow.image_urls)
+    ? dataRow.image_urls.filter(
+        (value): value is string => typeof value === "string" && value.trim().length > 0,
+      )
+    : [];
+
+  return {
+    imageUrls,
+    errorMessage: null as string | null,
+  };
 }
 
 export async function createEquipmentAction(formData: FormData) {
@@ -154,21 +248,10 @@ export async function createEquipmentAction(formData: FormData) {
 
   if (modelCode) payload.model_code = modelCode;
   if (description) payload.description = description;
-  if (resolvedImageUrl) payload.image_url = resolvedImageUrl;
   if (resolvedImageUrls.length > 0) payload.image_urls = resolvedImageUrls;
   if (status) payload.status = status;
 
-  let { error } = await supabase.from("equipment").insert(payload);
-
-  // Backward compatibility: if DB migration for image_urls is not applied yet.
-  if (error && "image_urls" in payload) {
-    const message = error.message.toLowerCase();
-    if (message.includes("image_urls") && message.includes("column")) {
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.image_urls;
-      ({ error } = await supabase.from("equipment").insert(fallbackPayload));
-    }
-  }
+  const error = await runEquipmentInsertWithImageFallback(supabase, payload);
 
   if (error) {
     redirect(toAdminError(`등록 실패: ${error.message}`));
@@ -259,21 +342,9 @@ export async function updateEquipmentAction(formData: FormData) {
     redirect(toAdminError("이미지 파일만 업로드할 수 있습니다.", "updateError"));
   }
 
-  const { data: currentRow, error: fetchError } = await supabase
-    .from("equipment")
-    .select("image_url, image_urls")
-    .eq("id", equipmentId)
-    .single();
-
-  if (fetchError || !currentRow) {
-    redirect(toAdminError("기존 장비 정보를 불러오지 못했습니다.", "updateError"));
-  }
-
-  const currentImageUrls = Array.isArray(currentRow.image_urls)
-    ? (currentRow.image_urls.filter((value): value is string => typeof value === "string") as string[])
-    : typeof currentRow.image_url === "string" && currentRow.image_url.trim()
-      ? [currentRow.image_url.trim()]
-      : [];
+  const { imageUrls: currentImageUrls, errorMessage } =
+    await loadEquipmentImageUrls(supabase, equipmentId);
+  const shouldSkipOldImageCleanup = Boolean(errorMessage);
 
   const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
   const uploadedUrls: string[] = [];
@@ -309,19 +380,21 @@ export async function updateEquipmentAction(formData: FormData) {
     );
   }
 
-  const removedImageUrls = currentImageUrls.filter(
-    (url) => !keepImageUrls.includes(url),
-  );
-  const removePaths = removedImageUrls
-    .map((url) => extractStoragePathFromPublicUrl(url, bucket))
-    .filter((value): value is string => Boolean(value));
+  if (!shouldSkipOldImageCleanup) {
+    const removedImageUrls = currentImageUrls.filter(
+      (url) => !keepImageUrls.includes(url),
+    );
+    const removePaths = removedImageUrls
+      .map((url) => extractStoragePathFromPublicUrl(url, bucket))
+      .filter((value): value is string => Boolean(value));
 
-  if (removePaths.length > 0) {
-    const { error: removeError } = await supabase.storage
-      .from(bucket)
-      .remove(removePaths);
-    if (removeError) {
-      redirect(toAdminError(`기존 이미지 삭제 실패: ${removeError.message}`, "updateError"));
+    if (removePaths.length > 0) {
+      const { error: removeError } = await supabase.storage
+        .from(bucket)
+        .remove(removePaths);
+      if (removeError) {
+        redirect(toAdminError(`기존 이미지 삭제 실패: ${removeError.message}`, "updateError"));
+      }
     }
   }
 
@@ -330,7 +403,6 @@ export async function updateEquipmentAction(formData: FormData) {
     type,
     is_visible: isVisible,
     is_featured: isFeatured,
-    image_url: nextImageUrls[0],
     image_urls: nextImageUrls,
   };
 
@@ -340,22 +412,11 @@ export async function updateEquipmentAction(formData: FormData) {
   else payload.description = null;
   if (status) payload.status = status;
 
-  let { error } = await supabase
-    .from("equipment")
-    .update(payload)
-    .eq("id", equipmentId);
-
-  if (error && "image_urls" in payload) {
-    const message = error.message.toLowerCase();
-    if (message.includes("image_urls") && message.includes("column")) {
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.image_urls;
-      ({ error } = await supabase
-        .from("equipment")
-        .update(fallbackPayload)
-        .eq("id", equipmentId));
-    }
-  }
+  const error = await runEquipmentUpdateWithImageFallback(
+    supabase,
+    equipmentId,
+    payload,
+  );
 
   if (error) {
     redirect(toAdminError(`수정 실패: ${error.message}`, "updateError"));
@@ -392,33 +453,23 @@ export async function deleteEquipmentAction(formData: FormData) {
     redirect(toAdminError("삭제할 장비를 찾을 수 없습니다.", "deleteError"));
   }
 
-  const { data: currentRow, error: fetchError } = await supabase
-    .from("equipment")
-    .select("image_url, image_urls")
-    .eq("id", equipmentId)
-    .single();
-
-  if (fetchError || !currentRow) {
-    redirect(toAdminError("기존 장비 정보를 불러오지 못했습니다.", "deleteError"));
-  }
-
-  const currentImageUrls = Array.isArray(currentRow.image_urls)
-    ? (currentRow.image_urls.filter((value): value is string => typeof value === "string") as string[])
-    : typeof currentRow.image_url === "string" && currentRow.image_url.trim()
-      ? [currentRow.image_url.trim()]
-      : [];
+  const { imageUrls: currentImageUrls, errorMessage } =
+    await loadEquipmentImageUrls(supabase, equipmentId);
+  const shouldSkipStorageImageDelete = Boolean(errorMessage);
 
   const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
-  const removePaths = currentImageUrls
-    .map((url) => extractStoragePathFromPublicUrl(url, bucket))
-    .filter((value): value is string => Boolean(value));
+  if (!shouldSkipStorageImageDelete) {
+    const removePaths = currentImageUrls
+      .map((url) => extractStoragePathFromPublicUrl(url, bucket))
+      .filter((value): value is string => Boolean(value));
 
-  if (removePaths.length > 0) {
-    const { error: removeError } = await supabase.storage
-      .from(bucket)
-      .remove(removePaths);
-    if (removeError) {
-      redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"));
+    if (removePaths.length > 0) {
+      const { error: removeError } = await supabase.storage
+        .from(bucket)
+        .remove(removePaths);
+      if (removeError) {
+        redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"));
+      }
     }
   }
 

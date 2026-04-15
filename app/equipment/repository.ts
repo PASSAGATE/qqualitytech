@@ -5,7 +5,6 @@ type EquipmentDbRow = {
   id?: string | number | null;
   name?: string | null;
   model_code?: string | null;
-  image_url?: string | null;
   image_urls?: unknown;
   type?: string | null;
   slug?: string | null;
@@ -166,8 +165,7 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
   const slug = slugBase ? slugify(slugBase) || fallbackSlug : fallbackSlug;
   const title = row.title?.trim() || row.name?.trim();
   const imageUrlList = asStringArray(row.image_urls);
-  const image =
-    row.image?.trim() || row.image_url?.trim() || imageUrlList[0] || "";
+  const image = row.image?.trim() || imageUrlList[0] || "";
   const category = row.category?.trim() || row.type?.trim() || "GENERAL";
   const fallback = slug
     ? equipmentCatalog.find((item) => item.slug === slug)
@@ -409,9 +407,7 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
         imageUrls:
           asStringArray(row.image_urls).length > 0
             ? asStringArray(row.image_urls)
-            : row.image_url?.trim()
-              ? [row.image_url.trim()]
-              : [item.image],
+            : [item.image],
         typeValue: rawType,
         typeLabel: row.category_label?.trim() || item.categoryLabel,
         statusValue: statusInfo.value,
