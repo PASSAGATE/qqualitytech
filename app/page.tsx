@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { blogPreviewPosts } from "./blog/data";
 import { homeFieldCasePreview } from "./cases/data";
+import { fetchFeaturedEquipment } from "./equipment/repository";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 
@@ -77,44 +78,6 @@ const services: Array<{
   },
 ] as const;
 
-const equipment: Array<{
-  name: string;
-  description: string;
-  image: string;
-  alt: string;
-  badge?: string;
-}> = [
-  {
-    name: "만능재료시험기 (UTM)",
-    description: "금속, 플라스틱 인장 및 압축 시험용",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAwNY6Z0iEoSC1yovY9-cLZXfrxDLmB6S6N8UxAAfxmK4VEnsMNfJLRdvk5bju3aiz1XDoiCYJ-_JrG3_l55IFxSIlODWU7-nYBLmQMlcK4SVxOi5NIU87rvcOxfq_giKm-06iiKtotQA9rGlBZsiephmm23Na1PSqOOTY2VUppGqQEEoL4Em4vFGl9j-kL8ZFS1nItxo-PtR0H6bxAXXq0pM0OrmRR3d-6WsAa3h8Sdi_AM1LWf5golqvrTtoGucaGuQv0JJb0Ecoq",
-    alt: "Industrial universal testing machine in a bright white laboratory",
-    badge: "Best Seller",
-  },
-  {
-    name: "콘크리트 압축시험기",
-    description: "고강도 콘크리트 강도 측정",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDMCwLI6cc3ONTIVdOT9fmsDXb00Cj4iBPdbZ9sSE50Tmf0-pWgD4CRzf0lmKsWAGNQ08r1YQeOQySvu_8UvGkrri8tsW_xbtg8znjx_F9RQNSmiXEOcD3ikp5j0wK5XhRq7Z_1c2y_weF0QTMxlpyGNzIEJPFf1kvsTbrMC_9TlgeKNRPO15LYtQAou4AF9KglCx3hsgsHZStHpdB_aN3PkbLngy63t9suAe4UPwtxzzsvZbrD7ccZiWIyeffiNxTWzGUgvhCDfkbM",
-    alt: "Concrete compression testing machine in an industrial facility",
-  },
-  {
-    name: "디지털 토질 시험기",
-    description: "지반 안정성 및 투수 시험",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDSJvlj6domzSw68HGsdmb2K0De8VzVfDeD0Ni1MNmmCy-OZQTxlagAdEdIXGdzwUO3XrhTJijehr8Y6t55bfNp_NO9I7tcaTYhv3DeM-pxFdtoD0zVgoN6VlmnTW-v4a8U0H61DieP9xDKOyFFAADvoLFtFHvdtMSW3As2zU7lNDz35llPkxMfxYZgP0zLx9UlD1ZWgbgrJiyrk7pvUJSbDUl81fVlC-iu0P1BmbBqnOdDOiygPhEZfSh55mdLJ1uNnXvmS09fAyNB",
-    alt: "Digital soil testing device with sensors in a lab",
-  },
-  {
-    name: "비파괴 초음파 시험기",
-    description: "내부 결함 및 균열 정밀 진단",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAXl-5b5I5IcCJWY9piNWM4tmQfLl590g6F4VO0210I4P7Aj_bMACbDrNkfd64JEWs1AZjSeN13WVB0S5D7dlZV5-Hpe7uItkrKo-sSkMTRh0wpycgeMoj-1zSluHSMR7aT5eUEDPzCfNysl1KMJQpDV9DPvZGsWYXwg9QuivJ8tsCwJ-xAemfgZDPJiN46x3huTzDhnus2BELZcdcsncQ_DuweMiikjw5ieF7jsBAsg7n-WGe9PcnXBiQfnycLEfYB8QyP2-gzmskn",
-    alt: "Non-destructive ultrasonic testing equipment on a steel beam",
-  },
-] as const;
-
 const faqs = [
   {
     question: "장비 임대 시 현장 배송이 가능한가요?",
@@ -147,6 +110,8 @@ function Icon({
 }
 
 export default async function Home() {
+  const featuredEquipment = await fetchFeaturedEquipment(4);
+
   return (
     <div className="bg-surface text-on-surface">
       <SiteHeader activeHref="/" />
@@ -242,7 +207,7 @@ export default async function Home() {
             <div className="mb-20 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="mb-4 text-4xl font-black tracking-[-0.06em] text-primary">
-                  Why 큐품질관리기술?
+                  왜 큐품질관리기술?
                 </h2>
                 <p className="text-lg text-on-surface-variant">
                   우리가 제공하는 품질의 차이가 고객의 신뢰를 만듭니다.
@@ -343,9 +308,9 @@ export default async function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {equipment.map((item) => (
+              {featuredEquipment.map((item) => (
                 <article
-                  key={item.name}
+                  key={item.slug}
                   className="group overflow-hidden border border-outline-variant/20 bg-surface-container-lowest"
                 >
                   <div className="relative h-64 overflow-hidden">
@@ -364,7 +329,7 @@ export default async function Home() {
                   </div>
                   <div className="p-6">
                     <h3 className="mb-1 text-lg font-bold text-primary">
-                      {item.name}
+                      {item.title}
                     </h3>
                     <p className="mb-4 text-sm text-on-surface-variant">
                       {item.description}
@@ -374,8 +339,8 @@ export default async function Home() {
                         문의 후 안내
                       </span>
                       <Link
-                        href="/contact"
-                        aria-label={`${item.name} 문의`}
+                        href={`/equipment/${item.slug}`}
+                        aria-label={`${item.title} 상세보기`}
                         className="inline-flex text-outline transition-colors hover:text-secondary"
                       >
                         <Icon icon={PlusCircle} className="size-5" />
