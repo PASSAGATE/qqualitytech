@@ -19,7 +19,7 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-12 px-5 text-sm leading-relaxed sm:px-8 md:grid-cols-4 lg:px-12">
         <div className="md:col-span-1">
           <span className="mb-4 block text-xl font-bold text-white">
-            QqualityTech
+            큐품질관리기술
           </span>
           <p className={`mb-6 ${footerMutedTextClass}`}>
             최고의 정밀도와 신뢰성을 바탕으로 산업의 미래를 함께 설계하는 시험
@@ -93,7 +93,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="mb-6 font-bold text-white">Contact</h4>
+          <h4 className="mb-6 font-bold text-white">연락처</h4>
           <p className={`mb-2 ${footerMutedTextClass}`}>T. 010-6666-5269</p>
           <p className={`mb-2 ${footerMutedTextClass}`}>F. 02-1234-5679</p>
           <p className={footerMutedTextClass}>E. qqstart@naver.com</p>
@@ -119,7 +119,7 @@ export function SiteFooter() {
 
       <div className="mx-auto mt-16 max-w-[1600px] border-t border-slate-800 px-5 pt-8 text-center sm:px-8">
         <p className="text-xs text-slate-500">
-          © 2024 QqualityTech. All rights reserved.
+          © 2024 큐품질관리기술. All rights reserved.
         </p>
       </div>
     </footer>

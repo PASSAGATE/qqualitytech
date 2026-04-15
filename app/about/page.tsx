@@ -18,9 +18,9 @@ import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
 export const metadata: Metadata = {
-  title: "회사소개 | QqualityTech",
+  title: "회사소개 | 큐품질관리기술",
   description:
-    "QqualityTech의 비전, 핵심 가치, 사업 분야, 주요 연혁과 인증 현황을 소개합니다.",
+    "큐품질관리기술의 비전, 핵심 가치, 사업 분야, 주요 연혁과 인증 현황을 소개합니다.",
 };
 
 const values: Array<{
@@ -72,7 +72,7 @@ const journey = [
   {
     year: "2018",
     yearTone: "text-primary/30",
-    title: "QqualityTech 설립",
+    title: "큐품질관리기술 설립",
     description: "건설 엔지니어링 전문 기술 자문 그룹으로 시작",
   },
 ] as const;
@@ -146,7 +146,7 @@ export default function AboutPage() {
                 미래를 짓습니다
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-on-primary-container md:text-xl">
-                QqualityTech은 정밀한 시험장비와 고도화된 품질 관리 시스템을
+                큐품질관리기술은 정밀한 시험장비와 고도화된 품질 관리 시스템을
                 통해 건설 현장의 안전과 가치를 혁신하는 엔지니어링 파트너입니다.
               </p>
             </div>
@@ -199,7 +199,8 @@ export default function AboutPage() {
                   Business Areas
                 </h2>
                 <p className="text-lg text-on-surface-variant">
-                  최고의 정밀도를 자랑하는 QqualityTech의 핵심 사업 분야입니다.
+                  최고의 정밀도를 자랑하는 큐품질관리기술의 핵심 사업
+                  분야입니다.
                 </p>
               </div>
             </div>

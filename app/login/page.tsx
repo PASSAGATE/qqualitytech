@@ -6,9 +6,9 @@ import { ArrowRight, Lock, User } from "lucide-react";
 import { loginAction } from "./actions";
 
 export const metadata: Metadata = {
-  title: "관리자 로그인 | QqualityTech",
+  title: "관리자 로그인 | 큐품질관리기술",
   description:
-    "QqualityTech 관리자 시스템 로그인 페이지에서 권한이 있는 계정으로 접속할 수 있습니다.",
+    "큐품질관리기술 관리자 시스템 로그인 페이지에서 권한이 있는 계정으로 접속할 수 있습니다.",
 };
 
 function Icon({
@@ -19,11 +19,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 

@@ -7,9 +7,9 @@ import { SiteHeader } from "../../components/site-header";
 import { createContactInquiryAction } from "./actions";
 
 export const metadata: Metadata = {
-  title: "문의 및 견적 | QqualityTech",
+  title: "문의 및 견적 | 큐품질관리기술",
   description:
-    "QqualityTech의 문의 및 견적 페이지에서 서비스 상담, 장비 구매 및 임대, 상세 견적 요청을 남겨보세요.",
+    "큐품질관리기술의 문의 및 견적 페이지에서 서비스 상담, 장비 구매 및 임대, 상세 견적 요청을 남겨보세요.",
 };
 
 const inquiryTypes = [
@@ -79,7 +79,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             <span className="text-secondary">정밀한 기술 솔루션</span>
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-on-surface-variant md:text-xl">
-            QqualityTech는 산업 현장의 안전과 정밀함을 최우선으로 생각합니다.
+            큐품질관리기술는 산업 현장의 안전과 정밀함을 최우선으로 생각합니다.
             전문가의 도움이 필요하신가요? 지금 문의해 주세요. 24시간 이내에
             최적의 견적과 솔루션을 제안해 드립니다.
           </p>
@@ -257,7 +257,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
                     서울특별시 성동구 아차산로 123
                   </p>
                   <p className="mt-1 text-xs text-on-surface-variant">
-                    QqualityTech 테크노 타워 15층
+                    큐품질관리기술 테크노 타워 15층
                   </p>
                 </div>
               </div>

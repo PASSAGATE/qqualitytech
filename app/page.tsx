@@ -242,7 +242,7 @@ export default async function Home() {
             <div className="mb-20 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="mb-4 text-4xl font-black tracking-[-0.06em] text-primary">
-                  Why QqualityTech?
+                  Why 큐품질관리기술?
                 </h2>
                 <p className="text-lg text-on-surface-variant">
                   우리가 제공하는 품질의 차이가 고객의 신뢰를 만듭니다.
@@ -396,7 +396,7 @@ export default async function Home() {
                   Field Cases
                 </h2>
                 <p className="mb-10 text-lg leading-relaxed text-on-primary-container">
-                  전국 각지의 현장에서 QqualityTech의 기술력이 프로젝트의
+                  전국 각지의 현장에서 큐품질관리기술의 기술력이 프로젝트의
                   완성도를 높이고 있습니다.
                 </p>
                 <Link

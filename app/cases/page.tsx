@@ -2,20 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-} from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { caseCategories, fieldCases } from "./data";
 
 export const metadata: Metadata = {
-  title: "시공사례 | QqualityTech",
+  title: "시공사례 | 큐품질관리기술",
   description:
-    "QqualityTech의 정밀 진단 기술과 첨단 시험 장비가 적용된 주요 시공 사례를 확인하세요.",
+    "큐품질관리기술의 정밀 진단 기술과 첨단 시험 장비가 적용된 주요 시공 사례를 확인하세요.",
 };
 
 function Icon({
@@ -26,11 +21,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -52,7 +43,7 @@ export default function CasesPage() {
                   시공사례
                 </h1>
                 <p className="mt-6 max-w-2xl text-lg leading-relaxed text-on-primary-container">
-                  QqualityTech의 정밀 진단 기술과 첨단 시험 장비가 적용된 주요
+                  큐품질관리기술의 정밀 진단 기술과 첨단 시험 장비가 적용된 주요
                   현장 리포트입니다. 구조물의 안전과 품질을 위한 최적의
                   엔지니어링 솔루션을 확인하십시오.
                 </p>
@@ -66,9 +57,7 @@ export default function CasesPage() {
                   </div>
                 </div>
                 <div className="min-w-[160px] rounded-sm border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-                  <div className="text-3xl font-black text-secondary">
-                    120%
-                  </div>
+                  <div className="text-3xl font-black text-secondary">120%</div>
                   <div className="mt-1 text-xs font-bold tracking-[0.16em] text-slate-400">
                     품질 관리 기준 상회
                   </div>
@@ -203,7 +192,7 @@ export default function CasesPage() {
         <section className="bg-surface-container-low px-5 py-20 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="mb-6 text-3xl font-black text-primary">
-              안전한 건설의 파트너, QqualityTech가 함께합니다
+              안전한 건설의 파트너, 큐품질관리기술가 함께합니다
             </h2>
             <p className="mb-10 text-lg text-on-surface-variant">
               귀하의 현장에 최적화된 맞춤형 품질 관리 솔루션이 필요하십니까?
@@ -214,7 +203,8 @@ export default function CasesPage() {
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-sm bg-secondary px-10 py-4 font-bold text-white shadow-xl shadow-secondary/20 transition-transform hover:-translate-y-0.5"
                 style={{
-                  background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  background:
+                    "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                   boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
                 }}
               >

@@ -16,9 +16,9 @@ import { fetchAdminEquipmentRows } from "./repository";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "시험장비 목록 | QqualityTech",
+  title: "시험장비 목록 | 큐품질관리기술",
   description:
-    "QqualityTech의 전문 시험장비 카탈로그에서 콘크리트, 토질, 아스팔트, 금속 및 비파괴 시험 장비를 확인하세요.",
+    "큐품질관리기술의 전문 시험장비 카탈로그에서 콘크리트, 토질, 아스팔트, 금속 및 비파괴 시험 장비를 확인하세요.",
 };
 
 const typeFilters = [
@@ -300,7 +300,8 @@ export default async function EquipmentPage({
                   href="/contact"
                   className="inline-flex items-center justify-center gap-3 rounded-sm bg-secondary px-8 py-4 font-bold text-white transition-all hover:opacity-90"
                   style={{
-                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    background:
+                      "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                     boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
                   }}
                 >

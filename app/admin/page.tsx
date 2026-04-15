@@ -27,9 +27,9 @@ import { DeleteEquipmentButton } from "./delete-equipment-button";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "관리자 대시보드 | QqualityTech",
+  title: "관리자 대시보드 | 큐품질관리기술",
   description:
-    "QqualityTech 시험장비 관리 시스템에서 등록 장비 상태와 운영 현황을 한눈에 관리할 수 있습니다.",
+    "큐품질관리기술 시험장비 관리 시스템에서 등록 장비 상태와 운영 현황을 한눈에 관리할 수 있습니다.",
 };
 
 type AdminPageProps = {
@@ -69,11 +69,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -147,8 +143,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     type,
     status,
     visible,
-  } =
-    await searchParams;
+  } = await searchParams;
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
@@ -183,7 +178,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     equipmentInquiryError = error ? { message: error.message } : null;
 
     equipmentInquiries.push(
-      ...(((equipmentInquiryRows as EquipmentInquiryRow[] | null) ?? []).map(
+      ...((equipmentInquiryRows as EquipmentInquiryRow[] | null) ?? []).map(
         (row) => ({
           ...row,
           customer_name: row.customer_name?.trim() || "-",
@@ -192,7 +187,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           equipment_slug: row.equipment_slug?.trim() || null,
           equipment_title: row.equipment_title?.trim() || null,
         }),
-      )),
+      ),
     );
   }
 
@@ -214,7 +209,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     const matchesType =
       selectedType === "all" || row.typeValue.toLowerCase() === selectedType;
     const matchesStatus =
-      selectedStatus === "all" || row.statusValue.toLowerCase() === selectedStatus;
+      selectedStatus === "all" ||
+      row.statusValue.toLowerCase() === selectedStatus;
     const matchesVisible =
       selectedVisible === "all" ||
       (selectedVisible === "visible" && row.visible) ||
@@ -347,8 +343,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 시험장비 목록
               </h2>
               <p className="mt-2 max-w-2xl text-on-surface-variant">
-                시스템에 등록된 장비의 판매/임대 상태와 노출 여부를
-                관리합니다.
+                시스템에 등록된 장비의 판매/임대 상태와 노출 여부를 관리합니다.
               </p>
             </div>
 
@@ -399,7 +394,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </span>
                 <span className="text-xs text-on-surface-variant">
                   {totalEquipmentCount > 0
-                    ? Math.round((availableEquipmentCount / totalEquipmentCount) * 100)
+                    ? Math.round(
+                        (availableEquipmentCount / totalEquipmentCount) * 100,
+                      )
                     : 0}
                   %
                 </span>
@@ -434,7 +431,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-6 py-4">
               <div className="inline-flex items-center gap-2">
                 <Icon icon={MessageSquare} className="size-5 text-secondary" />
-                <h3 className="text-lg font-bold text-primary">문의 요청 목록</h3>
+                <h3 className="text-lg font-bold text-primary">
+                  문의 요청 목록
+                </h3>
               </div>
               <span className="text-xs font-semibold text-on-surface-variant">
                 {shouldLoadInquiryDb
@@ -451,7 +450,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
             {equipmentInquiryError ? (
               <p className="m-6 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
-                문의 데이터를 불러오지 못했습니다: {equipmentInquiryError.message}
+                문의 데이터를 불러오지 못했습니다:{" "}
+                {equipmentInquiryError.message}
               </p>
             ) : null}
 
@@ -488,7 +488,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         </td>
                       </tr>
                     ) : null}
-                    {equipmentInquiries.map((inquiry) => (
+                    {equipmentInquiries.map((inquiry) =>
                       (() => {
                         const matchedEquipment = inquiry.equipment_slug
                           ? equipmentBySlug.get(inquiry.equipment_slug)
@@ -529,8 +529,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                             </td>
                           </tr>
                         );
-                      })()
-                    ))}
+                      })(),
+                    )}
                   </tbody>
                 </table>
               </div>

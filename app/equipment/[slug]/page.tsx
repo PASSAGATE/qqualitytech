@@ -36,12 +36,12 @@ export async function generateMetadata({
 
   if (!item) {
     return {
-      title: "시험장비 상세 | QqualityTech",
+      title: "시험장비 상세 | 큐품질관리기술",
     };
   }
 
   return {
-    title: `${item.title} | QqualityTech`,
+    title: `${item.title} | 큐품질관리기술`,
     description: item.description,
   };
 }

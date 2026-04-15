@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
 export const metadata: Metadata = {
-  title: "블로그 | QqualityTech",
+  title: "블로그 | 큐품질관리기술",
   description:
-    "QqualityTech의 공식 네이버 블로그와 카페에서 최신 기술 인사이트를 확인하세요.",
+    "큐품질관리기술의 공식 네이버 블로그와 카페에서 최신 기술 인사이트를 확인하세요.",
 };
 
 function Icon({
@@ -22,11 +19,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 

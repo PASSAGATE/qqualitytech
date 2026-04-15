@@ -29,7 +29,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
             href="/"
             className="text-[1.75rem] font-black tracking-[-0.08em] text-primary"
           >
-            QqualityTech
+            큐품질관리기술
           </Link>
 
           <div className="hidden items-center gap-7 lg:flex">
@@ -84,7 +84,8 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                     href="/contact"
                     className="mt-2 inline-flex items-center justify-center rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:hidden"
                     style={{
-                      background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                      background:
+                        "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                       boxShadow: "0 10px 22px rgba(255, 107, 44, 0.35)",
                     }}
                   >

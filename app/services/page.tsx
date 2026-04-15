@@ -16,9 +16,9 @@ import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
 export const metadata: Metadata = {
-  title: "서비스 소개 | QqualityTech",
+  title: "서비스 소개 | 큐품질관리기술",
   description:
-    "QqualityTech의 품질관리 지원, 시험 장비 판매 및 임대, 전문 기술 컨설팅, 현장 시험 및 검사 서비스를 소개합니다.",
+    "큐품질관리기술의 품질관리 지원, 시험 장비 판매 및 임대, 전문 기술 컨설팅, 현장 시험 및 검사 서비스를 소개합니다.",
 };
 
 const qualityChecks = [
@@ -65,11 +65,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -102,7 +98,7 @@ export default function ServicesPage() {
               완벽한 건설의 시작.
             </h1>
             <p className="text-xl font-medium leading-relaxed text-on-primary-container">
-              QqualityTech은 건설 현장의 안전과 품질을 최우선으로 생각합니다.
+              큐품질관리기술은 건설 현장의 안전과 품질을 최우선으로 생각합니다.
               <br />
               국제 표준을 준수하는 첨단 장비와 전문 인력으로 귀사의 프로젝트를
               지원합니다.
@@ -112,7 +108,10 @@ export default function ServicesPage() {
       </header>
 
       <main className="space-y-32 py-24">
-        <section id="quality-control" className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+        <section
+          id="quality-control"
+          className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12"
+        >
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-12">
             <div className="order-2 md:order-1 md:col-span-5">
               <div className="mb-4 flex items-center gap-3">
@@ -170,23 +169,28 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        <section id="equipment-supply" className="bg-surface-container-low py-24">
+        <section
+          id="equipment-supply"
+          className="bg-surface-container-low py-24"
+        >
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="mb-16">
               <h2 className="mb-4 text-4xl font-black tracking-[-0.06em] text-primary">
                 시험 장비 판매 및 임대
               </h2>
               <p className="max-w-2xl text-on-surface-variant">
-                업계 최고 사양의 정밀 시험 장비를 제공합니다. 구매부터
-                단기/장기 임대까지 비즈니스 상황에 맞는 유연한 솔루션을
-                선택하세요.
+                업계 최고 사양의 정밀 시험 장비를 제공합니다. 구매부터 단기/장기
+                임대까지 비즈니스 상황에 맞는 유연한 솔루션을 선택하세요.
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
               <article className="flex flex-col justify-between border-l-4 border-secondary bg-surface-container-lowest p-10 shadow-sm md:col-span-2 md:row-span-2">
                 <div>
-                  <Icon icon={SearchCheck} className="mb-6 size-12 text-secondary" />
+                  <Icon
+                    icon={SearchCheck}
+                    className="mb-6 size-12 text-secondary"
+                  />
                   <h3 className="mb-4 text-2xl font-bold text-primary">
                     비파괴 검사 장비
                   </h3>
@@ -209,8 +213,7 @@ export default function ServicesPage() {
               <article className="flex flex-col justify-center bg-primary p-8 text-white md:col-span-2">
                 <h3 className="mb-2 text-xl font-bold">토질 및 기초 시험기</h3>
                 <p className="text-sm text-on-primary-container">
-                  지반의 안정성을 분석하기 위한 시추 및 투수 시험 장비
-                  라인업
+                  지반의 안정성을 분석하기 위한 시추 및 투수 시험 장비 라인업
                 </p>
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-2xl font-black">200+ Items</span>
@@ -242,7 +245,10 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        <section id="consulting" className="mx-auto w-full max-w-[1600px] overflow-hidden px-5 sm:px-8 lg:px-12">
+        <section
+          id="consulting"
+          className="mx-auto w-full max-w-[1600px] overflow-hidden px-5 sm:px-8 lg:px-12"
+        >
           <div className="flex flex-col items-center gap-16 md:flex-row">
             <div className="w-full md:w-1/2">
               <div className="relative h-[600px] overflow-hidden rounded-sm shadow-xl">
@@ -264,9 +270,9 @@ export default function ServicesPage() {
                 전문 기술 컨설팅
               </h2>
               <p className="mb-10 text-lg leading-relaxed text-on-surface-variant">
-                복잡한 기술적 난제를 해결하기 위해 QqualityTech의 전문가 그룹이
-                투입됩니다. 수십 년간의 현장 경험과 최신 학술 트렌드를 결합하여
-                최적의 공법과 해결책을 제시합니다.
+                복잡한 기술적 난제를 해결하기 위해 큐품질관리기술의 전문가
+                그룹이 투입됩니다. 수십 년간의 현장 경험과 최신 학술 트렌드를
+                결합하여 최적의 공법과 해결책을 제시합니다.
               </p>
               <div className="space-y-8">
                 {[
@@ -324,7 +330,7 @@ export default function ServicesPage() {
                 현장 시험 및 검사
               </h2>
               <p className="mx-auto max-w-xl text-on-primary-container">
-                전국 어디든 QqualityTech의 검사팀이 방문하여 정확하고 객관적인
+                전국 어디든 큐품질관리기술의 검사팀이 방문하여 정확하고 객관적인
                 시험 데이터를 산출합니다.
               </p>
             </div>
@@ -335,7 +341,10 @@ export default function ServicesPage() {
                   key={item.title}
                   className="border border-white/10 bg-white/10 p-8 backdrop-blur-xl transition-all hover:bg-white/20"
                 >
-                  <Icon icon={item.icon} className="mb-6 size-10 text-secondary" />
+                  <Icon
+                    icon={item.icon}
+                    className="mb-6 size-10 text-secondary"
+                  />
                   <h3 className="mb-3 text-xl font-bold text-white">
                     {item.title}
                   </h3>
