@@ -1,8 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { sendInquiryEmail } from "@/lib/email/send-inquiry-email";
 
 function buildErrorRedirect(slug: string, message: string) {
   return `/equipment/${slug}?inquiryError=${encodeURIComponent(message)}`;
@@ -29,34 +28,35 @@ export async function createEquipmentInquiryAction(formData: FormData) {
     );
   }
 
-  const supabase = await createServerSupabaseClient();
-
-  if (!supabase) {
-    redirect(
-      buildErrorRedirect(
-        equipmentSlug,
-        "서버 설정 오류로 문의를 저장하지 못했습니다.",
-      ),
-    );
+  try {
+    await sendInquiryEmail({
+      subject: `[장비 견적 문의] ${equipmentTitle || equipmentSlug}`,
+      html: `
+        <h2>장비 견적 문의가 접수되었습니다.</h2>
+        <p><strong>장비:</strong> ${equipmentTitle || "-"}</p>
+        <p><strong>슬러그:</strong> ${equipmentSlug}</p>
+        <p><strong>고객명:</strong> ${customerName}</p>
+        <p><strong>연락처:</strong> ${customerPhone}</p>
+        <p><strong>문의 내용:</strong></p>
+        <pre style="white-space:pre-wrap;font-family:inherit;">${message}</pre>
+      `,
+      text: [
+        "장비 견적 문의가 접수되었습니다.",
+        `장비: ${equipmentTitle || "-"}`,
+        `슬러그: ${equipmentSlug}`,
+        `고객명: ${customerName}`,
+        `연락처: ${customerPhone}`,
+        "문의 내용:",
+        message,
+      ].join("\n"),
+    });
+  } catch (error) {
+    const messageText =
+      error instanceof Error
+        ? error.message
+        : "알 수 없는 오류로 이메일 전송에 실패했습니다.";
+    redirect(buildErrorRedirect(equipmentSlug, messageText));
   }
 
-  const { error } = await supabase.from("equipment_inquiries").insert({
-    equipment_slug: equipmentSlug,
-    equipment_title: equipmentTitle || null,
-    customer_name: customerName,
-    customer_phone: customerPhone,
-    message,
-  });
-
-  if (error) {
-    redirect(
-      buildErrorRedirect(
-        equipmentSlug,
-        `문의 저장 실패: ${error.message}`,
-      ),
-    );
-  }
-
-  revalidatePath(`/equipment/${equipmentSlug}`);
   redirect(buildSuccessRedirect(equipmentSlug));
 }

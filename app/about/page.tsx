@@ -140,7 +140,7 @@ export default function AboutPage() {
               <span className="mb-4 block text-sm font-bold uppercase tracking-[0.28em] text-secondary">
                 Innovation in Engineering
               </span>
-              <h1 className="mb-8 text-5xl font-black leading-[1.08] tracking-[-0.08em] text-white md:text-7xl">
+              <h1 className="mb-8 text-5xl font-black leading-[1.08] tracking-[-0.02em] text-white md:text-7xl">
                 신뢰와 기술로
                 <br />
                 미래를 짓습니다

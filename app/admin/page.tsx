@@ -167,24 +167,34 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     );
   }
 
-  const { data: equipmentInquiryRows, error: equipmentInquiryError } = await supabase
-    .from("equipment_inquiries")
-    .select(
-      "id, equipment_slug, equipment_title, customer_name, customer_phone, message, created_at",
-    )
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const shouldLoadInquiryDb = process.env.INQUIRY_STORAGE_MODE === "db";
+  const equipmentInquiries: EquipmentInquiryRow[] = [];
+  let equipmentInquiryError: { message: string } | null = null;
 
-  const equipmentInquiries = (
-    (equipmentInquiryRows as EquipmentInquiryRow[] | null) ?? []
-  ).map((row) => ({
-    ...row,
-    customer_name: row.customer_name?.trim() || "-",
-    customer_phone: row.customer_phone?.trim() || "-",
-    message: row.message?.trim() || "-",
-    equipment_slug: row.equipment_slug?.trim() || null,
-    equipment_title: row.equipment_title?.trim() || null,
-  }));
+  if (shouldLoadInquiryDb) {
+    const { data: equipmentInquiryRows, error } = await supabase
+      .from("equipment_inquiries")
+      .select(
+        "id, equipment_slug, equipment_title, customer_name, customer_phone, message, created_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    equipmentInquiryError = error ? { message: error.message } : null;
+
+    equipmentInquiries.push(
+      ...(((equipmentInquiryRows as EquipmentInquiryRow[] | null) ?? []).map(
+        (row) => ({
+          ...row,
+          customer_name: row.customer_name?.trim() || "-",
+          customer_phone: row.customer_phone?.trim() || "-",
+          message: row.message?.trim() || "-",
+          equipment_slug: row.equipment_slug?.trim() || null,
+          equipment_title: row.equipment_title?.trim() || null,
+        }),
+      )),
+    );
+  }
 
   const equipmentAdminRows = await fetchAdminEquipmentRows();
   const equipmentBySlug = new Map(
@@ -427,9 +437,17 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <h3 className="text-lg font-bold text-primary">문의 요청 목록</h3>
               </div>
               <span className="text-xs font-semibold text-on-surface-variant">
-                최근 {equipmentInquiries.length}건
+                {shouldLoadInquiryDb
+                  ? `최근 ${equipmentInquiries.length}건`
+                  : "이메일 전용 모드"}
               </span>
             </div>
+
+            {!shouldLoadInquiryDb ? (
+              <p className="m-6 rounded-sm bg-surface-container px-4 py-3 text-sm font-medium text-on-surface-variant">
+                현재 문의는 DB 저장 없이 이메일로만 전송됩니다.
+              </p>
+            ) : null}
 
             {equipmentInquiryError ? (
               <p className="m-6 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
@@ -437,7 +455,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </p>
             ) : null}
 
-            {!equipmentInquiryError ? (
+            {!equipmentInquiryError && shouldLoadInquiryDb ? (
               <div className="overflow-x-auto">
                 <table className="min-w-[920px] w-full border-collapse text-left">
                   <thead>

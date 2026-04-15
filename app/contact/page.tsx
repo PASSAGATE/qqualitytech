@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { createContactInquiryAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "문의 및 견적 | QqualityTech",
@@ -34,7 +35,7 @@ const contactCards: Array<{
   {
     icon: Mail,
     label: "Email Support",
-    value: "contact@qqualitytech.com",
+    value: "qqstart@naver.com",
     tone: "bg-primary text-white group-hover:bg-secondary",
     iconClassName: "text-white",
   },
@@ -59,14 +60,20 @@ function Icon({
   );
 }
 
-export default function ContactPage() {
+type ContactPageProps = {
+  searchParams: Promise<{ sent?: string; error?: string }>;
+};
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const { sent, error } = await searchParams;
+
   return (
     <div className="bg-surface text-on-surface antialiased">
       <SiteHeader activeHref="/contact" />
 
       <main className="mx-auto max-w-[1600px] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
         <section className="mb-20 text-center md:text-left">
-          <h1 className="mb-6 text-4xl font-black leading-tight tracking-[-0.08em] text-primary md:text-6xl">
+          <h1 className="mb-6 text-4xl font-black leading-tight tracking-[-0.02em] text-primary md:text-6xl">
             귀하의 프로젝트를 위한
             <br />
             <span className="text-secondary">정밀한 기술 솔루션</span>
@@ -80,7 +87,18 @@ export default function ContactPage() {
 
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           <section className="rounded-sm border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-sm lg:col-span-7 md:p-12">
-            <form className="space-y-8">
+            {sent === "1" ? (
+              <p className="mb-5 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
+                문의가 정상적으로 접수되었습니다. 빠르게 연락드리겠습니다.
+              </p>
+            ) : null}
+            {error ? (
+              <p className="mb-5 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
+                {error}
+              </p>
+            ) : null}
+
+            <form action={createContactInquiryAction} className="space-y-8">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
@@ -88,7 +106,9 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
+                    name="company_name"
                     placeholder="예: (주)퀄리티테크"
+                    required
                     className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all placeholder:text-outline/50 focus:border-secondary focus:ring-0"
                   />
                 </div>
@@ -98,7 +118,9 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
+                    name="customer_name"
                     placeholder="홍길동"
+                    required
                     className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
                   />
                 </div>
@@ -111,7 +133,9 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="tel"
+                    name="customer_phone"
                     placeholder="010-0000-0000"
+                    required
                     className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
                   />
                 </div>
@@ -121,7 +145,9 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="email"
+                    name="customer_email"
                     placeholder="example@email.com"
+                    required
                     className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
                   />
                 </div>
@@ -139,7 +165,9 @@ export default function ContactPage() {
                     >
                       <input
                         type="radio"
-                        name="type"
+                        name="inquiry_type"
+                        value={type}
+                        required
                         className="border-outline-variant text-secondary focus:ring-secondary"
                       />
                       <span className="text-sm font-medium">{type}</span>
@@ -154,7 +182,9 @@ export default function ContactPage() {
                 </label>
                 <textarea
                   rows={6}
+                  name="detail"
                   placeholder="문의하실 내용을 상세히 적어주시면 더 정확한 상담이 가능합니다."
+                  required
                   className="w-full resize-none border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
                 />
               </div>
@@ -162,6 +192,8 @@ export default function ContactPage() {
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
+                  name="consent"
+                  required
                   className="h-4 w-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary"
                 />
                 <span className="text-sm text-on-surface-variant">

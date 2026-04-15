@@ -142,11 +142,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -191,7 +187,8 @@ export default async function Home() {
                   href="/contact"
                   className="inline-flex items-center gap-2 rounded-md bg-secondary px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
                   style={{
-                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    background:
+                      "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                     boxShadow: "0 16px 30px rgba(255, 107, 44, 0.35)",
                   }}
                 >
@@ -276,7 +273,10 @@ export default async function Home() {
               </article>
 
               <article className="col-span-12 bg-surface-container-highest p-12 md:col-span-4">
-                <Icon icon={ShieldCheck} className="mb-8 size-12 text-secondary" />
+                <Icon
+                  icon={ShieldCheck}
+                  className="mb-8 size-12 text-secondary"
+                />
                 <h3 className="mb-4 text-2xl font-bold text-primary">
                   전문 기술력
                 </h3>
@@ -288,7 +288,9 @@ export default async function Home() {
 
               <article className="col-span-12 bg-secondary p-12 md:col-span-4">
                 <Icon icon={Gauge} className="mb-8 size-12 text-white" />
-                <h3 className="mb-4 text-2xl font-bold text-white">빠른 대응</h3>
+                <h3 className="mb-4 text-2xl font-bold text-white">
+                  빠른 대응
+                </h3>
                 <p className="text-white/80">
                   현장의 긴박함을 이해하기에 실시간 소통 채널과 신속한 장비 수급
                   시스템을 가동합니다.
@@ -440,9 +442,7 @@ export default async function Home() {
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 flex flex-col justify-end bg-black/60 p-8">
-                        <h3 className="mb-2 text-xl font-bold">
-                          {item.title}
-                        </h3>
+                        <h3 className="mb-2 text-xl font-bold">{item.title}</h3>
                         <p className="text-sm text-on-primary-container">
                           {item.description}
                         </p>
@@ -542,8 +542,7 @@ export default async function Home() {
               신속하고 정확한 상담, 지금 바로 문의하세요
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-lg text-on-primary-container">
-              고객님의 현장에 가장 적합한 품질 관리 솔루션을 제안해
-              드립니다.
+              고객님의 현장에 가장 적합한 품질 관리 솔루션을 제안해 드립니다.
               <br />
               전문가와 직접 통화하여 궁금증을 해결하세요.
             </p>
@@ -552,7 +551,8 @@ export default async function Home() {
                 href="tel:01012345678"
                 className="inline-flex items-center gap-3 rounded-md bg-secondary px-12 py-5 text-xl font-bold text-white transition-transform hover:scale-105"
                 style={{
-                  background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  background:
+                    "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                   boxShadow: "0 16px 30px rgba(255, 107, 44, 0.35)",
                 }}
               >
@@ -560,7 +560,7 @@ export default async function Home() {
                 010-1234-5678
               </a>
               <a
-                href="mailto:contact@qqualitytech.com"
+                href="mailto:qqstart@naver.com"
                 className="inline-flex items-center gap-3 rounded-md border border-white/20 bg-white px-12 py-5 text-xl font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
               >
                 <Icon icon={Mail} className="size-6" />

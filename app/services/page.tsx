@@ -96,7 +96,7 @@ export default function ServicesPage() {
             <span className="mb-6 inline-block bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
               Quality Solutions
             </span>
-            <h1 className="mb-8 text-6xl font-black leading-[1.08] tracking-[-0.08em] text-white md:text-7xl">
+            <h1 className="mb-8 text-6xl font-black leading-[1.08] tracking-[-0.02em] text-white md:text-7xl">
               정밀한 측정,
               <br />
               완벽한 건설의 시작.

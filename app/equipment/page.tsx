@@ -101,7 +101,7 @@ export default async function EquipmentPage({
           <span className="mb-3 block text-xs font-bold tracking-[0.22em] text-secondary">
             INDUSTRIAL CATALOG
           </span>
-          <h1 className="mb-6 max-w-3xl text-5xl font-black leading-tight tracking-[-0.08em] text-primary md:text-6xl">
+          <h1 className="mb-6 max-w-3xl text-5xl font-black leading-tight tracking-[-0.02em] text-primary md:text-6xl">
             정밀한 측정을 위한
             <br />
             전문 시험장비 카탈로그

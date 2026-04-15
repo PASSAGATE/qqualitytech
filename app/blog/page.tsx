@@ -37,7 +37,7 @@ export default function BlogPage() {
 
       <main className="mx-auto max-w-[1600px] px-5 py-16 sm:px-8 lg:px-12">
         <header className="mb-12">
-          <h1 className="mb-4 text-5xl font-black tracking-[-0.06em] text-primary">
+          <h1 className="mb-4 text-5xl font-black tracking-[-0.02em] text-primary">
             블로그 & 기술 인사이트
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-on-surface-variant">
