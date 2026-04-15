@@ -333,10 +333,10 @@ export default async function EquipmentDetailPage({
                   />
                   <div>
                     <p className="mb-1 text-xs font-bold uppercase text-on-surface-variant">
-                      전시장 위치
+                      주소
                     </p>
                     <p className="text-sm font-medium text-primary">
-                      경기도 안양시 동안구 산업단지길 123
+                      경기도 구리시 갈매동 545
                     </p>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default async function EquipmentDetailPage({
                   <input
                     type="text"
                     name="customer_name"
-                    placeholder="홍길동 / (주)큐퀄리티"
+                    placeholder="갈매동 / (주)큐품질관리기술"
                     required
                     className="w-full rounded-sm border-none bg-surface-container-highest p-3 text-sm outline-none focus:ring-2 focus:ring-secondary"
                   />

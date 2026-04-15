@@ -95,7 +95,7 @@ export function SiteFooter() {
         <div>
           <h4 className="mb-6 font-bold text-white">연락처</h4>
           <p className={`mb-2 ${footerMutedTextClass}`}>T. 010-6666-5269</p>
-          <p className={`mb-2 ${footerMutedTextClass}`}>F. 02-1234-5679</p>
+          <p className={`mb-2 ${footerMutedTextClass}`}>F. 031-574-6662</p>
           <p className={footerMutedTextClass}>E. qqstart@naver.com</p>
 
           <div className="mt-6 rounded-sm bg-slate-900 p-4">
@@ -119,7 +119,7 @@ export function SiteFooter() {
 
       <div className="mx-auto mt-16 max-w-[1600px] border-t border-slate-800 px-5 pt-8 text-center sm:px-8">
         <p className="text-xs text-slate-500">
-          © 2024 큐품질관리기술. All rights reserved.
+          © 2022 큐품질관리기술. All rights reserved.
         </p>
       </div>
     </footer>

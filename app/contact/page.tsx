@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
-import { Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { createContactInquiryAction } from "./actions";
@@ -38,13 +37,6 @@ const contactCards: Array<{
     value: "qqstart@naver.com",
     tone: "bg-primary text-white group-hover:bg-secondary",
     iconClassName: "text-white",
-  },
-  {
-    icon: MessageCircle,
-    label: "KakaoTalk",
-    value: "@큐퀄리티테크",
-    tone: "bg-[#FEE500] text-on-surface",
-    iconClassName: "text-on-surface",
   },
 ];
 
@@ -107,7 +99,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
                   <input
                     type="text"
                     name="company_name"
-                    placeholder="예: (주)퀄리티테크"
+                    placeholder="예: (주)큐품질관리기술"
                     required
                     className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all placeholder:text-outline/50 focus:border-secondary focus:ring-0"
                   />
@@ -244,20 +236,20 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
                 오시는 길
               </h3>
               <div className="group relative aspect-video w-full overflow-hidden rounded-sm bg-surface-container-highest">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-NbmRQpjZTjI9ukngIWKJ4V71Zb2HT8WyWQnCYUvWsdLzdExVtbGYuKNE_qYLFfAhK6-sFwlVV4gSeeX3CUBn7Noy6znXtkXhQ4sL4hVNxMfVc68HCbZ3cm1podHK2yOTvvOn7gSt0Jj-bFkK01ZOyTONzJq1RVMrHttUDRzp9tU5HoE06xedebCEAbHRYgT4YYArOM4uZ3ElFICKR_NfH684YS4uEpDQ-C2xrVlHo-9B8vkxjtr0MHBzygbS_Qkefm5cA0ZINXbL"
-                  alt="Modern architectural map view showing industrial district in Seoul"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                <iframe
+                  title="큐품질관리기술 위치"
+                  src="https://maps.google.com/maps?q=%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EA%B5%AC%EB%A6%AC%EC%8B%9C%20%EA%B0%88%EB%A7%A4%EB%8F%99%20545&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0 h-full w-full border-0"
                 />
                 <div className="absolute inset-0 bg-primary/20 transition-all group-hover:bg-transparent" />
                 <div className="absolute bottom-4 left-4 border-l-4 border-secondary bg-white p-4 shadow-lg">
                   <p className="text-sm font-bold text-primary">
-                    서울특별시 성동구 아차산로 123
+                    경기도 구리시 갈매동 545
                   </p>
                   <p className="mt-1 text-xs text-on-surface-variant">
-                    큐품질관리기술 테크노 타워 15층
+                    휴밸나인 9층 C동9051호, C동9052호
                   </p>
                 </div>
               </div>

@@ -108,7 +108,7 @@ export default async function EquipmentPage({
           </h1>
           <p className="max-w-2xl text-lg font-medium leading-relaxed text-on-surface-variant">
             국제 표준을 준수하는 고정밀 건설 시험 장비를 통해 프로젝트의 안전과
-            품질을 보장하십시오. 큐퀄리티테크의 모든 장비는 엄격한
+            품질을 보장하십시오. 큐품질관리기술의 모든 장비는 엄격한
             캘리브레이션을 거쳐 제공됩니다.
           </p>
         </section>
@@ -270,7 +270,7 @@ export default async function EquipmentPage({
 
                 <Link
                   href={`/equipment/${row.item.slug}`}
-                  className="inline-flex w-full items-center justify-center gap-2 bg-surface-container-high py-3 text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
+                  className="inline-flex w-full items-center justify-center gap-2 bg-surface-container-high py-3 text-sm font-bold text-primary"
                 >
                   상세 스펙 보기
                   <Icon icon={ArrowRight} className="size-4" />
@@ -291,7 +291,7 @@ export default async function EquipmentPage({
                 원하시는 장비를 찾지 못하셨나요?
               </h2>
               <p className="mb-8 max-w-xl text-lg leading-relaxed text-on-primary-container">
-                큐퀄리티테크는 기성 제품 외에도 프로젝트 특성에 맞는 커스텀 시험
+                큐품질관리기술은 기성 제품 외에도 프로젝트 특성에 맞는 커스텀 시험
                 설비 구축 컨설팅을 제공합니다. 전문가와 상담하여 최적의 솔루션을
                 설계하십시오.
               </p>
