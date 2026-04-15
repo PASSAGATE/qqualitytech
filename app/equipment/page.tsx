@@ -185,6 +185,10 @@ export default async function EquipmentPage({
             <button
               type="submit"
               className="rounded-md bg-secondary px-4 py-2 text-sm font-bold text-white transition-all hover:opacity-90"
+              style={{
+                background: "linear-gradient(135deg, #ff8c3b 0%, #ff5f2f 100%)",
+                boxShadow: "0 10px 22px rgba(255, 107, 44, 0.28)",
+              }}
             >
               필터 적용
             </button>
@@ -295,6 +299,10 @@ export default async function EquipmentPage({
                 <Link
                   href="/contact"
                   className="inline-flex items-center justify-center gap-3 rounded-sm bg-secondary px-8 py-4 font-bold text-white transition-all hover:opacity-90"
+                  style={{
+                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
+                  }}
                 >
                   전문가와 상담하기
                   <Icon icon={MessageSquare} className="size-5" />

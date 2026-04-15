@@ -62,6 +62,10 @@ export default function BlogPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:bg-primary/90"
+              style={{
+                background: "linear-gradient(135deg, #1b7cff 0%, #00a2ff 100%)",
+                boxShadow: "0 12px 24px rgba(0, 130, 255, 0.3)",
+              }}
             >
               블로그 바로가기
               <Icon icon={ExternalLink} className="size-4" />
@@ -83,6 +87,10 @@ export default function BlogPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-sm bg-secondary px-5 py-3 text-sm font-bold text-white transition-all hover:opacity-90"
+              style={{
+                background: "linear-gradient(135deg, #00b17a 0%, #00d084 100%)",
+                boxShadow: "0 12px 24px rgba(0, 190, 120, 0.3)",
+              }}
             >
               카페 바로가기
               <Icon icon={ArrowRight} className="size-4" />

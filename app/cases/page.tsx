@@ -213,6 +213,10 @@ export default function CasesPage() {
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-sm bg-secondary px-10 py-4 font-bold text-white shadow-xl shadow-secondary/20 transition-transform hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
+                }}
               >
                 기술 문의하기
               </Link>

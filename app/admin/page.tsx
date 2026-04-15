@@ -584,6 +584,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <button
               type="submit"
               className="rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-white transition-all hover:opacity-90"
+              style={{
+                background: "linear-gradient(135deg, #1b7cff 0%, #00a2ff 100%)",
+                boxShadow: "0 10px 20px rgba(0, 130, 255, 0.3)",
+              }}
             >
               필터 적용
             </button>

@@ -190,6 +190,10 @@ export default async function Home() {
                 <Link
                   href="/contact"
                   className="inline-flex items-center gap-2 rounded-md bg-secondary px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    boxShadow: "0 16px 30px rgba(255, 107, 44, 0.35)",
+                  }}
                 >
                   상담 문의하기
                   <Icon icon={ArrowRight} className="size-5" />
@@ -547,6 +551,10 @@ export default async function Home() {
               <a
                 href="tel:01012345678"
                 className="inline-flex items-center gap-3 rounded-md bg-secondary px-12 py-5 text-xl font-bold text-white transition-transform hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  boxShadow: "0 16px 30px rgba(255, 107, 44, 0.35)",
+                }}
               >
                 <Icon icon={Phone} className="size-6" />
                 010-1234-5678

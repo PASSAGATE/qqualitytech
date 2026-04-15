@@ -52,6 +52,10 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
             <Link
               href="/contact"
               className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+              style={{
+                background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
+              }}
             >
               상담 및 견적 요청
             </Link>
@@ -79,6 +83,10 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                   <Link
                     href="/contact"
                     className="mt-2 inline-flex items-center justify-center rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:hidden"
+                    style={{
+                      background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                      boxShadow: "0 10px 22px rgba(255, 107, 44, 0.35)",
+                    }}
                   >
                     상담 및 견적 요청
                   </Link>
