@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   House,
   LogOut,
+  MessageSquare,
   Search,
   Settings,
   Star,
@@ -104,6 +105,36 @@ function getStatusStyles(statusTone: string) {
   };
 }
 
+type EquipmentInquiryRow = {
+  id: string;
+  equipment_slug: string | null;
+  equipment_title: string | null;
+  customer_name: string;
+  customer_phone: string;
+  message: string;
+  created_at: string | null;
+};
+
+function formatDateTime(input: string | null) {
+  if (!input) {
+    return "-";
+  }
+
+  const date = new Date(input);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+
+  return `${y}.${m}.${d} ${hh}:${mm}`;
+}
+
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const {
     createError,
@@ -136,7 +167,29 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     );
   }
 
+  const { data: equipmentInquiryRows, error: equipmentInquiryError } = await supabase
+    .from("equipment_inquiries")
+    .select(
+      "id, equipment_slug, equipment_title, customer_name, customer_phone, message, created_at",
+    )
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const equipmentInquiries = (
+    (equipmentInquiryRows as EquipmentInquiryRow[] | null) ?? []
+  ).map((row) => ({
+    ...row,
+    customer_name: row.customer_name?.trim() || "-",
+    customer_phone: row.customer_phone?.trim() || "-",
+    message: row.message?.trim() || "-",
+    equipment_slug: row.equipment_slug?.trim() || null,
+    equipment_title: row.equipment_title?.trim() || null,
+  }));
+
   const equipmentAdminRows = await fetchAdminEquipmentRows();
+  const equipmentBySlug = new Map(
+    equipmentAdminRows.map((row) => [row.item.slug, row]),
+  );
   const searchQuery = (q ?? "").trim().toLowerCase();
   const selectedType = (type ?? "all").toLowerCase();
   const selectedStatus = (status ?? "all").toLowerCase();
@@ -365,6 +418,105 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </span>
               </div>
             </article>
+          </section>
+
+          <section className="mb-10 overflow-hidden rounded-sm bg-surface-container-lowest shadow-sm">
+            <div className="flex items-center justify-between border-b border-outline-variant/10 px-6 py-4">
+              <div className="inline-flex items-center gap-2">
+                <Icon icon={MessageSquare} className="size-5 text-secondary" />
+                <h3 className="text-lg font-bold text-primary">문의 요청 목록</h3>
+              </div>
+              <span className="text-xs font-semibold text-on-surface-variant">
+                최근 {equipmentInquiries.length}건
+              </span>
+            </div>
+
+            {equipmentInquiryError ? (
+              <p className="m-6 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
+                문의 데이터를 불러오지 못했습니다: {equipmentInquiryError.message}
+              </p>
+            ) : null}
+
+            {!equipmentInquiryError ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-[920px] w-full border-collapse text-left">
+                  <thead>
+                    <tr className="bg-surface-container-high text-on-surface-variant">
+                      <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                        접수일시
+                      </th>
+                      <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                        장비
+                      </th>
+                      <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                        고객명
+                      </th>
+                      <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                        연락처
+                      </th>
+                      <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                        문의 내용
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10">
+                    {equipmentInquiries.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-6 py-10 text-center text-sm font-medium text-on-surface-variant"
+                        >
+                          아직 접수된 문의가 없습니다.
+                        </td>
+                      </tr>
+                    ) : null}
+                    {equipmentInquiries.map((inquiry) => (
+                      (() => {
+                        const matchedEquipment = inquiry.equipment_slug
+                          ? equipmentBySlug.get(inquiry.equipment_slug)
+                          : undefined;
+                        const equipmentName =
+                          matchedEquipment?.name ||
+                          matchedEquipment?.item.title ||
+                          inquiry.equipment_title ||
+                          "-";
+
+                        return (
+                          <tr key={inquiry.id} className="align-top">
+                            <td className="px-6 py-4 text-xs font-medium text-on-surface-variant">
+                              {formatDateTime(inquiry.created_at)}
+                            </td>
+                            <td className="px-6 py-4">
+                              {inquiry.equipment_slug ? (
+                                <Link
+                                  href={`/equipment/${inquiry.equipment_slug}`}
+                                  className="line-clamp-2 text-sm font-semibold text-primary transition-colors hover:text-secondary hover:underline"
+                                >
+                                  {equipmentName}
+                                </Link>
+                              ) : (
+                                <span className="line-clamp-2 text-sm font-semibold text-primary">
+                                  {equipmentName}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-primary">
+                              {inquiry.customer_name}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-medium text-on-surface">
+                              {inquiry.customer_phone}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-on-surface">
+                              {inquiry.message}
+                            </td>
+                          </tr>
+                        );
+                      })()
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
           </section>
 
           <form

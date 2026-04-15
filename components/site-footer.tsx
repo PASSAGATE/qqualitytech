@@ -94,9 +94,9 @@ export function SiteFooter() {
 
         <div>
           <h4 className="mb-6 font-bold text-white">Contact</h4>
-          <p className={`mb-2 ${footerMutedTextClass}`}>T. 02-1234-5678</p>
+          <p className={`mb-2 ${footerMutedTextClass}`}>T. 010-6666-5269</p>
           <p className={`mb-2 ${footerMutedTextClass}`}>F. 02-1234-5679</p>
-          <p className={footerMutedTextClass}>E. info@qqualitytech.com</p>
+          <p className={footerMutedTextClass}>E. qqstart@naver.com</p>
 
           <div className="mt-6 rounded-sm bg-slate-900 p-4">
             <p className="mb-2 text-xs font-bold text-slate-500">NEWSLETTER</p>

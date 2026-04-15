@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
-import {
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-  Send,
-} from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
@@ -33,7 +27,7 @@ const contactCards: Array<{
   {
     icon: Phone,
     label: "Direct Call",
-    value: "02-1234-5678",
+    value: "010-6666-5269",
     tone: "bg-primary text-white group-hover:bg-secondary",
     iconClassName: "text-white",
   },
@@ -61,11 +55,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -242,13 +232,11 @@ export default function ContactPage() {
             </div>
 
             <div className="rounded-sm bg-primary p-8 text-white">
-              <p className="mb-4 text-2xl font-black">
-                전문가가 대기 중입니다
-              </p>
+              <p className="mb-4 text-2xl font-black">전문가가 대기 중입니다</p>
               <p className="text-sm leading-relaxed text-on-primary-container">
                 현장 상황을 고려한 맞춤형 컨설팅을 제공합니다. 문의 사항을
-                남겨주시면 평균 4시간 이내에 담당 엔지니어가 직접 검토 후
-                회신 드립니다.
+                남겨주시면 평균 4시간 이내에 담당 엔지니어가 직접 검토 후 회신
+                드립니다.
               </p>
             </div>
           </aside>

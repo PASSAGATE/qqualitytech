@@ -16,13 +16,14 @@ import {
 } from "lucide-react";
 import { SiteFooter } from "../../../components/site-footer";
 import { SiteHeader } from "../../../components/site-header";
-import {
-  type EquipmentFeature,
-} from "../data";
+import { EquipmentGallery } from "./equipment-gallery";
+import { createEquipmentInquiryAction } from "./actions";
+import { type EquipmentFeature } from "../data";
 import { fetchEquipmentBySlug, fetchEquipmentCatalog } from "../repository";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ inquirySuccess?: string; inquiryError?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -88,11 +89,7 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
@@ -107,26 +104,33 @@ function getFallbackFeatures(title: string): EquipmentFeature[] {
     {
       icon: "chart",
       title: "정밀 데이터 리포팅",
-      description: "측정 결과를 빠르게 정리해 품질 보고서와 검수 문서 작성에 활용할 수 있습니다.",
+      description:
+        "측정 결과를 빠르게 정리해 품질 보고서와 검수 문서 작성에 활용할 수 있습니다.",
       tone: "primary",
     },
     {
       icon: "shield",
       title: "안정적인 운용 설계",
-      description: "반복 시험과 장시간 사용을 고려한 안정적인 하드웨어 구성을 제공합니다.",
+      description:
+        "반복 시험과 장시간 사용을 고려한 안정적인 하드웨어 구성을 제공합니다.",
       tone: "surface",
     },
     {
       icon: "sliders",
       title: "프로젝트별 운용 옵션",
-      description: "시험 조건과 운영 시나리오에 맞춘 운용 옵션으로 다양한 현장 요구에 대응합니다.",
+      description:
+        "시험 조건과 운영 시나리오에 맞춘 운용 옵션으로 다양한 현장 요구에 대응합니다.",
       tone: "muted",
     },
   ];
 }
 
-export default async function EquipmentDetailPage({ params }: PageProps) {
+export default async function EquipmentDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug } = await params;
+  const { inquirySuccess, inquiryError } = await searchParams;
   const item = await fetchEquipmentBySlug(slug);
 
   if (!item) {
@@ -138,19 +142,7 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
   const gallery =
     item.gallery.length > 0
       ? item.gallery
-      : [
-          { image: item.image, alt: item.alt },
-          { image: item.image, alt: item.alt },
-          { image: item.image, alt: item.alt },
-          { image: item.image, alt: item.alt },
-          { image: item.image, alt: item.alt },
-        ];
-  const [mainImage, ...thumbnailImages] = gallery;
-  const galleryTiles = thumbnailImages.slice(0, 4);
-
-  while (galleryTiles.length < 4) {
-    galleryTiles.push({ image: item.image, alt: item.alt });
-  }
+      : [{ image: item.image, alt: item.alt }];
 
   const features =
     item.features.length > 0 ? item.features : getFallbackFeatures(item.title);
@@ -161,12 +153,22 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
           item: spec.label,
           specification: spec.value,
         }));
-  const relatedItems = item.relatedSlugs
+  const relatedItemsBySlug = item.relatedSlugs
     .map((relatedSlug) =>
       equipmentCatalog.find((catalogItem) => catalogItem.slug === relatedSlug),
     )
     .filter((relatedItem) => relatedItem !== undefined)
     .slice(0, 3);
+  const relatedItems =
+    relatedItemsBySlug.length > 0
+      ? relatedItemsBySlug
+      : equipmentCatalog
+          .filter(
+            (catalogItem) =>
+              catalogItem.slug !== item.slug &&
+              catalogItem.category === item.category,
+          )
+          .slice(0, 3);
 
   return (
     <div className="bg-surface text-on-surface antialiased">
@@ -174,11 +176,17 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
 
       <main className="mx-auto max-w-[1600px] px-5 py-12 sm:px-8 lg:px-12">
         <nav className="mb-6 flex items-center gap-2 text-sm text-on-surface-variant">
-          <Link href="/equipment" className="transition-colors hover:text-secondary">
+          <Link
+            href="/equipment"
+            className="transition-colors hover:text-secondary"
+          >
             장비 카탈로그
           </Link>
           <Icon icon={ChevronRight} className="size-4" />
-          <Link href="/equipment" className="transition-colors hover:text-secondary">
+          <Link
+            href="/equipment"
+            className="transition-colors hover:text-secondary"
+          >
             {item.categoryLabel}
           </Link>
           <Icon icon={ChevronRight} className="size-4" />
@@ -204,41 +212,7 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
               </p>
             </section>
 
-            <section className="grid grid-cols-4 gap-4">
-              <div className="relative col-span-4 aspect-video overflow-hidden rounded-sm bg-surface-container">
-                <Image
-                  src={mainImage.image}
-                  alt={mainImage.alt}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 70vw"
-                  className="object-cover"
-                />
-              </div>
-
-              {galleryTiles.map((image, index) => {
-                const isOverlayTile = index === galleryTiles.length - 1;
-
-                return (
-                  <div
-                    key={`${image.image}-${index}`}
-                    className={`relative aspect-square overflow-hidden rounded-sm ${index === 0 ? "border-2 border-secondary bg-surface-container-high" : "bg-surface-container-high"}`}
-                  >
-                    <Image
-                      src={image.image}
-                      alt={image.alt}
-                      fill
-                      sizes="(max-width: 768px) 25vw, 18vw"
-                      className={`${isOverlayTile ? "object-cover opacity-60" : "object-cover"}`}
-                    />
-                    {isOverlayTile ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-primary/40 text-center text-lg font-bold text-white">
-                        + 12 더보기
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </section>
+            <EquipmentGallery title={item.title} images={gallery} />
 
             <section className="space-y-6">
               <h2 className="text-2xl font-bold text-primary">
@@ -313,16 +287,29 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
               <h3 className="mb-6 text-xl font-bold text-primary">
                 구매 및 견적 문의
               </h3>
+              {inquirySuccess === "1" ? (
+                <p className="mb-4 rounded-sm bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
+                  문의가 정상적으로 접수되었습니다. 빠르게 연락드리겠습니다.
+                </p>
+              ) : null}
+              {inquiryError ? (
+                <p className="mb-4 rounded-sm bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  {inquiryError}
+                </p>
+              ) : null}
 
               <div className="mb-8 space-y-6">
                 <div className="flex items-start gap-4">
-                  <Icon icon={Wrench} className="mt-0.5 size-5 text-secondary" />
+                  <Icon
+                    icon={Wrench}
+                    className="mt-0.5 size-5 text-secondary"
+                  />
                   <div>
                     <p className="mb-1 text-xs font-bold uppercase text-on-surface-variant">
                       기술 지원 센터
                     </p>
                     <p className="text-lg font-bold text-primary">
-                      02-1234-5678
+                      010-6666-5269
                     </p>
                   </div>
                 </div>
@@ -334,13 +321,16 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
                       이메일 문의
                     </p>
                     <p className="text-sm font-medium text-primary">
-                      sales@qqualitytech.com
+                      qqstart@naver.com
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <Icon icon={MapPin} className="mt-0.5 size-5 text-secondary" />
+                  <Icon
+                    icon={MapPin}
+                    className="mt-0.5 size-5 text-secondary"
+                  />
                   <div>
                     <p className="mb-1 text-xs font-bold uppercase text-on-surface-variant">
                       전시장 위치
@@ -352,14 +342,22 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <form className="space-y-4">
+              <form action={createEquipmentInquiryAction} className="space-y-4">
+                <input type="hidden" name="equipment_slug" value={item.slug} />
+                <input
+                  type="hidden"
+                  name="equipment_title"
+                  value={item.title}
+                />
                 <div>
                   <label className="mb-1 block text-xs font-bold uppercase text-on-surface-variant">
                     성함 / 업체명
                   </label>
                   <input
                     type="text"
+                    name="customer_name"
                     placeholder="홍길동 / (주)큐퀄리티"
+                    required
                     className="w-full rounded-sm border-none bg-surface-container-highest p-3 text-sm outline-none focus:ring-2 focus:ring-secondary"
                   />
                 </div>
@@ -370,7 +368,9 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
                   </label>
                   <input
                     type="tel"
+                    name="customer_phone"
                     placeholder="010-0000-0000"
+                    required
                     className="w-full rounded-sm border-none bg-surface-container-highest p-3 text-sm outline-none focus:ring-2 focus:ring-secondary"
                   />
                 </div>
@@ -380,7 +380,9 @@ export default async function EquipmentDetailPage({ params }: PageProps) {
                     문의 내용
                   </label>
                   <textarea
+                    name="message"
                     placeholder="견적 요청 사유 및 장비 구성을 입력해주세요."
+                    required
                     className="h-32 w-full rounded-sm border-none bg-surface-container-highest p-3 text-sm outline-none focus:ring-2 focus:ring-secondary"
                   />
                 </div>

@@ -42,19 +42,22 @@ function Icon({
   className?: string;
 }) {
   return (
-    <IconComponent
-      aria-hidden="true"
-      className={className}
-      strokeWidth={1.8}
-    />
+    <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
 }
 
 type EquipmentPageProps = {
-  searchParams: Promise<{ q?: string; type?: string; status?: string; sort?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    type?: string;
+    status?: string;
+    sort?: string;
+  }>;
 };
 
-export default async function EquipmentPage({ searchParams }: EquipmentPageProps) {
+export default async function EquipmentPage({
+  searchParams,
+}: EquipmentPageProps) {
   const { q, type, status, sort } = await searchParams;
   const searchQuery = (q ?? "").trim().toLowerCase();
   const selectedType = (type ?? "all").toLowerCase();
@@ -72,7 +75,8 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
     const matchesType =
       selectedType === "all" || row.typeValue.toLowerCase() === selectedType;
     const matchesStatus =
-      selectedStatus === "all" || row.statusValue.toLowerCase() === selectedStatus;
+      selectedStatus === "all" ||
+      row.statusValue.toLowerCase() === selectedStatus;
 
     return matchesQuery && matchesType && matchesStatus;
   });
@@ -103,8 +107,8 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
             전문 시험장비 카탈로그
           </h1>
           <p className="max-w-2xl text-lg font-medium leading-relaxed text-on-surface-variant">
-            국제 표준을 준수하는 고정밀 건설 시험 장비를 통해 프로젝트의
-            안전과 품질을 보장하십시오. 큐퀄리티테크의 모든 장비는 엄격한
+            국제 표준을 준수하는 고정밀 건설 시험 장비를 통해 프로젝트의 안전과
+            품질을 보장하십시오. 큐퀄리티테크의 모든 장비는 엄격한
             캘리브레이션을 거쳐 제공됩니다.
           </p>
         </section>
@@ -219,9 +223,7 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 {row.featured ? (
-                  <div
-                    className="absolute top-4 right-4 rounded-sm bg-secondary px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white"
-                  >
+                  <div className="absolute top-4 right-4 rounded-sm bg-secondary px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white">
                     FEATURED
                   </div>
                 ) : null}
@@ -245,19 +247,21 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
                   {(row.item.specs.length > 0
                     ? row.item.specs
                     : [{ label: "상태", value: row.status.label }]
-                  ).slice(0, 3).map((spec, index) => (
-                    <div
-                      key={spec.label}
-                      className={`flex justify-between text-xs ${index < 2 ? "border-b border-outline-variant/10 pb-2" : ""}`}
-                    >
-                      <span className="font-medium text-on-surface-variant">
-                        {spec.label}
-                      </span>
-                      <span className="font-bold text-primary">
-                        {spec.value}
-                      </span>
-                    </div>
-                  ))}
+                  )
+                    .slice(0, 3)
+                    .map((spec, index) => (
+                      <div
+                        key={spec.label}
+                        className={`flex justify-between text-xs ${index < 2 ? "border-b border-outline-variant/10 pb-2" : ""}`}
+                      >
+                        <span className="font-medium text-on-surface-variant">
+                          {spec.label}
+                        </span>
+                        <span className="font-bold text-primary">
+                          {spec.value}
+                        </span>
+                      </div>
+                    ))}
                 </div>
 
                 <Link
@@ -284,8 +288,8 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
               </h2>
               <p className="mb-8 max-w-xl text-lg leading-relaxed text-on-primary-container">
                 큐퀄리티테크는 기성 제품 외에도 프로젝트 특성에 맞는 커스텀 시험
-                설비 구축 컨설팅을 제공합니다. 전문가와 상담하여 최적의
-                솔루션을 설계하십시오.
+                설비 구축 컨설팅을 제공합니다. 전문가와 상담하여 최적의 솔루션을
+                설계하십시오.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link
@@ -319,10 +323,10 @@ export default async function EquipmentPage({ searchParams }: EquipmentPageProps
                   </div>
                 </div>
                 <div className="mb-2 text-3xl font-black tracking-tight text-white">
-                  02-1234-5678
+                  010-6666-5269
                 </div>
                 <div className="text-sm text-on-primary-container">
-                  sales@qqualitytech.com
+                  qqstart@naver.com
                 </div>
               </div>
             </div>
