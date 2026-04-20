@@ -178,6 +178,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </form>
 
             <div className="mt-12 flex flex-col items-center gap-4 border-t border-outline-variant/20 pt-8">
+              <Link
+                href="/register"
+                className="text-sm font-bold text-secondary transition-colors hover:text-[#fd7629]"
+              >
+                회원가입
+              </Link>
               <div className="flex flex-wrap items-center justify-center gap-4 text-center">
                 <a
                   href="#"
