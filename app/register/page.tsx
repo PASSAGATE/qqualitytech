@@ -46,7 +46,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             </li>
             <li className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 size-5 text-secondary" />
-              <span>2. 본인인증 완료 후 VERIFIED 상태 확인</span>
+              <span>2. 본인인증 완료 후 verified 상태 확인</span>
             </li>
             <li className="flex items-start gap-3">
               <CheckCircle2 className="mt-0.5 size-5 text-secondary" />
@@ -121,7 +121,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <div className="rounded-2xl border border-outline-variant/20 bg-white p-6">
             <h2 className="text-xl font-bold text-primary">2) 회원가입 완료</h2>
             <p className="mt-2 text-sm text-on-surface-variant">
-              callback 이후 session이 VERIFIED 상태일 때만 완료됩니다.
+              callback 이후 session이 verified 상태일 때만 완료됩니다.
             </p>
             <p className="mt-2 text-sm text-on-surface-variant">
               이미 계정이 있으신가요?{" "}

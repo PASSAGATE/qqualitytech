@@ -107,7 +107,8 @@ export default async function MyPage({ searchParams }: MyPageProps) {
 
   const displayName = profile.fullName?.trim() || user.email?.split("@")[0] || "사용자";
   const createdAt = new Date(profile.createdAt).toLocaleDateString("ko-KR");
-  const roleLabel = profile.role === "ADMIN" ? "관리자" : "일반 사용자";
+  const roleLabel =
+    profile.role?.toLowerCase() === "admin" ? "관리자" : "일반 사용자";
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">

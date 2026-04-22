@@ -53,5 +53,5 @@ export async function loginAction(formData: FormData) {
     );
   }
 
-  redirect(role === "ADMIN" ? "/admin" : "/my-page");
+  redirect(role === "admin" ? "/admin" : "/my-page");
 }

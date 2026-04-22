@@ -169,7 +169,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const role = session?.access_token
     ? await resolveUserRoleFromBackend(session.access_token)
     : null;
-  if (role !== "ADMIN") {
+  if (role !== "admin") {
     redirect(
       "/my-page?error=%EA%B4%80%EB%A6%AC%EC%9E%90%20%EA%B6%8C%ED%95%9C%EC%9D%B4%20%ED%95%84%EC%9A%94%ED%95%A9%EB%8B%88%EB%8B%A4.",
     );

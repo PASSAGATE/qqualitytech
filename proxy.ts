@@ -64,9 +64,9 @@ export async function proxy(request: NextRequest) {
       ? await resolveUserRoleFromBackend(session.access_token)
       : null;
 
-    if (role !== "ADMIN") {
+    if (role !== "admin") {
       const url = request.nextUrl.clone();
-      if (role === "CUSTOMER") {
+      if (role === "customer") {
         url.pathname = "/my-page";
         url.searchParams.set("error", "관리자 권한이 필요합니다.");
       } else {
@@ -85,7 +85,7 @@ export async function proxy(request: NextRequest) {
       return response;
     }
     const url = request.nextUrl.clone();
-    url.pathname = role === "ADMIN" ? "/admin" : "/my-page";
+    url.pathname = role === "admin" ? "/admin" : "/my-page";
     url.search = "";
     return NextResponse.redirect(url);
   }

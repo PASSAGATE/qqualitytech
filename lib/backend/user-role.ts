@@ -1,4 +1,4 @@
-export type AppUserRole = "ADMIN" | "CUSTOMER";
+export type AppUserRole = "admin" | "customer";
 
 type BackendMeResponse = {
   role?: string;
@@ -28,9 +28,9 @@ export async function resolveUserRoleFromBackend(
     }
 
     const data = (await response.json()) as BackendMeResponse;
-    const normalizedRole = (data.role ?? "").toUpperCase();
+    const normalizedRole = (data.role ?? "").toLowerCase();
 
-    if (normalizedRole === "ADMIN" || normalizedRole === "CUSTOMER") {
+    if (normalizedRole === "admin" || normalizedRole === "customer") {
       return normalizedRole;
     }
 
