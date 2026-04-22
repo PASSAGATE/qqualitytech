@@ -2,14 +2,29 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   EQUIPMENT_STATUS_VALUES,
   EQUIPMENT_TYPE_VALUES,
 } from "./equipment-enums";
 
-function toAdminError(message: string, key: "createError" | "updateError" | "deleteError" = "createError") {
+type ApiError = {
+  message?: string;
+  error?: string;
+};
+
+function apiBaseUrl() {
+  return (
+    process.env.BACKEND_API_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    "http://localhost:4000/api/v1"
+  );
+}
+
+function toAdminError(
+  message: string,
+  key: "createError" | "updateError" | "deleteError" = "createError",
+) {
   return `/admin?${key}=${encodeURIComponent(message)}`;
 }
 
@@ -28,109 +43,82 @@ function sanitizeFileName(fileName: string) {
   return `${safeBase || "equipment"}${ext}`;
 }
 
-function extractStoragePathFromPublicUrl(url: string, bucket: string) {
-  const marker = `/storage/v1/object/public/${bucket}/`;
-  const markerIndex = url.indexOf(marker);
-
-  if (markerIndex === -1) {
-    return null;
+function normalizeType(
+  value: string,
+): "sale" | "rental" | "sale_and_rental" | null {
+  const normalized = value.trim().toLowerCase();
+  if (
+    normalized === "sale" ||
+    normalized === "rental" ||
+    normalized === "sale_and_rental"
+  ) {
+    return normalized;
   }
 
-  const path = url.slice(markerIndex + marker.length);
-  return path ? decodeURIComponent(path) : null;
+  return null;
 }
 
-type EquipmentImageRow = {
-  image_urls?: unknown;
-};
+function normalizeStatus(value: string): "active" | "inactive" {
+  const normalized = value.trim().toLowerCase();
 
-function isMissingColumnError(message: string, column: string) {
-  const normalized = message.toLowerCase();
-  return normalized.includes(column.toLowerCase()) && normalized.includes("column");
-}
-
-async function runEquipmentUpdateWithImageFallback(
-  supabase: SupabaseClient,
-  equipmentId: string,
-  payload: Record<string, unknown>,
-) {
-  const attemptPayload: Record<string, unknown> = { ...payload };
-  const { error } = await supabase
-    .from("equipment")
-    .update(attemptPayload)
-    .eq("id", equipmentId);
-
-  return error ?? null;
-}
-
-async function runEquipmentInsertWithImageFallback(
-  supabase: SupabaseClient,
-  payload: Record<string, unknown>,
-) {
-  const attemptPayload: Record<string, unknown> = { ...payload };
-  let { error } = await supabase.from("equipment").insert(attemptPayload);
-
-  if (error && "image_urls" in attemptPayload) {
-    const message = error.message ?? "";
-    if (isMissingColumnError(message, "image_urls")) {
-      delete attemptPayload.image_urls;
-      ({ error } = await supabase.from("equipment").insert(attemptPayload));
-    }
+  if (normalized === "active" || normalized === "available") {
+    return "active";
   }
 
-  return error ?? null;
+  if (
+    normalized === "inactive" ||
+    normalized === "sold" ||
+    normalized === "rented"
+  ) {
+    return "inactive";
+  }
+
+  return "active";
 }
 
-async function loadEquipmentImageUrls(
-  supabase: SupabaseClient,
-  equipmentId: string,
+async function readApiError(response: Response) {
+  try {
+    const data = (await response.json()) as ApiError;
+    return data.message ?? data.error ?? `Request failed (${response.status})`;
+  } catch {
+    return `Request failed (${response.status})`;
+  }
+}
+
+async function uploadImageFiles(
+  files: File[],
+  userId: string,
+  supabase: NonNullable<Awaited<ReturnType<typeof createServerSupabaseClient>>>,
+  errorKey: "createError" | "updateError",
 ) {
-  let dataRow: EquipmentImageRow | null = null;
-  let errorMessage: string | null = null;
+  if (files.some((file) => !file.type.startsWith("image/"))) {
+    redirect(toAdminError("이미지 파일만 업로드할 수 있습니다.", errorKey));
+  }
 
-  const selectCandidates = ["image_urls"];
+  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
+  const uploadedUrls: string[] = [];
 
-  for (const candidate of selectCandidates) {
-    const result = await supabase
-      .from("equipment")
-      .select(candidate)
-      .eq("id", equipmentId)
-      .single();
+  for (let index = 0; index < files.length; index += 1) {
+    const file = files[index];
+    const safeName = sanitizeFileName(file.name);
+    const filePath = `${userId}/${Date.now()}-${index + 1}-${safeName}`;
 
-    if (!result.error) {
-      dataRow = result.data as EquipmentImageRow | null;
-      errorMessage = null;
-      break;
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      redirect(toAdminError(`이미지 업로드 실패: ${uploadError.message}`, errorKey));
     }
 
-    const message = result.error.message.toLowerCase();
-    const missingImageUrls = message.includes("image_urls") && message.includes("column");
-
-    if (missingImageUrls) {
-      continue;
-    }
-
-    errorMessage = result.error.message;
-    break;
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    uploadedUrls.push(data.publicUrl);
   }
 
-  if (errorMessage || !dataRow) {
-    return {
-      imageUrls: [] as string[],
-      errorMessage: errorMessage ?? "장비 정보를 찾을 수 없습니다.",
-    };
-  }
-
-  const imageUrls = Array.isArray(dataRow.image_urls)
-    ? dataRow.image_urls.filter(
-        (value): value is string => typeof value === "string" && value.trim().length > 0,
-      )
-    : [];
-
-  return {
-    imageUrls,
-    errorMessage: null as string | null,
-  };
+  return uploadedUrls;
 }
 
 export async function createEquipmentAction(formData: FormData) {
@@ -145,33 +133,35 @@ export async function createEquipmentAction(formData: FormData) {
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.access_token || !session.user) {
     redirect(toAdminError("로그인이 만료되었습니다. 다시 로그인해 주세요."));
   }
 
   const name = String(formData.get("name") ?? "").trim();
   const modelCode = String(formData.get("model_code") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
+  const typeInput = String(formData.get("type") ?? "").trim();
+  const statusInput = String(formData.get("status") ?? "").trim();
   const imageFiles = [1, 2, 3, 4, 5]
     .map((index) => formData.get(`image_file_${index}`))
     .filter((value): value is File => value instanceof File && value.size > 0);
-  const type = String(formData.get("type") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim();
-  const isVisible = formData.get("is_visible") === "on";
-  const isFeatured = formData.get("is_featured") === "on";
 
   if (!name) {
     redirect(toAdminError("장비명을 입력해 주세요."));
   }
 
-  if (!type) {
+  if (!typeInput) {
     redirect(toAdminError("장비 타입을 입력해 주세요."));
   }
 
-  if (!EQUIPMENT_TYPE_VALUES.includes(type as (typeof EQUIPMENT_TYPE_VALUES)[number])) {
+  if (
+    !EQUIPMENT_TYPE_VALUES.includes(
+      typeInput as (typeof EQUIPMENT_TYPE_VALUES)[number],
+    )
+  ) {
     redirect(
       toAdminError(
         `지원하지 않는 장비 타입입니다. (${EQUIPMENT_TYPE_VALUES.join(", ")})`,
@@ -180,9 +170,9 @@ export async function createEquipmentAction(formData: FormData) {
   }
 
   if (
-    status &&
+    statusInput &&
     !EQUIPMENT_STATUS_VALUES.includes(
-      status as (typeof EQUIPMENT_STATUS_VALUES)[number],
+      statusInput as (typeof EQUIPMENT_STATUS_VALUES)[number],
     )
   ) {
     redirect(
@@ -192,74 +182,57 @@ export async function createEquipmentAction(formData: FormData) {
     );
   }
 
-  let resolvedImageUrl = "";
-  let resolvedImageUrls: string[] = [];
-  const hasImageFiles = imageFiles.length > 0;
-
-  if (hasImageFiles) {
-    if (imageFiles.length > 5) {
-      redirect(toAdminError("이미지는 최대 5장까지 업로드할 수 있습니다."));
-    }
-
-    if (imageFiles.some((file) => !file.type.startsWith("image/"))) {
-      redirect(toAdminError("이미지 파일만 업로드할 수 있습니다."));
-    }
-
-    const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
-    const uploadedUrls: string[] = [];
-
-    for (let index = 0; index < imageFiles.length; index += 1) {
-      const file = imageFiles[index];
-      const safeName = sanitizeFileName(file.name);
-      const filePath = `${user.id}/${Date.now()}-${index + 1}-${safeName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, {
-          contentType: file.type,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        redirect(toAdminError(`이미지 업로드 실패: ${uploadError.message}`));
-      }
-
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      uploadedUrls.push(data.publicUrl);
-    }
-
-    if (uploadedUrls.length > 0) {
-      resolvedImageUrl = uploadedUrls[0];
-      resolvedImageUrls = uploadedUrls;
-    }
-  }
-
-  if (!resolvedImageUrl) {
+  if (imageFiles.length === 0) {
     redirect(toAdminError("이미지 파일을 1장 이상 업로드해 주세요."));
   }
 
-  const payload: Record<string, unknown> = {
-    name,
-    type,
-    is_visible: isVisible,
-    is_featured: isFeatured,
-    created_by: user.id,
-  };
+  if (imageFiles.length > 5) {
+    redirect(toAdminError("이미지는 최대 5장까지 업로드할 수 있습니다."));
+  }
 
-  if (modelCode) payload.model_code = modelCode;
-  if (description) payload.description = description;
-  if (resolvedImageUrls.length > 0) payload.image_urls = resolvedImageUrls;
-  if (status) payload.status = status;
+  const uploadedUrls = await uploadImageFiles(
+    imageFiles,
+    session.user.id,
+    supabase,
+    "createError",
+  );
 
-  const error = await runEquipmentInsertWithImageFallback(supabase, payload);
+  const type = normalizeType(typeInput);
+  if (!type) {
+    redirect(toAdminError("지원하지 않는 장비 타입입니다."));
+  }
 
-  if (error) {
-    redirect(toAdminError(`등록 실패: ${error.message}`));
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl()}/equipments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        code: modelCode || undefined,
+        type,
+        status: normalizeStatus(statusInput),
+        saleEnabled: type !== "rental",
+        rentalEnabled: type !== "sale",
+        imageUrl: uploadedUrls[0],
+      }),
+      cache: "no-store",
+    });
+  } catch {
+    redirect(toAdminError("백엔드 연결에 실패했습니다. 서버 상태를 확인해 주세요."));
+  }
+
+  if (!response.ok) {
+    const message = await readApiError(response);
+    redirect(toAdminError(`등록 실패: ${message}`));
   }
 
   revalidatePath("/admin");
   revalidatePath("/equipment");
-
   redirect("/admin?created=1");
 }
 
@@ -276,10 +249,10 @@ export async function updateEquipmentAction(formData: FormData) {
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.access_token || !session.user) {
     redirect(toAdminError("로그인이 만료되었습니다. 다시 로그인해 주세요.", "updateError"));
   }
 
@@ -287,6 +260,8 @@ export async function updateEquipmentAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const modelCode = String(formData.get("model_code") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
+  const typeInput = String(formData.get("type") ?? "").trim();
+  const statusInput = String(formData.get("status") ?? "").trim();
   const keepImageUrls = formData
     .getAll("keep_image_urls")
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
@@ -294,10 +269,6 @@ export async function updateEquipmentAction(formData: FormData) {
   const newImageFiles = [1, 2, 3, 4, 5]
     .map((index) => formData.get(`new_image_file_${index}`))
     .filter((value): value is File => value instanceof File && value.size > 0);
-  const type = String(formData.get("type") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim();
-  const isVisible = formData.get("is_visible") === "on";
-  const isFeatured = formData.get("is_featured") === "on";
 
   if (!equipmentId) {
     redirect(toAdminError("수정할 장비를 찾을 수 없습니다.", "updateError"));
@@ -307,11 +278,15 @@ export async function updateEquipmentAction(formData: FormData) {
     redirect(toAdminError("장비명을 입력해 주세요.", "updateError"));
   }
 
-  if (!type) {
+  if (!typeInput) {
     redirect(toAdminError("장비 타입을 입력해 주세요.", "updateError"));
   }
 
-  if (!EQUIPMENT_TYPE_VALUES.includes(type as (typeof EQUIPMENT_TYPE_VALUES)[number])) {
+  if (
+    !EQUIPMENT_TYPE_VALUES.includes(
+      typeInput as (typeof EQUIPMENT_TYPE_VALUES)[number],
+    )
+  ) {
     redirect(
       toAdminError(
         `지원하지 않는 장비 타입입니다. (${EQUIPMENT_TYPE_VALUES.join(", ")})`,
@@ -321,9 +296,9 @@ export async function updateEquipmentAction(formData: FormData) {
   }
 
   if (
-    status &&
+    statusInput &&
     !EQUIPMENT_STATUS_VALUES.includes(
-      status as (typeof EQUIPMENT_STATUS_VALUES)[number],
+      statusInput as (typeof EQUIPMENT_STATUS_VALUES)[number],
     )
   ) {
     redirect(
@@ -338,37 +313,12 @@ export async function updateEquipmentAction(formData: FormData) {
     redirect(toAdminError("새 이미지는 최대 5장까지 업로드할 수 있습니다.", "updateError"));
   }
 
-  if (newImageFiles.some((file) => !file.type.startsWith("image/"))) {
-    redirect(toAdminError("이미지 파일만 업로드할 수 있습니다.", "updateError"));
-  }
-
-  const { imageUrls: currentImageUrls, errorMessage } =
-    await loadEquipmentImageUrls(supabase, equipmentId);
-  const shouldSkipOldImageCleanup = Boolean(errorMessage);
-
-  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
-  const uploadedUrls: string[] = [];
-
-  for (let index = 0; index < newImageFiles.length; index += 1) {
-    const file = newImageFiles[index];
-    const safeName = sanitizeFileName(file.name);
-    const filePath = `${user.id}/${Date.now()}-${index + 1}-${safeName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      redirect(toAdminError(`이미지 업로드 실패: ${uploadError.message}`, "updateError"));
-    }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-    uploadedUrls.push(data.publicUrl);
-  }
-
+  const uploadedUrls = await uploadImageFiles(
+    newImageFiles,
+    session.user.id,
+    supabase,
+    "updateError",
+  );
   const nextImageUrls = [...keepImageUrls, ...uploadedUrls];
 
   if (nextImageUrls.length === 0) {
@@ -380,51 +330,42 @@ export async function updateEquipmentAction(formData: FormData) {
     );
   }
 
-  if (!shouldSkipOldImageCleanup) {
-    const removedImageUrls = currentImageUrls.filter(
-      (url) => !keepImageUrls.includes(url),
-    );
-    const removePaths = removedImageUrls
-      .map((url) => extractStoragePathFromPublicUrl(url, bucket))
-      .filter((value): value is string => Boolean(value));
-
-    if (removePaths.length > 0) {
-      const { error: removeError } = await supabase.storage
-        .from(bucket)
-        .remove(removePaths);
-      if (removeError) {
-        redirect(toAdminError(`기존 이미지 삭제 실패: ${removeError.message}`, "updateError"));
-      }
-    }
+  const type = normalizeType(typeInput);
+  if (!type) {
+    redirect(toAdminError("지원하지 않는 장비 타입입니다.", "updateError"));
   }
 
-  const payload: Record<string, unknown> = {
-    name,
-    type,
-    is_visible: isVisible,
-    is_featured: isFeatured,
-    image_urls: nextImageUrls,
-  };
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl()}/equipments/${equipmentId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        code: modelCode || undefined,
+        type,
+        status: normalizeStatus(statusInput),
+        saleEnabled: type !== "rental",
+        rentalEnabled: type !== "sale",
+        imageUrl: nextImageUrls[0],
+      }),
+      cache: "no-store",
+    });
+  } catch {
+    redirect(toAdminError("백엔드 연결에 실패했습니다. 서버 상태를 확인해 주세요.", "updateError"));
+  }
 
-  if (modelCode) payload.model_code = modelCode;
-  else payload.model_code = null;
-  if (description) payload.description = description;
-  else payload.description = null;
-  if (status) payload.status = status;
-
-  const error = await runEquipmentUpdateWithImageFallback(
-    supabase,
-    equipmentId,
-    payload,
-  );
-
-  if (error) {
-    redirect(toAdminError(`수정 실패: ${error.message}`, "updateError"));
+  if (!response.ok) {
+    const message = await readApiError(response);
+    redirect(toAdminError(`수정 실패: ${message}`, "updateError"));
   }
 
   revalidatePath("/admin");
   revalidatePath("/equipment");
-
   redirect("/admin?updated=1");
 }
 
@@ -441,10 +382,10 @@ export async function deleteEquipmentAction(formData: FormData) {
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.access_token) {
     redirect(toAdminError("로그인이 만료되었습니다. 다시 로그인해 주세요.", "deleteError"));
   }
 
@@ -453,37 +394,25 @@ export async function deleteEquipmentAction(formData: FormData) {
     redirect(toAdminError("삭제할 장비를 찾을 수 없습니다.", "deleteError"));
   }
 
-  const { imageUrls: currentImageUrls, errorMessage } =
-    await loadEquipmentImageUrls(supabase, equipmentId);
-  const shouldSkipStorageImageDelete = Boolean(errorMessage);
-
-  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
-  if (!shouldSkipStorageImageDelete) {
-    const removePaths = currentImageUrls
-      .map((url) => extractStoragePathFromPublicUrl(url, bucket))
-      .filter((value): value is string => Boolean(value));
-
-    if (removePaths.length > 0) {
-      const { error: removeError } = await supabase.storage
-        .from(bucket)
-        .remove(removePaths);
-      if (removeError) {
-        redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"));
-      }
-    }
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl()}/equipments/${equipmentId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    });
+  } catch {
+    redirect(toAdminError("백엔드 연결에 실패했습니다. 서버 상태를 확인해 주세요.", "deleteError"));
   }
 
-  const { error: deleteError } = await supabase
-    .from("equipment")
-    .delete()
-    .eq("id", equipmentId);
-
-  if (deleteError) {
-    redirect(toAdminError(`삭제 실패: ${deleteError.message}`, "deleteError"));
+  if (!response.ok) {
+    const message = await readApiError(response);
+    redirect(toAdminError(`삭제 실패: ${message}`, "deleteError"));
   }
 
   revalidatePath("/admin");
   revalidatePath("/equipment");
-
   redirect("/admin?deleted=1");
 }
