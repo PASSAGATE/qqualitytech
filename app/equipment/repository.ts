@@ -1,6 +1,28 @@
 import { createServerSupabaseClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { equipmentCatalog, type EquipmentItem } from "./data";
 
+type EquipmentApiItem = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  code: string | null;
+  salePrice: number;
+  monthlyRentalPrice: number;
+  totalCount: number;
+  availableCount: number;
+  type: string;
+  status: string;
+  saleEnabled: boolean;
+  rentalEnabled: boolean;
+  imageUrl: string | null;
+  createdAt: string;
+};
+
+type EquipmentApiListResponse = {
+  items?: EquipmentApiItem[];
+};
+
 type EquipmentDbRow = {
   id?: string | number | null;
   name?: string | null;
@@ -33,6 +55,14 @@ type EquipmentDbRow = {
   manager_name?: string | null;
   created_at?: string | null;
 };
+
+function apiBaseUrl() {
+  return (
+    process.env.BACKEND_API_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    "http://localhost:4000/api/v1"
+  );
+}
 
 export type EquipmentAdminRow = {
   equipmentId: string;
@@ -287,6 +317,11 @@ function formatDate(dateInput: string | null | undefined): string {
 }
 
 async function fetchEquipmentRowsFromDb(): Promise<EquipmentDbRow[] | null> {
+  const apiRows = await fetchEquipmentRowsFromApi();
+  if (apiRows && apiRows.length > 0) {
+    return apiRows;
+  }
+
   if (!isSupabaseConfigured()) {
     return null;
   }
@@ -307,6 +342,69 @@ async function fetchEquipmentRowsFromDb(): Promise<EquipmentDbRow[] | null> {
   }
 
   return data as EquipmentDbRow[];
+}
+
+async function fetchEquipmentRowsFromApi(): Promise<EquipmentDbRow[] | null> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/equipments?limit=200`, {
+      cache: "no-store",
+    });
+  } catch {
+    return null;
+  }
+
+  if (!response.ok) {
+    return null;
+  }
+
+  let data: EquipmentApiListResponse;
+  try {
+    data = (await response.json()) as EquipmentApiListResponse;
+  } catch {
+    return null;
+  }
+
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  return items.map((item) => {
+    const normalizedType = item.type?.toLowerCase() ?? "sale";
+    const category =
+      normalizedType === "rental" ? "rental" : "sale";
+
+    return {
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      title: item.name,
+      description: item.description,
+      summary: item.description,
+      model_code: item.code,
+      image: item.imageUrl,
+      type: normalizedType,
+      category,
+      category_label: toCategoryLabel(category),
+      status: item.status,
+      is_visible: item.status?.toLowerCase() === "active",
+      is_featured: false,
+      created_at: item.createdAt,
+      specs: [
+        {
+          label: "판매가",
+          value: `${item.salePrice.toLocaleString("ko-KR")}원`,
+        },
+        {
+          label: "월 임대료",
+          value: `${item.monthlyRentalPrice.toLocaleString("ko-KR")}원`,
+        },
+        {
+          label: "재고",
+          value: `${item.availableCount}/${item.totalCount}`,
+        },
+      ],
+    } satisfies EquipmentDbRow;
+  });
 }
 
 export async function fetchEquipmentCatalog(): Promise<EquipmentItem[]> {
