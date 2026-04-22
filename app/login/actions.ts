@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 
 function toLoginError(message: string) {
   return `/login?error=${encodeURIComponent(message)}`;
@@ -36,5 +37,21 @@ export async function loginAction(formData: FormData) {
     redirect(toLoginError(`로그인에 실패했습니다: ${error.message}`));
   }
 
-  redirect("/admin");
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    redirect(toLoginError("로그인 세션을 가져오지 못했습니다."));
+  }
+
+  const role = await resolveUserRoleFromBackend(session.access_token);
+  if (!role) {
+    await supabase.auth.signOut();
+    redirect(
+      toLoginError("세션 확인에 실패했습니다. 다시 로그인해 주세요."),
+    );
+  }
+
+  redirect(role === "ADMIN" ? "/admin" : "/my-page");
 }

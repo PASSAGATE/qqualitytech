@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 
 export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -43,6 +44,9 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   const path = request.nextUrl.pathname;
   const isAdminRoute = path.startsWith("/admin");
@@ -55,9 +59,33 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (user && isAdminRoute) {
+    const role = session?.access_token
+      ? await resolveUserRoleFromBackend(session.access_token)
+      : null;
+
+    if (role !== "ADMIN") {
+      const url = request.nextUrl.clone();
+      if (role === "CUSTOMER") {
+        url.pathname = "/my-page";
+        url.searchParams.set("error", "관리자 권한이 필요합니다.");
+      } else {
+        url.pathname = "/login";
+        url.searchParams.set("error", "세션이 만료되었습니다. 다시 로그인해 주세요.");
+      }
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (user && isLoginRoute) {
+    const role = session?.access_token
+      ? await resolveUserRoleFromBackend(session.access_token)
+      : null;
+    if (!role) {
+      return response;
+    }
     const url = request.nextUrl.clone();
-    url.pathname = "/admin";
+    url.pathname = role === "ADMIN" ? "/admin" : "/my-page";
     url.search = "";
     return NextResponse.redirect(url);
   }

@@ -20,6 +20,7 @@ import {
 import { logoutAction } from "./actions";
 import { fetchAdminEquipmentRows } from "../equipment/repository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { AddEquipmentModal } from "./add-equipment-modal";
 import { EditEquipmentModal } from "./edit-equipment-modal";
 import { DeleteEquipmentButton } from "./delete-equipment-button";
@@ -155,10 +156,22 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!user) {
     redirect(
       "/login?error=%EA%B4%80%EB%A6%AC%EC%9E%90%20%ED%8E%98%EC%9D%B4%EC%A7%80%EB%8A%94%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%ED%9B%84%20%EC%9D%B4%EC%9A%A9%ED%95%A0%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.",
+    );
+  }
+
+  const role = session?.access_token
+    ? await resolveUserRoleFromBackend(session.access_token)
+    : null;
+  if (role !== "ADMIN") {
+    redirect(
+      "/my-page?error=%EA%B4%80%EB%A6%AC%EC%9E%90%20%EA%B6%8C%ED%95%9C%EC%9D%B4%20%ED%95%84%EC%9A%94%ED%95%A9%EB%8B%88%EB%8B%A4.",
     );
   }
 

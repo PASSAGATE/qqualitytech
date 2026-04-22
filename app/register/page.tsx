@@ -123,6 +123,15 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             <p className="mt-2 text-sm text-on-surface-variant">
               callback 이후 session이 VERIFIED 상태일 때만 완료됩니다.
             </p>
+            <p className="mt-2 text-sm text-on-surface-variant">
+              이미 계정이 있으신가요?{" "}
+              <Link
+                href="/login"
+                className="font-bold text-secondary transition-colors hover:text-[#fd7629]"
+              >
+                로그인
+              </Link>
+            </p>
 
             {!verifyStarted && !done ? (
               <p className="mt-4 rounded-md bg-surface-container-highest px-4 py-3 text-sm text-on-surface-variant">
@@ -194,4 +203,3 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
     </main>
   );
 }
-

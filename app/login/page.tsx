@@ -175,6 +175,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 로그인
                 <Icon icon={ArrowRight} className="size-5" />
               </button>
+
+              <p className="text-center text-sm text-on-surface-variant">
+                아직 계정이 없으신가요?{" "}
+                <Link
+                  href="/register"
+                  className="font-bold text-secondary transition-colors hover:text-[#fd7629]"
+                >
+                  회원가입
+                </Link>
+              </p>
             </form>
 
             <div className="mt-12 flex flex-col items-center gap-4 border-t border-outline-variant/20 pt-8">
