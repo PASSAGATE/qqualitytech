@@ -190,9 +190,12 @@ export function AddEquipmentModal() {
                     name="sale_price"
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    placeholder="숫자를 입력해 주세요"
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   />
+                  <p className="text-xs font-medium text-on-surface-variant">
+                    비워두면 0원으로 저장됩니다.
+                  </p>
                 </label>
               ) : (
                 <input type="hidden" name="sale_price" value={0} />
@@ -205,9 +208,12 @@ export function AddEquipmentModal() {
                     name="monthly_rental_price"
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    placeholder="숫자를 입력해 주세요"
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   />
+                  <p className="text-xs font-medium text-on-surface-variant">
+                    비워두면 0원으로 저장됩니다.
+                  </p>
                 </label>
               ) : (
                 <input type="hidden" name="monthly_rental_price" value={0} />
@@ -220,9 +226,12 @@ export function AddEquipmentModal() {
                     name="total_count"
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    placeholder="수량을 입력해 주세요"
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   />
+                  <p className="text-xs font-medium text-on-surface-variant">
+                    비워두면 0개로 저장됩니다.
+                  </p>
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-primary">
                   사용 가능 수량
@@ -230,9 +239,12 @@ export function AddEquipmentModal() {
                     name="available_count"
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    placeholder="수량을 입력해 주세요"
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   />
+                  <p className="text-xs font-medium text-on-surface-variant">
+                    비워두면 0개로 저장됩니다.
+                  </p>
                 </label>
               </div>
 

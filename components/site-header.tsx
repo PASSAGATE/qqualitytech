@@ -3,6 +3,7 @@ import { ShoppingCart, UserRound } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { logoutAction } from "@/app/admin/actions";
+import { fetchMyCart } from "@/lib/backend/cart";
 
 const navigation = [
   { label: "홈", href: "/" },
@@ -27,6 +28,10 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const role = session?.access_token
     ? await resolveUserRoleFromBackend(session.access_token)
     : null;
+  const cart = session?.access_token
+    ? await fetchMyCart(session.access_token)
+    : null;
+  const cartCount = cart?.summary.totalQuantity ?? 0;
   const avatarUrl =
     typeof user?.user_metadata?.avatar_url === "string"
       ? user.user_metadata.avatar_url
@@ -86,6 +91,11 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                 >
                   <ShoppingCart className="size-4" />
                   장바구니
+                  {cartCount > 0 ? (
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {cartCount}
+                    </span>
+                  ) : null}
                 </Link>
                 <details className="relative">
                   <summary
@@ -174,6 +184,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                         className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
                       >
                         장바구니
+                        {cartCount > 0 ? ` (${cartCount})` : ""}
                       </Link>
                     </>
                   ) : (

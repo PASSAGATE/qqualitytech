@@ -19,8 +19,7 @@ import { fetchAdminEquipmentRows } from "../equipment/repository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { AddEquipmentModal } from "./add-equipment-modal";
-import { EditEquipmentModal } from "./edit-equipment-modal";
-import { DeleteEquipmentButton } from "./delete-equipment-button";
+import { EquipmentManagementPanel } from "./equipment-management-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -68,34 +67,6 @@ function Icon({
   return (
     <IconComponent aria-hidden="true" className={className} strokeWidth={1.8} />
   );
-}
-
-function getStatusStyles(statusTone: string) {
-  if (statusTone === "active") {
-    return {
-      dotClassName: "bg-secondary",
-      textClassName: "text-primary",
-    };
-  }
-
-  if (statusTone === "maintenance") {
-    return {
-      dotClassName: "bg-[#ba1a1a]",
-      textClassName: "text-[#ba1a1a]",
-    };
-  }
-
-  if (statusTone === "warning") {
-    return {
-      dotClassName: "bg-[#fd7629]",
-      textClassName: "text-[#a04100]",
-    };
-  }
-
-  return {
-    dotClassName: "bg-outline",
-    textClassName: "text-on-surface-variant",
-  };
 }
 
 type EquipmentInquiryRow = {
@@ -203,24 +174,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const equipmentBySlug = new Map(
     equipmentAdminRows.map((row) => [row.item.slug, row]),
   );
-  const searchQuery = (q ?? "").trim().toLowerCase();
-  const selectedType = (type ?? "all").toLowerCase();
-  const selectedStatus = (status ?? "all").toLowerCase();
-
-  const filteredRows = equipmentAdminRows.filter((row) => {
-    const matchesQuery =
-      searchQuery.length === 0 ||
-      row.item.title.toLowerCase().includes(searchQuery) ||
-      row.item.model.toLowerCase().includes(searchQuery);
-
-    const matchesType =
-      selectedType === "all" || row.typeValue.toLowerCase() === selectedType;
-    const matchesStatus =
-      selectedStatus === "all" ||
-      row.statusValue.toLowerCase() === selectedStatus;
-
-    return matchesQuery && matchesType && matchesStatus;
-  });
 
   const totalEquipmentCount = equipmentAdminRows.length;
   const availableEquipmentCount = equipmentAdminRows.filter(
@@ -287,20 +240,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 EQUIP-MASTER
               </span>
 
-              <form method="get" className="relative block w-full md:w-72">
-                <input type="hidden" name="type" value={selectedType} />
-                <input type="hidden" name="status" value={selectedStatus} />
+              <div className="relative block w-full md:w-72">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-on-surface-variant">
                   <Icon icon={Search} className="size-4" />
                 </span>
                 <input
                   type="text"
-                  name="q"
-                  defaultValue={q ?? ""}
+                  value={q ?? ""}
+                  readOnly
                   placeholder="장비 모델명 또는 코드 검색..."
                   className="w-full rounded-sm border-none bg-surface-container-low py-2 pl-10 pr-4 text-sm outline-none transition-all focus:ring-1 focus:ring-secondary/50"
                 />
-              </form>
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-4 md:justify-end">
@@ -522,206 +473,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             ) : null}
           </section>
 
-          <form
-            method="get"
-            className="mb-6 flex flex-wrap items-center gap-4 rounded-sm bg-surface-container-low p-4"
-          >
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                검색:
-              </label>
-              <input
-                name="q"
-                defaultValue={q ?? ""}
-                placeholder="장비명/모델"
-                className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-secondary"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                타입:
-              </label>
-              <select
-                name="type"
-                defaultValue={type ?? "all"}
-                className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary"
-              >
-                <option value="all">전체</option>
-                <option value="sale">판매(sale)</option>
-                <option value="rental">임대(rental)</option>
-                <option value="sale_and_rental">판매+임대(sale_and_rental)</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                상태:
-              </label>
-              <select
-                name="status"
-                defaultValue={status ?? "all"}
-                className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary"
-              >
-                <option value="all">전체</option>
-                <option value="active">활성(active)</option>
-                <option value="inactive">비활성(inactive)</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-white transition-all hover:opacity-90"
-              style={{
-                background: "linear-gradient(135deg, #1b7cff 0%, #00a2ff 100%)",
-                boxShadow: "0 10px 20px rgba(0, 130, 255, 0.3)",
-              }}
-            >
-              필터 적용
-            </button>
-
-            <Link
-              href="/admin"
-              className="ml-auto text-xs font-bold text-secondary transition-colors hover:underline"
-            >
-              필터 초기화
-            </Link>
-          </form>
-
-          <section className="overflow-hidden rounded-sm bg-surface-container-lowest shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="min-w-[1080px] w-full border-collapse text-left">
-                <thead>
-                  <tr className="bg-primary text-white">
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      이미지
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      장비명 / 모델
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      타입
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      상태
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      가격/재고
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      등록정보
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-[0.22em]">
-                      관리
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-outline-variant/10">
-                  {filteredRows.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-6 py-12 text-center text-sm font-semibold text-on-surface-variant"
-                      >
-                        검색/필터 조건에 맞는 장비가 없습니다.
-                      </td>
-                    </tr>
-                  ) : null}
-                  {filteredRows.map((row) => {
-                    const statusStyles = getStatusStyles(row.status.tone);
-
-                    return (
-                      <tr
-                        key={row.equipmentId}
-                        className="group transition-colors hover:bg-surface-container"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="relative h-12 w-12 overflow-hidden rounded-sm border border-outline-variant/20 bg-surface-container-high">
-                            <Image
-                              src={row.item.image}
-                              alt={row.item.alt}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-primary">
-                              {row.item.title}
-                            </span>
-                            <span className="text-xs font-medium text-secondary">
-                              {row.item.model.replace("MODEL: ", "")}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="rounded-sm bg-surface-container-highest px-2 py-1 text-[10px] font-bold uppercase">
-                            {row.typeLabel}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`h-2 w-2 rounded-full ${statusStyles.dotClassName}`}
-                            />
-                            <span
-                              className={`text-sm font-medium ${statusStyles.textClassName}`}
-                            >
-                              {row.status.label}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-xs text-on-surface-variant">
-                            <p>판매가: {row.salePrice.toLocaleString("ko-KR")}원</p>
-                            <p>월 임대료: {row.monthlyRentalPrice.toLocaleString("ko-KR")}원</p>
-                            <p>재고: {row.availableCount}/{row.totalCount}</p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-on-surface-variant">
-                              {row.createdAt}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="inline-flex items-center gap-2">
-                            <EditEquipmentModal
-                              equipmentId={row.equipmentId}
-                              name={row.name}
-                              modelCode={row.modelCode}
-                              description={row.description}
-                              typeValue={row.typeValue}
-                              statusValue={row.statusValue}
-                              salePrice={row.salePrice}
-                              monthlyRentalPrice={row.monthlyRentalPrice}
-                              totalCount={row.totalCount}
-                              availableCount={row.availableCount}
-                              imageUrls={row.imageUrls}
-                            />
-                            <DeleteEquipmentButton
-                              equipmentId={row.equipmentId}
-                              title={row.item.title}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex flex-col gap-4 border-t border-outline-variant/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-medium text-on-surface-variant">
-                전체 {totalEquipmentCount}개 중 {filteredRows.length}개 표시
-              </p>
-            </div>
-          </section>
+          <EquipmentManagementPanel
+            rows={equipmentAdminRows}
+            initialQuery={q ?? ""}
+            initialType={type ?? "all"}
+            initialStatus={status ?? "all"}
+          />
         </main>
 
         <footer className="mt-auto flex flex-col gap-4 border-t border-outline-variant/10 bg-surface-container-low px-5 py-8 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12">
