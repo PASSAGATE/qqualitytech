@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { ShoppingCart, UserRound } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
+import { logoutAction } from "@/app/admin/actions";
 
 const navigation = [
   { label: "홈", href: "/" },
@@ -14,12 +17,31 @@ const navigation = [
 export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const supabase = await createServerSupabaseClient();
   const {
+    data: { session },
+  } = supabase
+    ? await supabase.auth.getSession()
+    : { data: { session: null } };
+  const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const role = session?.access_token
+    ? await resolveUserRoleFromBackend(session.access_token)
+    : null;
+  const avatarUrl =
+    typeof user?.user_metadata?.avatar_url === "string"
+      ? user.user_metadata.avatar_url
+      : null;
+  const userName =
+    (typeof user?.user_metadata?.full_name === "string" &&
+      user.user_metadata.full_name.trim()) ||
+    (typeof user?.user_metadata?.name === "string" &&
+      user.user_metadata.name.trim()) ||
+    (user?.email ? user.email.split("@")[0] : "");
 
-  const navigationItems = user
-    ? [...navigation, { label: "관리자", href: "/admin" as const }]
-    : navigation;
+  const dashboardHref = role === "admin" ? "/admin" : "/my-page";
+  const dashboardLabel = role === "admin" ? "관리자 페이지" : "마이페이지";
+
+  const navigationItems = navigation;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/85 shadow-sm backdrop-blur-xl">
@@ -48,17 +70,77 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/contact"
-              className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
-              style={{
-                background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
-                boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
-              }}
-            >
-              상담 및 견적 요청
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {user ? (
+              <>
+                <Link
+                  href={dashboardHref}
+                  className="hidden items-center gap-1.5 rounded-md border border-outline-variant/60 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary sm:inline-flex"
+                >
+                  <UserRound className="size-4" />
+                  {dashboardLabel}
+                </Link>
+                <Link
+                  href="/cart"
+                  className="hidden items-center gap-1.5 rounded-md border border-outline-variant/60 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary sm:inline-flex"
+                >
+                  <ShoppingCart className="size-4" />
+                  장바구니
+                </Link>
+                <details className="relative">
+                  <summary
+                    className="inline-flex list-none cursor-pointer items-center rounded-full border border-outline-variant/60 p-1 transition-colors hover:border-secondary [&::-webkit-details-marker]:hidden"
+                    aria-label={`${dashboardLabel} 메뉴`}
+                  >
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt="사용자 프로필 이미지"
+                        className="h-8 w-8 rounded-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-container text-xs font-bold text-white">
+                        {userName ? userName.slice(0, 1).toUpperCase() : "U"}
+                      </span>
+                    )}
+                  </summary>
+                  <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-56 rounded-lg border border-outline-variant/60 bg-white p-3 shadow-xl">
+                    <p className="truncate text-sm font-semibold text-primary">
+                      {userName || "사용자"}
+                    </p>
+                    <p className="mt-1 text-xs text-on-surface-variant">{dashboardLabel}</p>
+                    <form action={logoutAction} className="mt-3">
+                      <button
+                        type="submit"
+                        className="w-full rounded-md bg-primary-container px-3 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                      >
+                        로그아웃
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="rounded-md border border-outline-variant/70 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary"
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/contact"
+                  className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+                  style={{
+                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
+                  }}
+                >
+                  상담 및 견적 요청
+                </Link>
+              </div>
+            )}
             <details className="group lg:hidden">
               <summary className="inline-flex list-none items-center rounded-md border border-outline-variant/80 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary [&::-webkit-details-marker]:hidden">
                 메뉴
@@ -79,6 +161,29 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                       {item.label}
                     </Link>
                   ))}
+                  {user ? (
+                    <>
+                      <Link
+                        href={dashboardHref}
+                        className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                      >
+                        {dashboardLabel}
+                      </Link>
+                      <Link
+                        href="/cart"
+                        className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                      >
+                        장바구니
+                      </Link>
+                    </>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                    >
+                      로그인
+                    </Link>
+                  )}
 
                   <Link
                     href="/contact"

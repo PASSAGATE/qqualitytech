@@ -16,6 +16,7 @@ type EquipmentApiItem = {
   saleEnabled: boolean;
   rentalEnabled: boolean;
   imageUrl: string | null;
+  imageUrls?: string[];
   createdAt: string;
 };
 
@@ -27,6 +28,10 @@ type EquipmentDbRow = {
   id?: string | number | null;
   name?: string | null;
   model_code?: string | null;
+  sale_price?: number | null;
+  monthly_rental_price?: number | null;
+  total_count?: number | null;
+  available_count?: number | null;
   image_urls?: unknown;
   type?: string | null;
   slug?: string | null;
@@ -52,6 +57,8 @@ type EquipmentDbRow = {
   is_featured?: boolean | null;
   is_visible?: boolean | null;
   status?: string | null;
+  sale_enabled?: boolean | null;
+  rental_enabled?: boolean | null;
   manager_name?: string | null;
   created_at?: string | null;
 };
@@ -62,6 +69,18 @@ function apiBaseUrl() {
     process.env.NEXT_PUBLIC_API_BASE_URL ??
     "http://localhost:4000/api/v1"
   );
+}
+
+function apiBaseUrlCandidates() {
+  const primary = apiBaseUrl().trim();
+  const normalizedPrimary = primary.replace(/\/+$/, "");
+  const candidates = [normalizedPrimary];
+
+  if (normalizedPrimary.includes("://localhost:")) {
+    candidates.push(normalizedPrimary.replace("://localhost:", "://127.0.0.1:"));
+  }
+
+  return Array.from(new Set(candidates));
 }
 
 export type EquipmentAdminRow = {
@@ -75,12 +94,77 @@ export type EquipmentAdminRow = {
   typeValue: string;
   typeLabel: string;
   statusValue: string;
-  status: { label: string; tone: "active" | "maintenance" | "warning" | "inactive" };
-  featured: boolean;
-  visible: boolean;
-  manager: string;
+  status: { label: string; tone: "active" | "inactive" };
+  salePrice: number;
+  monthlyRentalPrice: number;
+  totalCount: number;
+  availableCount: number;
+  saleEnabled: boolean;
+  rentalEnabled: boolean;
   createdAt: string;
 };
+
+const DEFAULT_EQUIPMENT_IMAGE = "/window.svg";
+
+function toSafeImageUrl(input: string | null | undefined): string {
+  const value = input?.trim();
+  if (!value) {
+    return DEFAULT_EQUIPMENT_IMAGE;
+  }
+
+  if (value.startsWith("/")) {
+    return value;
+  }
+
+  try {
+    const url = new URL(value);
+    const isAllowedHost =
+      url.hostname === "lh3.googleusercontent.com" ||
+      url.hostname.endsWith(".supabase.co");
+
+    if (url.protocol === "https:" && isAllowedHost) {
+      return value;
+    }
+  } catch {
+    return DEFAULT_EQUIPMENT_IMAGE;
+  }
+
+  return DEFAULT_EQUIPMENT_IMAGE;
+}
+
+function buildMinimalItem(row: EquipmentDbRow): EquipmentItem {
+  const rawId =
+    typeof row.id === "string" || typeof row.id === "number"
+      ? String(row.id)
+      : "unknown";
+  const title = row.name?.trim() || row.title?.trim() || `장비 ${rawId.slice(0, 8)}`;
+  const image = toSafeImageUrl(row.image?.trim() || equipmentCatalog[0]?.image || "");
+  const slug = slugify(row.slug?.trim() || title) || `equipment-${rawId.slice(0, 8).toLowerCase()}`;
+  const type = row.type?.trim()?.toLowerCase() || "sale";
+  const category = type === "rental" ? "rental" : "sale";
+  const modelCode = row.model_code?.trim() || "N/A";
+
+  return {
+    slug,
+    category,
+    categoryLabel: toCategoryLabel(category),
+    cardTag: "GENERAL",
+    model: `MODEL: ${modelCode}`,
+    itemCode: modelCode,
+    catalogCategory: "산업 장비",
+    title,
+    summary: row.description?.trim() || "",
+    description: row.description?.trim() || "",
+    image,
+    alt: title,
+    specs: [],
+    gallery: [{ image, alt: title }],
+    features: [],
+    technicalSpecs: [],
+    relatedSlugs: [],
+    relatedDescription: "",
+  };
+}
 
 function asRecordArray(input: unknown): Array<Record<string, unknown>> {
   if (!Array.isArray(input)) {
@@ -183,6 +267,15 @@ function toCategoryLabel(category: string): string {
   const normalized = category.toLowerCase();
   if (normalized === "sale") return "판매 장비";
   if (normalized === "rental") return "임대 장비";
+  if (normalized === "sale_and_rental") return "판매/임대 장비";
+  return "기타 장비";
+}
+
+function toTypeLabel(type: string | null | undefined): string {
+  const normalized = (type ?? "").toLowerCase().trim();
+  if (normalized === "sale") return "판매 장비";
+  if (normalized === "rental") return "임대 장비";
+  if (normalized === "sale_and_rental") return "판매/임대 장비";
   return "기타 장비";
 }
 
@@ -195,7 +288,7 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
   const slug = slugBase ? slugify(slugBase) || fallbackSlug : fallbackSlug;
   const title = row.title?.trim() || row.name?.trim();
   const imageUrlList = asStringArray(row.image_urls);
-  const image = row.image?.trim() || imageUrlList[0] || "";
+  const image = toSafeImageUrl(row.image?.trim() || imageUrlList[0] || "");
   const category = row.category?.trim() || row.type?.trim() || "GENERAL";
   const fallback = slug
     ? equipmentCatalog.find((item) => item.slug === slug)
@@ -208,7 +301,7 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
   const galleryFromImageUrls =
     imageUrlList.length > 0
       ? imageUrlList.map((url, index) => ({
-          image: url,
+          image: toSafeImageUrl(url),
           alt: row.alt?.trim() || title || `equipment image ${index + 1}`,
         }))
       : [];
@@ -237,10 +330,10 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
     summary: row.summary?.trim() || fallback?.summary || "",
     description: row.description?.trim() || fallback?.description || "",
     image:
-      image ||
-      fallback?.image ||
-      equipmentCatalog[0]?.image ||
-      "",
+      toSafeImageUrl(image) ||
+      toSafeImageUrl(fallback?.image) ||
+      toSafeImageUrl(equipmentCatalog[0]?.image) ||
+      DEFAULT_EQUIPMENT_IMAGE,
     alt: row.alt?.trim() || fallback?.alt || title || "equipment",
     badge: row.badge?.trim() || fallback?.badge,
     badgeTone: row.badge_tone?.trim() || fallback?.badgeTone,
@@ -269,32 +362,8 @@ function buildItemFromDb(row: EquipmentDbRow): EquipmentItem | null {
 function toStatus(status: string | null | undefined) {
   const normalized = status?.toLowerCase().trim();
 
-  if (
-    normalized === "active" ||
-    normalized === "running" ||
-    normalized === "available"
-  ) {
-    return { value: "available", label: "운영중", tone: "active" as const };
-  }
-
-  if (normalized === "rented") {
-    return { value: "rented", label: "임대중", tone: "maintenance" as const };
-  }
-
-  if (normalized === "sold") {
-    return { value: "sold", label: "판매완료", tone: "inactive" as const };
-  }
-
-  if (normalized === "maintenance" || normalized === "in_maintenance") {
-    return { value: "in_maintenance", label: "점검중", tone: "maintenance" as const };
-  }
-
-  if (
-    normalized === "warning" ||
-    normalized === "attention" ||
-    normalized === "needs_attention"
-  ) {
-    return { value: "needs_attention", label: "점검 필요", tone: "warning" as const };
+  if (normalized === "active") {
+    return { value: "active", label: "활성", tone: "active" as const };
   }
 
   return { value: "inactive", label: "비활성", tone: "inactive" as const };
@@ -318,7 +387,9 @@ function formatDate(dateInput: string | null | undefined): string {
 
 async function fetchEquipmentRowsFromDb(): Promise<EquipmentDbRow[] | null> {
   const apiRows = await fetchEquipmentRowsFromApi();
-  if (apiRows && apiRows.length > 0) {
+  // API is the source of truth for equipments now.
+  // If API responded (even with empty array), do not fall back to legacy table.
+  if (apiRows !== null) {
     return apiRows;
   }
 
@@ -345,66 +416,92 @@ async function fetchEquipmentRowsFromDb(): Promise<EquipmentDbRow[] | null> {
 }
 
 async function fetchEquipmentRowsFromApi(): Promise<EquipmentDbRow[] | null> {
-  let response: Response;
+  for (const baseUrl of apiBaseUrlCandidates()) {
+    let response: Response;
 
-  try {
-    response = await fetch(`${apiBaseUrl()}/equipments?limit=200`, {
-      cache: "no-store",
-    });
-  } catch {
-    return null;
-  }
+    try {
+      response = await fetch(`${baseUrl}/equipments?limit=100`, {
+        next: { revalidate: 30 },
+      });
+    } catch (error) {
+      console.warn(
+        `[equipment.repository] API fetch failed for ${baseUrl}:`,
+        error,
+      );
+      continue;
+    }
 
-  if (!response.ok) {
-    return null;
-  }
+    if (!response.ok) {
+      console.warn(
+        `[equipment.repository] API responded non-ok for ${baseUrl}: ${response.status}`,
+      );
+      continue;
+    }
 
-  let data: EquipmentApiListResponse;
-  try {
-    data = (await response.json()) as EquipmentApiListResponse;
-  } catch {
-    return null;
-  }
+    let data: EquipmentApiListResponse;
+    try {
+      data = (await response.json()) as EquipmentApiListResponse;
+    } catch (error) {
+      console.warn(
+        `[equipment.repository] API JSON parse failed for ${baseUrl}:`,
+        error,
+      );
+      continue;
+    }
 
-  const items = Array.isArray(data.items) ? data.items : [];
+    const items = Array.isArray(data.items) ? data.items : [];
+    return items.map((item) => {
+      const normalizedType = item.type?.toLowerCase() ?? "sale";
+      const category = normalizedType === "rental" ? "rental" : "sale";
 
-  return items.map((item) => {
-    const normalizedType = item.type?.toLowerCase() ?? "sale";
-    const category =
-      normalizedType === "rental" ? "rental" : "sale";
+      const normalizedImageUrls = Array.isArray(item.imageUrls)
+        ? item.imageUrls.filter((url): url is string => typeof url === "string" && url.trim().length > 0)
+        : item.imageUrl
+          ? [item.imageUrl]
+          : [];
 
-    return {
-      id: item.id,
-      slug: item.slug,
-      name: item.name,
-      title: item.name,
-      description: item.description,
-      summary: item.description,
-      model_code: item.code,
-      image: item.imageUrl,
-      type: normalizedType,
-      category,
-      category_label: toCategoryLabel(category),
+      return {
+        id: item.id,
+        slug: item.slug,
+        name: item.name,
+        title: item.name,
+        description: item.description,
+        summary: item.description,
+        model_code: item.code,
+        sale_price: item.salePrice,
+        monthly_rental_price: item.monthlyRentalPrice,
+        total_count: item.totalCount,
+        available_count: item.availableCount,
+        image_urls: normalizedImageUrls,
+        image: toSafeImageUrl(normalizedImageUrls[0] ?? item.imageUrl),
+        type: normalizedType,
+        category,
+        category_label: toCategoryLabel(category),
       status: item.status,
+      sale_enabled: item.saleEnabled,
+      rental_enabled: item.rentalEnabled,
       is_visible: item.status?.toLowerCase() === "active",
       is_featured: false,
-      created_at: item.createdAt,
-      specs: [
-        {
-          label: "판매가",
-          value: `${item.salePrice.toLocaleString("ko-KR")}원`,
-        },
-        {
-          label: "월 임대료",
-          value: `${item.monthlyRentalPrice.toLocaleString("ko-KR")}원`,
-        },
-        {
-          label: "재고",
-          value: `${item.availableCount}/${item.totalCount}`,
-        },
-      ],
-    } satisfies EquipmentDbRow;
-  });
+        created_at: item.createdAt,
+        specs: [
+          {
+            label: "판매가",
+            value: `${item.salePrice.toLocaleString("ko-KR")}원`,
+          },
+          {
+            label: "월 임대료",
+            value: `${item.monthlyRentalPrice.toLocaleString("ko-KR")}원`,
+          },
+          {
+            label: "재고",
+            value: `${item.availableCount}/${item.totalCount}`,
+          },
+        ],
+      } satisfies EquipmentDbRow;
+    });
+  }
+
+  return null;
 }
 
 export async function fetchEquipmentCatalog(): Promise<EquipmentItem[]> {
@@ -452,35 +549,12 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
   const rows = await fetchEquipmentRowsFromDb();
 
   if (!rows || rows.length === 0) {
-    return equipmentCatalog.slice(0, 6).map((item, index) => ({
-      equipmentId: `local-${index + 1}`,
-      id: `EQ-${2024 - Math.floor(index / 3)}-${String(index + 1).padStart(3, "0")}`,
-      item,
-      name: item.title,
-      modelCode: item.model.replace("MODEL: ", ""),
-      description: item.description,
-      imageUrls: item.gallery.map((galleryItem) => galleryItem.image),
-      typeValue: "sale",
-      typeLabel: item.categoryLabel,
-      statusValue: "available",
-      status:
-        index % 4 === 0
-          ? { label: "점검중", tone: "maintenance" }
-          : { label: "운영중", tone: "active" },
-      featured: index < 3,
-      visible: index !== 5,
-      manager: "관리자",
-      createdAt: "-",
-    }));
+    return [];
   }
 
   const mapped = rows
-    .map((row, index) => {
-      const item = buildItemFromDb(row);
-
-      if (!item) {
-        return null;
-      }
+    .map((row) => {
+      const item = buildItemFromDb(row) ?? buildMinimalItem(row);
 
       const statusInfo = toStatus(row.status);
       const rawType = row.type?.trim()?.toLowerCase() || row.category?.trim()?.toLowerCase() || "sale";
@@ -488,15 +562,18 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
         typeof row.id === "string" || typeof row.id === "number"
           ? String(row.id)
           : "";
+      if (!rawId) {
+        return null;
+      }
       const shortId =
         typeof row.id === "string"
           ? row.id.slice(0, 8).toUpperCase()
           : typeof row.id === "number"
             ? String(row.id)
-            : String(index + 1).padStart(3, "0");
+            : "UNKNOWN";
 
       return {
-        equipmentId: rawId || `local-${index + 1}`,
+        equipmentId: rawId,
         id: `EQ-${shortId}`,
         item,
         name: row.name?.trim() || item.title,
@@ -507,12 +584,15 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
             ? asStringArray(row.image_urls)
             : [item.image],
         typeValue: rawType,
-        typeLabel: row.category_label?.trim() || item.categoryLabel,
+        typeLabel: toTypeLabel(rawType),
         statusValue: statusInfo.value,
         status: { label: statusInfo.label, tone: statusInfo.tone },
-        featured: row.is_featured ?? Boolean(item.badge),
-        visible: row.is_visible ?? true,
-        manager: row.manager_name?.trim() || "관리자",
+        salePrice: row.sale_price ?? 0,
+        monthlyRentalPrice: row.monthly_rental_price ?? 0,
+        totalCount: row.total_count ?? 0,
+        availableCount: row.available_count ?? 0,
+        saleEnabled: row.sale_enabled ?? rawType !== "rental",
+        rentalEnabled: row.rental_enabled ?? rawType !== "sale",
         createdAt: formatDate(row.created_at),
       } satisfies EquipmentAdminRow;
     })

@@ -22,6 +22,8 @@ async function readFilePreview(file: File) {
 
 export function AddEquipmentModal() {
   const [open, setOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<Array<string | null>>(
     Array(IMAGE_SLOT_COUNT).fill(null),
   );
@@ -85,7 +87,44 @@ export function AddEquipmentModal() {
               </button>
             </div>
 
-            <form action={createEquipmentAction} className="space-y-5">
+            <form
+              action={createEquipmentAction}
+              className="space-y-5"
+              onSubmit={(event) => {
+                setFormError(null);
+                const form = event.currentTarget;
+                const total = Number(
+                  (form.elements.namedItem("total_count") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
+                const available = Number(
+                  (form.elements.namedItem("available_count") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
+                const selectedImages = [1, 2, 3, 4, 5]
+                  .map((index) =>
+                    (form.elements.namedItem(`image_file_${index}`) as HTMLInputElement | null)
+                      ?.files?.[0],
+                  )
+                  .filter(Boolean).length;
+
+                if (available > total) {
+                  event.preventDefault();
+                  setFormError("사용 가능 수량은 총 재고 수량보다 클 수 없습니다.");
+                  return;
+                }
+
+                if (selectedImages === 0) {
+                  event.preventDefault();
+                  setFormError("최소 1장 이상의 이미지를 업로드해 주세요.");
+                }
+              }}
+            >
+              {formError ? (
+                <p className="rounded-md border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#c92a2a]">
+                  {formError}
+                </p>
+              ) : null}
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="space-y-2 text-sm font-semibold text-primary">
                   장비명 *
@@ -112,6 +151,9 @@ export function AddEquipmentModal() {
                 <select
                   name="type"
                   required
+                  onChange={(event) => {
+                    setSelectedType(event.target.value);
+                  }}
                   className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   defaultValue=""
                 >
@@ -131,7 +173,7 @@ export function AddEquipmentModal() {
                 <select
                   name="status"
                   className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  defaultValue="available"
+                  defaultValue="active"
                 >
                   {EQUIPMENT_STATUS_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -140,6 +182,59 @@ export function AddEquipmentModal() {
                   ))}
                 </select>
               </label>
+
+              {selectedType === "sale" || selectedType === "sale_and_rental" ? (
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  판매가 (원)
+                  <input
+                    name="sale_price"
+                    type="number"
+                    min={0}
+                    defaultValue={0}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+              ) : (
+                <input type="hidden" name="sale_price" value={0} />
+              )}
+
+              {selectedType === "rental" || selectedType === "sale_and_rental" ? (
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  월 임대료 (원)
+                  <input
+                    name="monthly_rental_price"
+                    type="number"
+                    min={0}
+                    defaultValue={0}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+              ) : (
+                <input type="hidden" name="monthly_rental_price" value={0} />
+              )}
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  총 재고 수량
+                  <input
+                    name="total_count"
+                    type="number"
+                    min={0}
+                    defaultValue={0}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  사용 가능 수량
+                  <input
+                    name="available_count"
+                    type="number"
+                    min={0}
+                    defaultValue={0}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+              </div>
 
               <fieldset className="space-y-3">
                 <legend className="mb-1 text-sm font-semibold text-primary">
@@ -153,9 +248,11 @@ export function AddEquipmentModal() {
                   {Array.from({ length: IMAGE_SLOT_COUNT }).map((_, index) => (
                     <label
                       key={`image-slot-${index + 1}`}
-                      className="space-y-2 text-sm font-semibold text-primary"
+                      className="space-y-2 rounded-md border border-dashed border-outline-variant/40 p-3 text-sm font-semibold text-primary transition-colors hover:border-secondary/60"
                     >
-                      이미지 {index + 1}
+                      <span className="inline-flex items-center rounded-full bg-surface-container-high px-2 py-1 text-[11px] font-bold">
+                        슬롯 {index + 1}
+                      </span>
                       <input
                         name={`image_file_${index + 1}`}
                         type="file"
@@ -202,26 +299,6 @@ export function AddEquipmentModal() {
                   className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                 />
               </label>
-
-              <div className="flex flex-wrap gap-6">
-                <label className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  <input
-                    name="is_visible"
-                    type="checkbox"
-                    defaultChecked
-                    className="h-4 w-4 rounded border-outline-variant text-secondary"
-                  />
-                  노출
-                </label>
-                <label className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  <input
-                    name="is_featured"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-outline-variant text-secondary"
-                  />
-                  추천
-                </label>
-              </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button

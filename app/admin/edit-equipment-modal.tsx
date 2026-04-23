@@ -16,8 +16,10 @@ type EditEquipmentModalProps = {
   description: string;
   typeValue: string;
   statusValue: string;
-  isVisible: boolean;
-  isFeatured: boolean;
+  salePrice: number;
+  monthlyRentalPrice: number;
+  totalCount: number;
+  availableCount: number;
   imageUrls: string[];
 };
 
@@ -39,13 +41,20 @@ export function EditEquipmentModal({
   description,
   typeValue,
   statusValue,
-  isVisible,
-  isFeatured,
+  salePrice,
+  monthlyRentalPrice,
+  totalCount,
+  availableCount,
   imageUrls,
 }: EditEquipmentModalProps) {
   const [open, setOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string>(typeValue || "sale");
   const [newImagePreviews, setNewImagePreviews] = useState<Array<string | null>>(
     Array(NEW_IMAGE_SLOT_COUNT).fill(null),
+  );
+  const [deleteFlags, setDeleteFlags] = useState<boolean[]>(
+    Array(NEW_IMAGE_SLOT_COUNT).fill(false),
   );
   const currentImageUrls = useMemo(() => imageUrls.filter(Boolean), [imageUrls]);
 
@@ -66,6 +75,11 @@ export function EditEquipmentModal({
 
     try {
       const preview = await readFilePreview(file);
+      setDeleteFlags((prev) =>
+        prev.map((value, currentIndex) =>
+          currentIndex === index ? false : value,
+        ),
+      );
       setNewImagePreviews((prev) =>
         prev.map((value, currentIndex) =>
           currentIndex === index ? preview : value,
@@ -108,7 +122,49 @@ export function EditEquipmentModal({
               </button>
             </div>
 
-            <form action={updateEquipmentAction} className="space-y-5">
+            <form
+              action={updateEquipmentAction}
+              className="space-y-5"
+              onSubmit={(event) => {
+                setFormError(null);
+                const form = event.currentTarget;
+                const total = Number(
+                  (form.elements.namedItem("total_count") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
+                const available = Number(
+                  (form.elements.namedItem("available_count") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
+                const keepCount = [1, 2, 3, 4, 5].filter((index) => {
+                  const hasCurrentImage = Boolean(currentImageUrls[index - 1]);
+                  const markedDelete =
+                    (form.elements.namedItem(`delete_image_flag_${index}`) as HTMLInputElement | null)
+                      ?.value === "1";
+                  return hasCurrentImage && !markedDelete;
+                }).length;
+                const newCount = [1, 2, 3, 4, 5].filter((index) => {
+                  const input = form.elements.namedItem(`new_image_file_${index}`) as HTMLInputElement | null;
+                  return Boolean(input?.files?.[0]);
+                }).length;
+
+                if (available > total) {
+                  event.preventDefault();
+                  setFormError("사용 가능 수량은 총 재고 수량보다 클 수 없습니다.");
+                  return;
+                }
+
+                if (keepCount + newCount === 0) {
+                  event.preventDefault();
+                  setFormError("최소 1장 이상의 이미지를 유지하거나 업로드해 주세요.");
+                }
+              }}
+            >
+              {formError ? (
+                <p className="rounded-md border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#c92a2a]">
+                  {formError}
+                </p>
+              ) : null}
               <input type="hidden" name="equipment_id" value={equipmentId} />
 
               <div className="grid gap-5 sm:grid-cols-2">
@@ -139,6 +195,9 @@ export function EditEquipmentModal({
                     name="type"
                     required
                     defaultValue={typeValue || ""}
+                    onChange={(event) => {
+                      setSelectedType(event.target.value);
+                    }}
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   >
                     {EQUIPMENT_TYPE_OPTIONS.map((option) => (
@@ -153,7 +212,7 @@ export function EditEquipmentModal({
                   상태
                   <select
                     name="status"
-                    defaultValue={statusValue || "available"}
+                    defaultValue={statusValue || "active"}
                     className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                   >
                     {EQUIPMENT_STATUS_OPTIONS.map((option) => (
@@ -165,59 +224,139 @@ export function EditEquipmentModal({
                 </label>
               </div>
 
-              <fieldset className="space-y-3">
-                <legend className="mb-1 text-sm font-semibold text-primary">
-                  현재 이미지
-                </legend>
-                {currentImageUrls.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                    {currentImageUrls.map((url, index) => (
-                      <label
-                        key={`${url}-${index}`}
-                        className="space-y-2 rounded-md border border-outline-variant/30 p-2"
-                      >
-                        <div className="relative aspect-square overflow-hidden rounded-sm bg-surface-container-lowest">
-                          <Image
-                            src={url}
-                            alt={`현재 이미지 ${index + 1}`}
-                            fill
-                            sizes="120px"
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            name="keep_image_urls"
-                            value={url}
-                            defaultChecked
-                            className="h-4 w-4 rounded border-outline-variant text-secondary"
-                          />
-                          <span className="text-xs font-semibold text-primary">
-                            유지
-                          </span>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {selectedType === "sale" || selectedType === "sale_and_rental" ? (
+                  <label className="space-y-2 text-sm font-semibold text-primary">
+                    판매가 (원)
+                    <input
+                      name="sale_price"
+                      type="number"
+                      min={0}
+                      defaultValue={salePrice}
+                      className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                    />
+                  </label>
                 ) : (
-                  <p className="text-xs font-medium text-on-surface-variant">
-                    기존 이미지가 없습니다.
-                  </p>
+                  <input type="hidden" name="sale_price" value={salePrice} />
                 )}
-              </fieldset>
+                {selectedType === "rental" || selectedType === "sale_and_rental" ? (
+                  <label className="space-y-2 text-sm font-semibold text-primary">
+                    월 임대료 (원)
+                    <input
+                      name="monthly_rental_price"
+                      type="number"
+                      min={0}
+                      defaultValue={monthlyRentalPrice}
+                      className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                    />
+                  </label>
+                ) : (
+                  <input
+                    type="hidden"
+                    name="monthly_rental_price"
+                    value={monthlyRentalPrice}
+                  />
+                )}
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  총 재고 수량
+                  <input
+                    name="total_count"
+                    type="number"
+                    min={0}
+                    defaultValue={totalCount}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+                <label className="space-y-2 text-sm font-semibold text-primary">
+                  사용 가능 수량
+                  <input
+                    name="available_count"
+                    type="number"
+                    min={0}
+                    defaultValue={availableCount}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  />
+                </label>
+              </div>
 
               <fieldset className="space-y-3">
                 <legend className="mb-1 text-sm font-semibold text-primary">
-                  새 이미지 추가 (최대 5장)
+                  이미지 슬롯 (최대 5장)
                 </legend>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {Array.from({ length: NEW_IMAGE_SLOT_COUNT }).map((_, index) => (
-                    <label
-                      key={`new-image-slot-${index + 1}`}
-                      className="space-y-2 text-sm font-semibold text-primary"
+                    <div
+                      key={`slot-${index + 1}`}
+                      className="space-y-2 rounded-md border border-dashed border-outline-variant/40 p-3"
                     >
-                      새 이미지 {index + 1}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center rounded-full bg-surface-container-high px-2 py-1 text-[11px] font-bold text-primary">
+                          슬롯 {index + 1}
+                        </span>
+                        {currentImageUrls[index] ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteFlags((prev) =>
+                                  prev.map((value, currentIndex) =>
+                                    currentIndex === index ? !value : value,
+                                  ),
+                                );
+                              }}
+                              className={
+                                deleteFlags[index]
+                                  ? "rounded-sm bg-[#fde8e8] px-2 py-1 text-xs font-bold text-[#b42318]"
+                                  : "rounded-sm bg-surface-container-high px-2 py-1 text-xs font-bold text-primary transition-colors hover:bg-surface-container-highest"
+                              }
+                            >
+                              {deleteFlags[index] ? "삭제 취소" : "삭제"}
+                            </button>
+                            {deleteFlags[index] ? (
+                              <input
+                                type="hidden"
+                                name={`delete_image_urls_${index + 1}`}
+                                value={currentImageUrls[index]}
+                              />
+                            ) : null}
+                            <input
+                              type="hidden"
+                              name={`delete_image_flag_${index + 1}`}
+                              value={deleteFlags[index] ? "1" : "0"}
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-xs font-semibold text-on-surface-variant">
+                            빈 슬롯
+                          </span>
+                        )}
+                      </div>
+                      <div className="relative aspect-square overflow-hidden rounded-sm border border-outline-variant/30 bg-surface-container-lowest">
+                        {newImagePreviews[index] ? (
+                          <Image
+                            src={newImagePreviews[index] ?? ""}
+                            alt={`새 이미지 미리보기 ${index + 1}`}
+                            fill
+                            unoptimized
+                            className="object-cover"
+                          />
+                        ) : currentImageUrls[index] ? (
+                          <Image
+                            src={currentImageUrls[index]}
+                            alt={`현재 이미지 ${index + 1}`}
+                            fill
+                            sizes="160px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-on-surface-variant">
+                            미리보기 없음
+                          </div>
+                        )}
+                      </div>
                       <input
                         name={`new_image_file_${index + 1}`}
                         type="file"
@@ -227,29 +366,6 @@ export function EditEquipmentModal({
                         }}
                         className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium file:mr-3 file:rounded-md file:border-0 file:bg-secondary/15 file:px-3 file:py-1.5 file:font-semibold file:text-primary outline-none transition-all focus:border-secondary"
                       />
-                    </label>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {newImagePreviews.map((preview, index) => (
-                    <div
-                      key={`new-preview-${index + 1}`}
-                      className="relative aspect-square overflow-hidden rounded-md border border-outline-variant/30 bg-surface-container-lowest"
-                    >
-                      {preview ? (
-                        <Image
-                          src={preview}
-                          alt={`새 이미지 미리보기 ${index + 1}`}
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-on-surface-variant">
-                          미리보기 {index + 1}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -264,27 +380,6 @@ export function EditEquipmentModal({
                   className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
                 />
               </label>
-
-              <div className="flex flex-wrap gap-6">
-                <label className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  <input
-                    name="is_visible"
-                    type="checkbox"
-                    defaultChecked={isVisible}
-                    className="h-4 w-4 rounded border-outline-variant text-secondary"
-                  />
-                  노출
-                </label>
-                <label className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  <input
-                    name="is_featured"
-                    type="checkbox"
-                    defaultChecked={isFeatured}
-                    className="h-4 w-4 rounded border-outline-variant text-secondary"
-                  />
-                  추천
-                </label>
-              </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button

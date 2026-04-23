@@ -6,15 +6,12 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   CircleHelp,
-  Eye,
-  EyeOff,
   LayoutDashboard,
   House,
   LogOut,
   MessageSquare,
   Search,
   Settings,
-  Star,
   Wrench,
 } from "lucide-react";
 import { logoutAction } from "./actions";
@@ -44,7 +41,6 @@ type AdminPageProps = {
     q?: string;
     type?: string;
     status?: string;
-    visible?: string;
   }>;
 };
 
@@ -143,7 +139,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     q,
     type,
     status,
-    visible,
   } = await searchParams;
   const supabase = await createServerSupabaseClient();
 
@@ -211,7 +206,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const searchQuery = (q ?? "").trim().toLowerCase();
   const selectedType = (type ?? "all").toLowerCase();
   const selectedStatus = (status ?? "all").toLowerCase();
-  const selectedVisible = (visible ?? "all").toLowerCase();
 
   const filteredRows = equipmentAdminRows.filter((row) => {
     const matchesQuery =
@@ -224,26 +218,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     const matchesStatus =
       selectedStatus === "all" ||
       row.statusValue.toLowerCase() === selectedStatus;
-    const matchesVisible =
-      selectedVisible === "all" ||
-      (selectedVisible === "visible" && row.visible) ||
-      (selectedVisible === "hidden" && !row.visible);
 
-    return matchesQuery && matchesType && matchesStatus && matchesVisible;
+    return matchesQuery && matchesType && matchesStatus;
   });
 
   const totalEquipmentCount = equipmentAdminRows.length;
   const availableEquipmentCount = equipmentAdminRows.filter(
-    (row) => row.statusValue === "available",
+    (row) => row.statusValue === "active",
   ).length;
-  const rentedEquipmentCount = equipmentAdminRows.filter(
-    (row) => row.statusValue === "rented",
-  ).length;
-  const soldEquipmentCount = equipmentAdminRows.filter(
-    (row) => row.statusValue === "sold",
-  ).length;
-  const hiddenEquipmentCount = equipmentAdminRows.filter(
-    (row) => !row.visible,
+  const inactiveEquipmentCount = equipmentAdminRows.filter(
+    (row) => row.statusValue === "inactive",
   ).length;
 
   return (
@@ -306,7 +290,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <form method="get" className="relative block w-full md:w-72">
                 <input type="hidden" name="type" value={selectedType} />
                 <input type="hidden" name="status" value={selectedStatus} />
-                <input type="hidden" name="visible" value={selectedVisible} />
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-on-surface-variant">
                   <Icon icon={Search} className="size-4" />
                 </span>
@@ -399,7 +382,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
             <article className="rounded-sm border-l-4 border-secondary bg-surface-container-lowest p-6 shadow-sm">
               <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-on-primary-container">
-                판매/임대 가능
+                활성 장비
               </p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-primary">
@@ -418,24 +401,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
             <article className="rounded-sm border-l-4 border-[#ba1a1a] bg-surface-container-lowest p-6 shadow-sm">
               <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-on-primary-container">
-                임대 중
+                비활성 장비
               </p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-primary">
-                  {rentedEquipmentCount}
+                  {inactiveEquipmentCount}
                 </span>
-                <span className="text-xs font-bold text-[#ba1a1a]">진행</span>
-              </div>
-            </article>
-
-            <article className="rounded-sm border-l-4 border-on-primary-container bg-surface-container-lowest p-6 shadow-sm">
-              <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-on-primary-container">
-                판매 완료 / 숨김
-              </p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-primary">
-                  {soldEquipmentCount + hiddenEquipmentCount}
-                </span>
+                <span className="text-xs font-bold text-[#ba1a1a]">관리</span>
               </div>
             </article>
           </section>
@@ -578,6 +550,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <option value="all">전체</option>
                 <option value="sale">판매(sale)</option>
                 <option value="rental">임대(rental)</option>
+                <option value="sale_and_rental">판매+임대(sale_and_rental)</option>
               </select>
             </div>
 
@@ -591,24 +564,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary"
               >
                 <option value="all">전체</option>
-                <option value="available">가능(available)</option>
-                <option value="sold">판매완료(sold)</option>
-                <option value="rented">임대중(rented)</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                노출여부:
-              </label>
-              <select
-                name="visible"
-                defaultValue={visible ?? "all"}
-                className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary"
-              >
-                <option value="all">전체</option>
-                <option value="visible">Visible</option>
-                <option value="hidden">Hidden</option>
+                <option value="active">활성(active)</option>
+                <option value="inactive">비활성(inactive)</option>
               </select>
             </div>
 
@@ -649,10 +606,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       상태
                     </th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      추천
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
-                      노출
+                      가격/재고
                     </th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-[0.22em]">
                       등록정보
@@ -667,7 +621,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   {filteredRows.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={7}
                         className="px-6 py-12 text-center text-sm font-semibold text-on-surface-variant"
                       >
                         검색/필터 조건에 맞는 장비가 없습니다.
@@ -721,59 +675,39 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <Icon
-                            icon={Star}
-                            className={`size-5 ${
-                              row.featured
-                                ? "fill-secondary text-secondary"
-                                : "text-outline-variant"
-                            }`}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <Icon
-                            icon={row.visible ? Eye : EyeOff}
-                            className={`size-5 ${
-                              row.visible
-                                ? "text-on-primary-container"
-                                : "text-outline-variant"
-                            }`}
-                          />
+                          <div className="text-xs text-on-surface-variant">
+                            <p>판매가: {row.salePrice.toLocaleString("ko-KR")}원</p>
+                            <p>월 임대료: {row.monthlyRentalPrice.toLocaleString("ko-KR")}원</p>
+                            <p>재고: {row.availableCount}/{row.totalCount}</p>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium text-primary">
-                              {row.manager}
-                            </span>
                             <span className="text-xs text-on-surface-variant">
                               {row.createdAt}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          {row.equipmentId.startsWith("local-") ? (
-                            <span className="text-xs font-semibold text-on-surface-variant">
-                              DB 연결 후 수정 가능
-                            </span>
-                          ) : (
-                            <div className="inline-flex items-center gap-2">
-                              <EditEquipmentModal
-                                equipmentId={row.equipmentId}
-                                name={row.name}
-                                modelCode={row.modelCode}
-                                description={row.description}
-                                typeValue={row.typeValue}
-                                statusValue={row.statusValue}
-                                isVisible={row.visible}
-                                isFeatured={row.featured}
-                                imageUrls={row.imageUrls}
-                              />
-                              <DeleteEquipmentButton
-                                equipmentId={row.equipmentId}
-                                title={row.item.title}
-                              />
-                            </div>
-                          )}
+                          <div className="inline-flex items-center gap-2">
+                            <EditEquipmentModal
+                              equipmentId={row.equipmentId}
+                              name={row.name}
+                              modelCode={row.modelCode}
+                              description={row.description}
+                              typeValue={row.typeValue}
+                              statusValue={row.statusValue}
+                              salePrice={row.salePrice}
+                              monthlyRentalPrice={row.monthlyRentalPrice}
+                              totalCount={row.totalCount}
+                              availableCount={row.availableCount}
+                              imageUrls={row.imageUrls}
+                            />
+                            <DeleteEquipmentButton
+                              equipmentId={row.equipmentId}
+                              title={row.item.title}
+                            />
+                          </div>
                         </td>
                       </tr>
                     );

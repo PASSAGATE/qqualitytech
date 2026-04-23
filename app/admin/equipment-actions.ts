@@ -13,6 +13,10 @@ type ApiError = {
   error?: string;
 };
 
+type EquipmentDetailResponse = {
+  imageUrls?: string[];
+};
+
 function apiBaseUrl() {
   return (
     process.env.BACKEND_API_URL ??
@@ -43,6 +47,18 @@ function sanitizeFileName(fileName: string) {
   return `${safeBase || "equipment"}${ext}`;
 }
 
+function extractStoragePathFromPublicUrl(url: string, bucket: string) {
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const markerIndex = url.indexOf(marker);
+
+  if (markerIndex === -1) {
+    return null;
+  }
+
+  const path = url.slice(markerIndex + marker.length);
+  return path ? decodeURIComponent(path) : null;
+}
+
 function normalizeType(
   value: string,
 ): "sale" | "rental" | "sale_and_rental" | null {
@@ -61,19 +77,29 @@ function normalizeType(
 function normalizeStatus(value: string): "active" | "inactive" {
   const normalized = value.trim().toLowerCase();
 
-  if (normalized === "active" || normalized === "available") {
+  if (normalized === "active") {
     return "active";
   }
 
-  if (
-    normalized === "inactive" ||
-    normalized === "sold" ||
-    normalized === "rented"
-  ) {
+  if (normalized === "inactive") {
     return "inactive";
   }
 
   return "active";
+}
+
+function parseNonNegativeInt(input: FormDataEntryValue | null) {
+  const raw = String(input ?? "").trim();
+  if (!raw) {
+    return 0;
+  }
+
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    return null;
+  }
+
+  return Math.floor(value);
 }
 
 async function readApiError(response: Response) {
@@ -121,6 +147,47 @@ async function uploadImageFiles(
   return uploadedUrls;
 }
 
+async function uploadSingleImageFile(
+  file: File,
+  userId: string,
+  supabase: NonNullable<Awaited<ReturnType<typeof createServerSupabaseClient>>>,
+  errorKey: "createError" | "updateError",
+) {
+  const [uploadedUrl] = await uploadImageFiles([file], userId, supabase, errorKey);
+  return uploadedUrl;
+}
+
+async function fetchEquipmentImageUrls(
+  equipmentId: string,
+  accessToken: string,
+): Promise<string[]> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/equipments/${equipmentId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    });
+  } catch {
+    return [];
+  }
+
+  if (!response.ok) {
+    return [];
+  }
+
+  try {
+    const data = (await response.json()) as EquipmentDetailResponse;
+    return Array.isArray(data.imageUrls)
+      ? data.imageUrls.filter((url): url is string => typeof url === "string" && url.trim().length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function createEquipmentAction(formData: FormData) {
   const supabase = await createServerSupabaseClient();
 
@@ -145,6 +212,12 @@ export async function createEquipmentAction(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const typeInput = String(formData.get("type") ?? "").trim();
   const statusInput = String(formData.get("status") ?? "").trim();
+  const salePrice = parseNonNegativeInt(formData.get("sale_price"));
+  const monthlyRentalPrice = parseNonNegativeInt(
+    formData.get("monthly_rental_price"),
+  );
+  const totalCount = parseNonNegativeInt(formData.get("total_count"));
+  const availableCount = parseNonNegativeInt(formData.get("available_count"));
   const imageFiles = [1, 2, 3, 4, 5]
     .map((index) => formData.get(`image_file_${index}`))
     .filter((value): value is File => value instanceof File && value.size > 0);
@@ -189,6 +262,17 @@ export async function createEquipmentAction(formData: FormData) {
   if (imageFiles.length > 5) {
     redirect(toAdminError("이미지는 최대 5장까지 업로드할 수 있습니다."));
   }
+  if (
+    salePrice === null ||
+    monthlyRentalPrice === null ||
+    totalCount === null ||
+    availableCount === null
+  ) {
+    redirect(toAdminError("가격/재고 값은 0 이상의 숫자여야 합니다."));
+  }
+  if (availableCount > totalCount) {
+    redirect(toAdminError("사용 가능 수량은 총 재고 수량보다 클 수 없습니다."));
+  }
 
   const uploadedUrls = await uploadImageFiles(
     imageFiles,
@@ -218,7 +302,12 @@ export async function createEquipmentAction(formData: FormData) {
         status: normalizeStatus(statusInput),
         saleEnabled: type !== "rental",
         rentalEnabled: type !== "sale",
+        salePrice,
+        monthlyRentalPrice,
+        totalCount,
+        availableCount,
         imageUrl: uploadedUrls[0],
+        imageUrls: uploadedUrls,
       }),
       cache: "no-store",
     });
@@ -262,13 +351,20 @@ export async function updateEquipmentAction(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const typeInput = String(formData.get("type") ?? "").trim();
   const statusInput = String(formData.get("status") ?? "").trim();
-  const keepImageUrls = formData
-    .getAll("keep_image_urls")
+  const salePrice = parseNonNegativeInt(formData.get("sale_price"));
+  const monthlyRentalPrice = parseNonNegativeInt(
+    formData.get("monthly_rental_price"),
+  );
+  const totalCount = parseNonNegativeInt(formData.get("total_count"));
+  const availableCount = parseNonNegativeInt(formData.get("available_count"));
+  const deleteImageUrls = [1, 2, 3, 4, 5]
+    .map((index) => formData.get(`delete_image_urls_${index}`))
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .map((value) => value.trim());
-  const newImageFiles = [1, 2, 3, 4, 5]
-    .map((index) => formData.get(`new_image_file_${index}`))
-    .filter((value): value is File => value instanceof File && value.size > 0);
+  const newFilesBySlot = [1, 2, 3, 4, 5].map((index) => {
+    const newFile = formData.get(`new_image_file_${index}`);
+    return newFile instanceof File && newFile.size > 0 ? newFile : null;
+  });
 
   if (!equipmentId) {
     redirect(toAdminError("수정할 장비를 찾을 수 없습니다.", "updateError"));
@@ -309,17 +405,47 @@ export async function updateEquipmentAction(formData: FormData) {
     );
   }
 
-  if (newImageFiles.length > 5) {
-    redirect(toAdminError("새 이미지는 최대 5장까지 업로드할 수 있습니다.", "updateError"));
+  if (
+    salePrice === null ||
+    monthlyRentalPrice === null ||
+    totalCount === null ||
+    availableCount === null
+  ) {
+    redirect(toAdminError("가격/재고 값은 0 이상의 숫자여야 합니다.", "updateError"));
+  }
+  if (availableCount > totalCount) {
+    redirect(
+      toAdminError(
+        "사용 가능 수량은 총 재고 수량보다 클 수 없습니다.",
+        "updateError",
+      ),
+    );
   }
 
-  const uploadedUrls = await uploadImageFiles(
-    newImageFiles,
-    session.user.id,
-    supabase,
-    "updateError",
+  const previousImageUrls = await fetchEquipmentImageUrls(
+    equipmentId,
+    session.access_token,
   );
-  const nextImageUrls = [...keepImageUrls, ...uploadedUrls];
+  const nextImageUrls: string[] = [];
+  for (let i = 0; i < 5; i += 1) {
+    const slotFile = newFilesBySlot[i];
+    const existingUrl = previousImageUrls[i] ?? null;
+
+    if (slotFile) {
+      const uploadedUrl = await uploadSingleImageFile(
+        slotFile,
+        session.user.id,
+        supabase,
+        "updateError",
+      );
+      nextImageUrls.push(uploadedUrl);
+      continue;
+    }
+
+    if (existingUrl && !deleteImageUrls.includes(existingUrl)) {
+      nextImageUrls.push(existingUrl);
+    }
+  }
 
   if (nextImageUrls.length === 0) {
     redirect(
@@ -351,7 +477,12 @@ export async function updateEquipmentAction(formData: FormData) {
         status: normalizeStatus(statusInput),
         saleEnabled: type !== "rental",
         rentalEnabled: type !== "sale",
+        salePrice,
+        monthlyRentalPrice,
+        totalCount,
+        availableCount,
         imageUrl: nextImageUrls[0],
+        imageUrls: nextImageUrls,
       }),
       cache: "no-store",
     });
@@ -362,6 +493,23 @@ export async function updateEquipmentAction(formData: FormData) {
   if (!response.ok) {
     const message = await readApiError(response);
     redirect(toAdminError(`수정 실패: ${message}`, "updateError"));
+  }
+
+  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
+  const removedImageUrls = previousImageUrls.filter(
+    (url) => !nextImageUrls.includes(url),
+  );
+  const removePaths = removedImageUrls
+    .map((url) => extractStoragePathFromPublicUrl(url, bucket))
+    .filter((value): value is string => Boolean(value));
+
+  if (removePaths.length > 0) {
+    const { error: removeError } = await supabase.storage
+      .from(bucket)
+      .remove(removePaths);
+    if (removeError) {
+      redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "updateError"));
+    }
   }
 
   revalidatePath("/admin");
@@ -394,6 +542,11 @@ export async function deleteEquipmentAction(formData: FormData) {
     redirect(toAdminError("삭제할 장비를 찾을 수 없습니다.", "deleteError"));
   }
 
+  const previousImageUrls = await fetchEquipmentImageUrls(
+    equipmentId,
+    session.access_token,
+  );
+
   let response: Response;
   try {
     response = await fetch(`${apiBaseUrl()}/equipments/${equipmentId}`, {
@@ -410,6 +563,20 @@ export async function deleteEquipmentAction(formData: FormData) {
   if (!response.ok) {
     const message = await readApiError(response);
     redirect(toAdminError(`삭제 실패: ${message}`, "deleteError"));
+  }
+
+  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
+  const removePaths = previousImageUrls
+    .map((url) => extractStoragePathFromPublicUrl(url, bucket))
+    .filter((value): value is string => Boolean(value));
+
+  if (removePaths.length > 0) {
+    const { error: removeError } = await supabase.storage
+      .from(bucket)
+      .remove(removePaths);
+    if (removeError) {
+      redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"));
+    }
   }
 
   revalidatePath("/admin");

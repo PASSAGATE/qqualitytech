@@ -124,6 +124,12 @@ export default async function MyPage({ searchParams }: MyPageProps) {
 
         <nav className="flex-1 space-y-1 text-sm font-medium">
           <a
+            href="/"
+            className="flex items-center gap-3 rounded px-3 py-2 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-primary-container"
+          >
+            <span>홈으로 가기</span>
+          </a>
+          <a
             href="/my-page"
             className="flex items-center gap-3 rounded border-r-4 border-[#35e524] bg-surface-container-low px-3 py-2 font-bold text-primary-container"
           >

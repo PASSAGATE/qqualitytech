@@ -25,13 +25,13 @@ const typeFilters = [
   { label: "전체보기", value: "all" },
   { label: "판매 장비", value: "sale" },
   { label: "임대 장비", value: "rental" },
+  { label: "판매/임대 장비", value: "sale_and_rental" },
 ] as const;
 
 const statusFilters = [
   { label: "전체 상태", value: "all" },
-  { label: "가능", value: "available" },
-  { label: "판매 완료", value: "sold" },
-  { label: "임대 중", value: "rented" },
+  { label: "활성", value: "active" },
+  { label: "비활성", value: "inactive" },
 ] as const;
 
 function Icon({
@@ -65,8 +65,7 @@ export default async function EquipmentPage({
   const selectedSort = (sort ?? "latest").toLowerCase();
 
   const equipmentRows = await fetchAdminEquipmentRows();
-  const publicRows = equipmentRows.filter((row) => row.visible);
-  const filteredRows = publicRows.filter((row) => {
+  const filteredRows = equipmentRows.filter((row) => {
     const matchesQuery =
       searchQuery.length === 0 ||
       row.item.title.toLowerCase().includes(searchQuery) ||
@@ -226,11 +225,6 @@ export default async function EquipmentPage({
                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                {row.featured ? (
-                  <div className="absolute top-4 right-4 rounded-sm bg-secondary px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white">
-                    FEATURED
-                  </div>
-                ) : null}
               </div>
 
               <div className="flex flex-1 flex-col p-6">
