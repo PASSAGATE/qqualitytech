@@ -21,7 +21,7 @@ async function addToCart(
   try {
     const payload =
       mode === "rent"
-        ? { equipmentId, mode, count: 1, rentalMonths: 12 }
+        ? { equipmentId, mode, count: 1, rentalMonths: 6 }
         : { equipmentId, mode, count: 1 };
 
     const response = await fetch("/api/cart/items", {
@@ -127,4 +127,3 @@ export function AddToCartPanel({
     </div>
   );
 }
-

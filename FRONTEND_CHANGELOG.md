@@ -83,7 +83,21 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Updated: detail gallery (`app/equipment/[slug]/equipment-gallery.tsx`) PC view’da ixchamroq, chiroyli proportion bilan.
 - Updated: `관련 시험 장비` bo‘limi mobile’da horizontal swipe/snap carouselga o‘tkazildi.
 
+### Checkout preview integration
+
+- Added: `app/api/checkout/preview/route.ts` (frontend BFF proxy -> backend `POST /checkout/preview`).
+- Added: `app/cart/checkout-preview-panel.tsx` client panel:
+  - `delivery/pickup` tanlash
+  - delivery holatida `region/address` input
+  - preview API chaqiruvi va error handling
+  - preview natijalari (`buy subtotal`, `rent subtotal`, `delivery fee`, `total`) UI’da ko‘rsatish
+- Updated: `app/cart/page.tsx` summary sidebar ichiga checkout preview panel qo‘shildi.
+- Fixed: cart에서 rent 항목 수정 시 수량(count) 대신 임대 개월(rentalMonths, 6~36)을 갱신하도록 변경.
+- Updated: cart live panelda rent 항목도 `수량 + 개월` 동시 수정 가능하도록 개선.
+- Updated: 입력 변경 시 Enter 없이 line total/summary 즉시 재계산 + debounce 자동 저장.
+
 ### Next
 
 - Checkout preview/confirm sahifalarini real API bilan ulash.
 - Auth + cart + checkout bo‘yicha yakuniy E2E checklist yuritish.
+- Updated: /cart에서 입력값 변경 시 Enter 없이 라인 금액/요약이 즉시 재계산되고, 항목은 자동 PATCH 저장되도록 개선.

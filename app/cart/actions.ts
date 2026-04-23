@@ -45,10 +45,25 @@ async function requireAccessToken() {
 
 export async function updateCartItemCountAction(formData: FormData) {
   const itemId = String(formData.get("itemId") ?? "").trim();
-  const count = Number(formData.get("count") ?? "0");
+  const mode = String(formData.get("mode") ?? "").trim().toLowerCase();
 
-  if (!itemId || !Number.isFinite(count) || count < 1) {
-    redirect("/cart?error=수량이%20올바르지%20않습니다.");
+  if (!itemId || (mode !== "buy" && mode !== "rent")) {
+    redirect("/cart?error=항목%20정보가%20올바르지%20않습니다.");
+  }
+
+  let payload: Record<string, number>;
+  if (mode === "rent") {
+    const rentalMonths = Number(formData.get("rentalMonths") ?? "0");
+    if (!Number.isFinite(rentalMonths) || rentalMonths < 6 || rentalMonths > 36) {
+      redirect("/cart?error=임대%20개월은%206~36%20사이여야%20합니다.");
+    }
+    payload = { count: 1, rentalMonths };
+  } else {
+    const count = Number(formData.get("count") ?? "0");
+    if (!Number.isFinite(count) || count < 1) {
+      redirect("/cart?error=수량이%20올바르지%20않습니다.");
+    }
+    payload = { count };
   }
 
   const accessToken = await requireAccessToken();
@@ -60,7 +75,7 @@ export async function updateCartItemCountAction(formData: FormData) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ count }),
+      body: JSON.stringify(payload),
       cache: "no-store",
     });
   } catch {
@@ -106,4 +121,3 @@ export async function deleteCartItemAction(formData: FormData) {
   revalidatePath("/");
   redirect("/cart?deleted=1");
 }
-
