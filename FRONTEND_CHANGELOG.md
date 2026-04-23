@@ -88,9 +88,12 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Added: `app/api/checkout/preview/route.ts` (frontend BFF proxy -> backend `POST /checkout/preview`).
 - Added: `app/api/checkout/confirm/route.ts` (frontend BFF proxy -> backend `POST /checkout/confirm`).
 - Added: `app/api/delivery-fees/route.ts` (frontend BFF proxy -> backend `GET /delivery-fees`).
+- Added: `app/api/address-search/route.ts` (Juso 주소 검색 API proxy, `JUSO_CONFM_KEY` 필요).
 - Added: `app/cart/checkout-preview-panel.tsx` client panel:
   - `delivery/pickup` tanlash
-  - delivery holatida delivery fee API’dan keladigan `region` dropdown + `address` input
+  - delivery holatida delivery fee API’dan keladigan `region` dropdown
+  - Juso 주소 검색(키워드 검색 -> 결과 선택)으로 배송지 자동 입력
+  - 선택한 주소 기반 region 자동 매칭 시도(매칭 실패 시 수동 선택 가능)
   - preview API chaqiruvi va error handling
   - preview natijalari (`buy subtotal`, `rent subtotal`, `delivery fee`, `total`) UI’da ko‘rsatish
   - `주문 확정` tugmasi orqali checkout confirm API chaqiruvi

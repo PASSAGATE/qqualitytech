@@ -43,6 +43,13 @@ type DeliveryFeeOption = {
   isActive: boolean;
 };
 
+type AddressSearchResult = {
+  roadAddr: string;
+  jibunAddr: string;
+  zipNo: string;
+  siNm: string;
+};
+
 type CheckoutPreviewPanelProps = {
   cart: CartResponse;
 };
@@ -58,6 +65,14 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
   const [confirming, setConfirming] = useState(false);
   const [loadingRegions, setLoadingRegions] = useState(false);
   const [regionOptions, setRegionOptions] = useState<DeliveryFeeOption[]>([]);
+  const [addressKeyword, setAddressKeyword] = useState("");
+  const [addressResults, setAddressResults] = useState<AddressSearchResult[]>(
+    [],
+  );
+  const [addressSearchLoading, setAddressSearchLoading] = useState(false);
+  const [addressSearchError, setAddressSearchError] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<CheckoutPreviewResponse | null>(null);
   const [confirmSuccess, setConfirmSuccess] = useState<string | null>(null);
@@ -105,6 +120,73 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
       mounted = false;
     };
   }, []);
+
+  const pickRegionFromAddress = (result: AddressSearchResult) => {
+    const candidates = [result.siNm, result.roadAddr.split(" ")[0]]
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (candidates.length === 0) {
+      return;
+    }
+
+    const matched = regionOptions.find((option) => {
+      const normalized = option.region.trim().toLowerCase();
+      return candidates.some(
+        (candidate) =>
+          normalized === candidate ||
+          normalized.includes(candidate) ||
+          candidate.includes(normalized),
+      );
+    });
+
+    if (matched) {
+      setRegion(matched.region);
+    }
+  };
+
+  const handleAddressSearch = async () => {
+    const keyword = addressKeyword.trim();
+    if (keyword.length < 2) {
+      setAddressSearchError("검색어를 2자 이상 입력해 주세요.");
+      setAddressResults([]);
+      return;
+    }
+
+    setAddressSearchError(null);
+    setAddressSearchLoading(true);
+
+    try {
+      const response = await fetch(
+        `/api/address-search?keyword=${encodeURIComponent(keyword)}`,
+        { cache: "no-store" },
+      );
+
+      if (!response.ok) {
+        let message = `주소 검색 실패 (${response.status})`;
+        try {
+          const data = (await response.json()) as ApiError;
+          message = data.message ?? data.error ?? message;
+        } catch {
+          // ignore parse errors
+        }
+        setAddressSearchError(message);
+        setAddressResults([]);
+        return;
+      }
+
+      const data = (await response.json()) as AddressSearchResult[];
+      setAddressResults(Array.isArray(data) ? data : []);
+      if (!Array.isArray(data) || data.length === 0) {
+        setAddressSearchError("검색 결과가 없습니다.");
+      }
+    } catch {
+      setAddressSearchError("주소 검색 서버 연결에 실패했습니다.");
+      setAddressResults([]);
+    } finally {
+      setAddressSearchLoading(false);
+    }
+  };
 
   const handlePreview = async () => {
     setError(null);
@@ -240,10 +322,60 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
                 </option>
               ))}
             </select>
+            <div className="grid gap-2">
+              <div className="flex gap-2">
+                <input
+                  value={addressKeyword}
+                  onChange={(event) => setAddressKeyword(event.target.value)}
+                  placeholder="도로명/건물명으로 주소 검색"
+                  className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddressSearch}
+                  disabled={addressSearchLoading}
+                  className="shrink-0 rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {addressSearchLoading ? "검색 중..." : "주소 검색"}
+                </button>
+              </div>
+
+              {addressSearchError ? (
+                <p className="text-xs font-semibold text-[#b42318]">
+                  {addressSearchError}
+                </p>
+              ) : null}
+
+              {addressResults.length > 0 ? (
+                <div className="max-h-52 overflow-y-auto rounded-md border border-outline-variant/25 bg-surface-container-low">
+                  {addressResults.map((result, index) => (
+                    <button
+                      key={`${result.roadAddr}-${result.zipNo}-${index}`}
+                      type="button"
+                      onClick={() => {
+                        setAddress(result.roadAddr);
+                        pickRegionFromAddress(result);
+                        setAddressResults([]);
+                        setAddressSearchError(null);
+                      }}
+                      className="block w-full border-b border-outline-variant/15 px-3 py-2 text-left transition-colors hover:bg-surface-container-high last:border-b-0"
+                    >
+                      <p className="text-sm font-semibold text-primary">
+                        {result.roadAddr}
+                      </p>
+                      <p className="text-xs text-on-surface-variant">
+                        지번: {result.jibunAddr || "-"} / 우편번호:{" "}
+                        {result.zipNo || "-"}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
             <input
               value={address}
               onChange={(event) => setAddress(event.target.value)}
-              placeholder="배송 주소"
+              placeholder="상세 주소를 포함해 최종 배송 주소를 확인해 주세요"
               className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
             />
           </div>
