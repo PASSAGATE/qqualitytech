@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ShoppingCart, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { logoutAction } from "@/app/admin/actions";
 import { fetchMyCart } from "@/lib/backend/cart";
+import { HeaderCartButton } from "./header-cart-button";
 
 const navigation = [
   { label: "홈", href: "/" },
@@ -85,18 +86,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                   <UserRound className="size-4" />
                   {dashboardLabel}
                 </Link>
-                <Link
-                  href="/cart"
-                  className="hidden items-center gap-1.5 rounded-md border border-outline-variant/60 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary sm:inline-flex"
-                >
-                  <ShoppingCart className="size-4" />
-                  장바구니
-                  {cartCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
-                      {cartCount}
-                    </span>
-                  ) : null}
-                </Link>
+                <HeaderCartButton initialCartCount={cartCount} />
                 <details className="relative">
                   <summary
                     className="inline-flex list-none cursor-pointer items-center rounded-full border border-outline-variant/60 p-1 transition-colors hover:border-secondary [&::-webkit-details-marker]:hidden"

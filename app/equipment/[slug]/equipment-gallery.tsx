@@ -22,13 +22,13 @@ export function EquipmentGallery({ title, images }: EquipmentGalleryProps) {
   }
 
   return (
-    <section className="space-y-4">
-      <div className="relative aspect-video overflow-hidden rounded-sm bg-surface-container">
+    <section className="mx-auto w-full max-w-4xl space-y-4">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-outline-variant/20 bg-surface-container lg:aspect-[16/10]">
         <Image
           src={activeImage.image}
           alt={activeImage.alt || title}
           fill
-          sizes="(max-width: 1024px) 100vw, 70vw"
+          sizes="(max-width: 1024px) 100vw, 960px"
           className="object-cover"
         />
       </div>

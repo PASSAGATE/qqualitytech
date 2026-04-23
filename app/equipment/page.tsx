@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
-  ArrowRight,
   Download,
   Headset,
   MessageSquare,
@@ -12,6 +10,7 @@ import {
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { fetchAdminEquipmentRows } from "./repository";
+import { EquipmentCard } from "./equipment-card";
 
 export const dynamic = "force-dynamic";
 
@@ -213,64 +212,7 @@ export default async function EquipmentPage({
           ) : null}
 
           {sortedRows.map((row) => (
-            <article
-              key={row.equipmentId}
-              className="group flex flex-col overflow-hidden rounded-sm bg-surface-container-lowest transition-all hover:-translate-y-1"
-            >
-              <div className="relative h-64 overflow-hidden">
-                <Image
-                  src={row.item.image}
-                  alt={row.item.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              </div>
-
-              <div className="flex flex-1 flex-col p-6">
-                <div className="mb-2 flex items-start justify-between gap-3">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-outline">
-                    {row.typeLabel}
-                  </span>
-                  <span className="text-xs font-black text-secondary">
-                    {row.item.model}
-                  </span>
-                </div>
-
-                <h2 className="mb-4 text-xl font-extrabold leading-tight text-primary">
-                  {row.item.title}
-                </h2>
-
-                <div className="mb-6 flex-1 space-y-2">
-                  {(row.item.specs.length > 0
-                    ? row.item.specs
-                    : [{ label: "상태", value: row.status.label }]
-                  )
-                    .slice(0, 3)
-                    .map((spec, index) => (
-                      <div
-                        key={spec.label}
-                        className={`flex justify-between text-xs ${index < 2 ? "border-b border-outline-variant/10 pb-2" : ""}`}
-                      >
-                        <span className="font-medium text-on-surface-variant">
-                          {spec.label}
-                        </span>
-                        <span className="font-bold text-primary">
-                          {spec.value}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-
-                <Link
-                  href={`/equipment/${row.item.slug}`}
-                  className="inline-flex w-full items-center justify-center gap-2 bg-surface-container-high py-3 text-sm font-bold text-primary"
-                >
-                  상세 스펙 보기
-                  <Icon icon={ArrowRight} className="size-4" />
-                </Link>
-              </div>
-            </article>
+            <EquipmentCard key={row.equipmentId} row={row} />
           ))}
         </section>
 

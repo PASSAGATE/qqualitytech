@@ -18,12 +18,21 @@ import { SiteFooter } from "../../../components/site-footer";
 import { SiteHeader } from "../../../components/site-header";
 import { EquipmentGallery } from "./equipment-gallery";
 import { createEquipmentInquiryAction } from "./actions";
+import { AddToCartPanel } from "./add-to-cart-panel";
 import { type EquipmentFeature } from "../data";
-import { fetchEquipmentBySlug, fetchEquipmentCatalog } from "../repository";
+import {
+  fetchAdminEquipmentRows,
+  fetchEquipmentBySlug,
+  fetchEquipmentCatalog,
+} from "../repository";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ inquirySuccess?: string; inquiryError?: string }>;
+  searchParams: Promise<{
+    inquirySuccess?: string;
+    inquiryError?: string;
+    id?: string;
+  }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -130,14 +139,28 @@ export default async function EquipmentDetailPage({
   searchParams,
 }: PageProps) {
   const { slug } = await params;
-  const { inquirySuccess, inquiryError } = await searchParams;
-  const item = await fetchEquipmentBySlug(slug);
+  const { inquirySuccess, inquiryError, id } = await searchParams;
+  const adminRows = await fetchAdminEquipmentRows();
+  const preferredRow = id
+    ? adminRows.find((row) => row.equipmentId === id) ?? null
+    : null;
+  const item = preferredRow?.item ?? (await fetchEquipmentBySlug(slug));
 
   if (!item) {
     notFound();
   }
 
   const equipmentCatalog = await fetchEquipmentCatalog();
+  const cartTarget =
+    preferredRow ??
+    adminRows.find((row) => row.item.slug === item.slug) ??
+    null;
+  const getItemHref = (itemSlug: string) => {
+    const matched = adminRows.find((row) => row.item.slug === itemSlug);
+    return matched
+      ? `/equipment/${itemSlug}?id=${matched.equipmentId}`
+      : `/equipment/${itemSlug}`;
+  };
 
   const gallery =
     item.gallery.length > 0
@@ -193,8 +216,8 @@ export default async function EquipmentDetailPage({
           <span className="font-medium text-primary">{item.title}</span>
         </nav>
 
-        <div className="flex flex-col gap-12 lg:flex-row">
-          <div className="flex-1 space-y-12">
+        <div className="flex flex-col gap-12">
+          <div className="mx-auto w-full max-w-5xl space-y-12">
             <section>
               <div className="mb-2 flex flex-wrap items-center gap-4">
                 <span className="rounded-sm bg-primary-container px-3 py-1 text-xs font-bold tracking-[0.2em] text-on-primary-container uppercase">
@@ -214,7 +237,7 @@ export default async function EquipmentDetailPage({
 
             <EquipmentGallery title={item.title} images={gallery} />
 
-            <section className="space-y-6">
+            {/* <section className="space-y-6">
               <h2 className="text-2xl font-bold text-primary">
                 핵심 기능 및 특징
               </h2>
@@ -247,7 +270,7 @@ export default async function EquipmentDetailPage({
                   );
                 })}
               </div>
-            </section>
+            </section> */}
 
             <section className="space-y-6">
               <h2 className="text-2xl font-bold text-primary">
@@ -282,7 +305,7 @@ export default async function EquipmentDetailPage({
             </section>
           </div>
 
-          <aside className="w-full space-y-8 lg:w-96">
+          {/* <aside className="w-full space-y-8 lg:w-96">
             <div className="sticky top-32 rounded-sm border border-surface-container-high bg-white p-8 shadow-xl">
               <h3 className="mb-6 text-xl font-bold text-primary">
                 구매 및 견적 문의
@@ -299,6 +322,14 @@ export default async function EquipmentDetailPage({
               ) : null}
 
               <div className="mb-8 space-y-6">
+                {cartTarget ? (
+                  <AddToCartPanel
+                    equipmentId={cartTarget.equipmentId}
+                    saleEnabled={cartTarget.saleEnabled}
+                    rentalEnabled={cartTarget.rentalEnabled}
+                  />
+                ) : null}
+
                 <div className="flex items-start gap-4">
                   <Icon
                     icon={Wrench}
@@ -400,7 +431,7 @@ export default async function EquipmentDetailPage({
                 보통 24시간 이내에 담당 엔지니어가 답변 드립니다.
               </p>
             </div>
-          </aside>
+          </aside> */}
         </div>
 
         <section className="mt-24 border-t border-surface-container-high pt-16">
@@ -422,11 +453,42 @@ export default async function EquipmentDetailPage({
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="-mx-5 overflow-x-auto px-5 md:hidden">
+            <div className="flex snap-x snap-mandatory gap-4 pb-2">
+              {relatedItems.map((relatedItem) => (
+                <Link
+                  key={relatedItem.slug}
+                  href={getItemHref(relatedItem.slug)}
+                  className="group block min-w-[78%] snap-start rounded-sm bg-surface-container-lowest p-2"
+                >
+                  <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm bg-surface-container">
+                    <Image
+                      src={relatedItem.image}
+                      alt={relatedItem.alt}
+                      fill
+                      sizes="80vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <p className="mb-1 text-xs font-bold text-secondary">
+                    {relatedItem.itemCode}
+                  </p>
+                  <h4 className="text-lg font-bold text-primary transition-colors group-hover:text-secondary">
+                    {relatedItem.title}
+                  </h4>
+                  <p className="mt-2 line-clamp-2 text-sm text-on-surface-variant">
+                    {relatedItem.relatedDescription}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="hidden grid-cols-1 gap-8 md:grid md:grid-cols-3">
             {relatedItems.map((relatedItem) => (
               <Link
                 key={relatedItem.slug}
-                href={`/equipment/${relatedItem.slug}`}
+                href={getItemHref(relatedItem.slug)}
                 className="group block"
               >
                 <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm bg-surface-container">

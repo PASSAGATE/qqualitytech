@@ -67,8 +67,23 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
   - summary (`buySubtotal`, `rentSubtotal`, `totalAmount`)
 - Updated: `components/site-header.tsx` savat badge real `totalQuantity` bilan ko‘rsatiladi.
 
+### Equipment -> Cart integration
+
+- Updated: `app/equipment/page.tsx` list card butun maydoni detailga o‘tadigan qilindi (`상세 스펙 보기` tugmasi olib tashlandi).
+- Added: `app/equipment/equipment-card.tsx` client card komponenti (`구매/임대 장바구니` tugmalari page refreshsiz ishlaydi).
+- Added: `app/equipment/[slug]/add-to-cart-panel.tsx` detail sahifada AJAX cart qo‘shish paneli.
+- Added: `app/api/cart/route.ts`, `app/api/cart/items/route.ts` BFF route’lari (frontend -> backend cart proxy).
+- Added: `components/header-cart-button.tsx` mini cart modal (headerda cart bosilganda ochiladi, itemlar va total ko‘rinadi).
+- Updated: `components/site-header.tsx` cart link o‘rniga mini modal button va live badge yangilanishi.
+- Fixed: slug collision holatida noto‘g‘ri detail ochilishi (`/equipment/<slug>?id=<equipmentId>` ustuvor resolve qo‘shildi).
+
+### Detail & Cart UI polish
+
+- Updated: `app/cart/page.tsx` visual layout (image preview, clean card layout, sticky summary panel).
+- Updated: detail gallery (`app/equipment/[slug]/equipment-gallery.tsx`) PC view’da ixchamroq, chiroyli proportion bilan.
+- Updated: `관련 시험 장비` bo‘limi mobile’da horizontal swipe/snap carouselga o‘tkazildi.
+
 ### Next
 
-- Equipment detail/list sahifalarida `장바구니 추가` oqimini backend `POST /cart/items` bilan ulash.
 - Checkout preview/confirm sahifalarini real API bilan ulash.
 - Auth + cart + checkout bo‘yicha yakuniy E2E checklist yuritish.
