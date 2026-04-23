@@ -17,6 +17,11 @@ type EquipmentDetailResponse = {
   imageUrls?: string[];
 };
 
+type DeleteEquipmentResponse = {
+  success?: boolean;
+  archived?: boolean;
+};
+
 function apiBaseUrl() {
   return (
     process.env.BACKEND_API_URL ??
@@ -565,21 +570,34 @@ export async function deleteEquipmentAction(formData: FormData) {
     redirect(toAdminError(`삭제 실패: ${message}`, "deleteError"));
   }
 
-  const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
-  const removePaths = previousImageUrls
-    .map((url) => extractStoragePathFromPublicUrl(url, bucket))
-    .filter((value): value is string => Boolean(value));
+  let deleteResult: DeleteEquipmentResponse = {};
+  try {
+    deleteResult = (await response.json()) as DeleteEquipmentResponse;
+  } catch {
+    deleteResult = {};
+  }
 
-  if (removePaths.length > 0) {
-    const { error: removeError } = await supabase.storage
-      .from(bucket)
-      .remove(removePaths);
-    if (removeError) {
-      redirect(toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"));
+  const isArchived = deleteResult.archived === true;
+
+  if (!isArchived) {
+    const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
+    const removePaths = previousImageUrls
+      .map((url) => extractStoragePathFromPublicUrl(url, bucket))
+      .filter((value): value is string => Boolean(value));
+
+    if (removePaths.length > 0) {
+      const { error: removeError } = await supabase.storage
+        .from(bucket)
+        .remove(removePaths);
+      if (removeError) {
+        redirect(
+          toAdminError(`이미지 삭제 실패: ${removeError.message}`, "deleteError"),
+        );
+      }
     }
   }
 
   revalidatePath("/admin");
   revalidatePath("/equipment");
-  redirect("/admin?deleted=1");
+  redirect(isArchived ? "/admin?archived=1&status=active" : "/admin?deleted=1");
 }

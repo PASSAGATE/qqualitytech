@@ -101,6 +101,18 @@ export function AddEquipmentModal() {
                   (form.elements.namedItem("available_count") as HTMLInputElement | null)
                     ?.value ?? "0",
                 );
+                const type = (
+                  (form.elements.namedItem("type") as HTMLSelectElement | null)
+                    ?.value ?? ""
+                ).toLowerCase();
+                const salePrice = Number(
+                  (form.elements.namedItem("sale_price") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
+                const monthlyRentalPrice = Number(
+                  (form.elements.namedItem("monthly_rental_price") as HTMLInputElement | null)
+                    ?.value ?? "0",
+                );
                 const selectedImages = [1, 2, 3, 4, 5]
                   .map((index) =>
                     (form.elements.namedItem(`image_file_${index}`) as HTMLInputElement | null)
@@ -117,6 +129,27 @@ export function AddEquipmentModal() {
                 if (selectedImages === 0) {
                   event.preventDefault();
                   setFormError("최소 1장 이상의 이미지를 업로드해 주세요.");
+                  return;
+                }
+
+                if (type === "sale" && salePrice <= 0) {
+                  event.preventDefault();
+                  setFormError("판매 장비는 판매가를 1원 이상 입력해 주세요.");
+                  return;
+                }
+
+                if (type === "rental" && monthlyRentalPrice <= 0) {
+                  event.preventDefault();
+                  setFormError("임대 장비는 월 임대료를 1원 이상 입력해 주세요.");
+                  return;
+                }
+
+                if (
+                  type === "sale_and_rental" &&
+                  (salePrice <= 0 || monthlyRentalPrice <= 0)
+                ) {
+                  event.preventDefault();
+                  setFormError("판매+임대 장비는 판매가와 월 임대료를 모두 1원 이상 입력해 주세요.");
                 }
               }}
             >

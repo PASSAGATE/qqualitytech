@@ -38,6 +38,7 @@ type AdminPageProps = {
     created?: string;
     updated?: string;
     deleted?: string;
+    archived?: string;
     q?: string;
     type?: string;
     status?: string;
@@ -108,6 +109,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     created,
     updated,
     deleted,
+    archived,
     q,
     type,
     status,
@@ -318,6 +320,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               장비가 성공적으로 삭제되었습니다.
             </p>
           ) : null}
+          {!createError && !updateError && !deleteError && archived === "1" ? (
+            <p className="mb-6 rounded-sm bg-[#fff7e6] px-4 py-3 text-sm font-semibold text-[#9a6700]">
+              연관 주문 이력이 있어 장비를 완전 삭제하지 않고 비활성(아카이브) 처리했습니다.
+            </p>
+          ) : null}
 
           <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             <article className="rounded-sm border-l-4 border-primary bg-surface-container-lowest p-6 shadow-sm">
@@ -480,7 +487,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             rows={equipmentAdminRows}
             initialQuery={q ?? ""}
             initialType={type ?? "all"}
-            initialStatus={status ?? "all"}
+            initialStatus={status ?? "active"}
           />
         </main>
 
