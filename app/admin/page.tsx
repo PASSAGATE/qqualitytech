@@ -19,6 +19,7 @@ import { fetchAdminEquipmentRows } from "../equipment/repository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { AddEquipmentModal } from "./add-equipment-modal";
+import { DeliveryFeesManagementPanel } from "./delivery-fees-management-panel";
 import { EquipmentManagementPanel } from "./equipment-management-panel";
 
 export const dynamic = "force-dynamic";
@@ -472,6 +473,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </div>
             ) : null}
           </section>
+
+          <DeliveryFeesManagementPanel />
 
           <EquipmentManagementPanel
             rows={equipmentAdminRows}

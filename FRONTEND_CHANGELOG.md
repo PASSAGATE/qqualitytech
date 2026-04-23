@@ -86,18 +86,33 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 ### Checkout preview integration
 
 - Added: `app/api/checkout/preview/route.ts` (frontend BFF proxy -> backend `POST /checkout/preview`).
+- Added: `app/api/checkout/confirm/route.ts` (frontend BFF proxy -> backend `POST /checkout/confirm`).
+- Added: `app/api/delivery-fees/route.ts` (frontend BFF proxy -> backend `GET /delivery-fees`).
 - Added: `app/cart/checkout-preview-panel.tsx` client panel:
   - `delivery/pickup` tanlash
-  - delivery holatida `region/address` input
+  - delivery holatida delivery fee API’dan keladigan `region` dropdown + `address` input
   - preview API chaqiruvi va error handling
   - preview natijalari (`buy subtotal`, `rent subtotal`, `delivery fee`, `total`) UI’da ko‘rsatish
+  - `주문 확정` tugmasi orqali checkout confirm API chaqiruvi
 - Updated: `app/cart/page.tsx` summary sidebar ichiga checkout preview panel qo‘shildi.
 - Fixed: cart에서 rent 항목 수정 시 수량(count) 대신 임대 개월(rentalMonths, 6~36)을 갱신하도록 변경.
 - Updated: cart live panelda rent 항목도 `수량 + 개월` 동시 수정 가능하도록 개선.
 - Updated: 입력 변경 시 Enter 없이 line total/summary 즉시 재계산 + debounce 자동 저장.
+- Fixed: 재고 초과 오류를 전체 상단이 아닌 해당 장비 항목 아래에 표시하도록 개선.
+- Updated: cart 품목 이미지/이름 클릭 시 해당 equipment detail 페이지로 이동.
+
+### Admin delivery fee management
+
+- Added: `app/api/admin/delivery-fees/route.ts` (GET/POST, admin auth bilan backend proxy).
+- Added: `app/api/admin/delivery-fees/[id]/route.ts` (PATCH/DELETE, admin auth bilan backend proxy).
+- Added: `app/admin/delivery-fees-management-panel.tsx`:
+  - 배송비 목록 조회
+  - 지역/요금/활성 상태 추가
+  - inline 수정/저장
+  - 삭제
+- Updated: `app/admin/page.tsx` — `배송비 관리` panel qo‘shildi.
 
 ### Next
 
-- Checkout preview/confirm sahifalarini real API bilan ulash.
+- Checkout confirm’dan keyingi payment flow (Phase 9) UI tayyorlash.
 - Auth + cart + checkout bo‘yicha yakuniy E2E checklist yuritish.
-- Updated: /cart에서 입력값 변경 시 Enter 없이 라인 금액/요약이 즉시 재계산되고, 항목은 자동 PATCH 저장되도록 개선.

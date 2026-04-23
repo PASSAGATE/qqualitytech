@@ -3,6 +3,7 @@ export type CartMode = "buy" | "rent";
 export type CartItem = {
   id: string;
   equipmentId: string;
+  equipmentSlug: string | null;
   equipmentName: string;
   equipmentCode: string | null;
   equipmentType: string | null;
@@ -60,4 +61,3 @@ export async function fetchMyCart(
     return null;
   }
 }
-

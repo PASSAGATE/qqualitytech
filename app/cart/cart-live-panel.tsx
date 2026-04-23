@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { CartItem, CartResponse } from "@/lib/backend/cart";
 import { CheckoutPreviewPanel } from "./checkout-preview-panel";
 
@@ -27,9 +28,24 @@ function toDraftItems(items: CartItem[]): DraftItem[] {
   }));
 }
 
+function toFriendlyError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("requested quantity exceeds available stock")) {
+    return "요청 수량이 현재 재고를 초과했습니다.";
+  }
+  if (normalized.includes("insufficient stock")) {
+    return "재고가 부족합니다. 수량을 줄여 주세요.";
+  }
+  if (normalized.includes("cart item not found")) {
+    return "장바구니 항목을 찾을 수 없습니다.";
+  }
+  return message;
+}
+
 export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
   const [items, setItems] = useState<DraftItem[]>(() => toDraftItems(cart.items));
   const [error, setError] = useState<string | null>(null);
+  const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -103,13 +119,24 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
           } catch {
             // ignore parse errors
           }
-          setError(message);
+          setItemErrors((prev) => ({
+            ...prev,
+            [itemId]: toFriendlyError(message),
+          }));
           return;
         }
 
+        setItemErrors((prev) => {
+          const next = { ...prev };
+          delete next[itemId];
+          return next;
+        });
         window.dispatchEvent(new CustomEvent("cart:changed"));
       } catch {
-        setError("백엔드 연결에 실패했습니다.");
+        setItemErrors((prev) => ({
+          ...prev,
+          [itemId]: "백엔드 연결에 실패했습니다.",
+        }));
       } finally {
         setSavingIds((prev) => ({ ...prev, [itemId]: false }));
       }
@@ -123,6 +150,11 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
         item.id === itemId ? { ...item, draftCount: safeCount } : item,
       ),
     );
+    setItemErrors((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
     scheduleUpdate(itemId, { count: safeCount });
   };
 
@@ -134,6 +166,11 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
         item.id === itemId ? { ...item, draftRentalMonths: safeMonths } : item,
       ),
     );
+    setItemErrors((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
     const target = items.find((item) => item.id === itemId);
     scheduleUpdate(itemId, {
       count: target?.draftCount ?? 1,
@@ -152,6 +189,11 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
         item.id === itemId ? { ...item, draftCount: safeCount } : item,
       ),
     );
+    setItemErrors((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
     scheduleUpdate(itemId, { count: safeCount, rentalMonths: safeMonths });
   };
 
@@ -171,11 +213,16 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
         } catch {
           // ignore parse errors
         }
-        setError(message);
+        setError(toFriendlyError(message));
         return;
       }
 
       setItems((prev) => prev.filter((item) => item.id !== itemId));
+      setItemErrors((prev) => {
+        const next = { ...prev };
+        delete next[itemId];
+        return next;
+      });
       window.dispatchEvent(new CustomEvent("cart:changed"));
     } catch {
       setError("백엔드 연결에 실패했습니다.");
@@ -204,6 +251,10 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
               ? item.unitPrice * item.draftCount
               : item.unitPrice * item.draftCount * item.draftRentalMonths;
 
+          const detailHref = item.equipmentSlug
+            ? `/equipment/${item.equipmentSlug}?id=${item.equipmentId}`
+            : null;
+
           return (
             <article
               key={item.id}
@@ -211,12 +262,23 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
             >
               <div className="grid gap-4 p-4 sm:grid-cols-[128px_1fr] sm:p-5">
                 <div className="relative aspect-square overflow-hidden rounded-sm border border-outline-variant/20 bg-surface-container-low">
-                  <img
-                    src={item.imageUrl || defaultImage}
-                    alt={item.equipmentName}
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+                  {detailHref ? (
+                    <Link href={detailHref} className="block h-full w-full">
+                      <img
+                        src={item.imageUrl || defaultImage}
+                        alt={item.equipmentName}
+                        className="h-full w-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      src={item.imageUrl || defaultImage}
+                      alt={item.equipmentName}
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                 </div>
 
                 <div className="flex flex-col justify-between gap-4">
@@ -231,7 +293,16 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
                         단가 {item.unitPrice.toLocaleString("ko-KR")}원
                       </span>
                     </div>
-                    <p className="text-lg font-bold text-primary">{item.equipmentName}</p>
+                    {detailHref ? (
+                      <Link
+                        href={detailHref}
+                        className="text-lg font-bold text-primary transition-colors hover:text-secondary"
+                      >
+                        {item.equipmentName}
+                      </Link>
+                    ) : (
+                      <p className="text-lg font-bold text-primary">{item.equipmentName}</p>
+                    )}
                     <p className="mt-1 text-sm font-black text-primary-container">
                       합계 {liveLineTotal.toLocaleString("ko-KR")}원
                     </p>
@@ -297,6 +368,11 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
                       </span>
                     ) : null}
                   </div>
+                  {itemErrors[item.id] ? (
+                    <p className="text-xs font-semibold text-[#b42318]">
+                      {itemErrors[item.id]}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </article>

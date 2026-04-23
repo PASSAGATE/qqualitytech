@@ -233,6 +233,16 @@ export default async function EquipmentDetailPage({
               <p className="max-w-2xl text-lg leading-relaxed text-on-surface-variant">
                 {item.description}
               </p>
+
+              {cartTarget ? (
+                <div className="mt-6 max-w-md">
+                  <AddToCartPanel
+                    equipmentId={cartTarget.equipmentId}
+                    saleEnabled={cartTarget.saleEnabled}
+                    rentalEnabled={cartTarget.rentalEnabled}
+                  />
+                </div>
+              ) : null}
             </section>
 
             <EquipmentGallery title={item.title} images={gallery} />

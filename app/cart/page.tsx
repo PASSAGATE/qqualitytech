@@ -18,11 +18,12 @@ type CartPageProps = {
     error?: string;
     updated?: string;
     deleted?: string;
+    confirmed?: string;
   }>;
 };
 
 export default async function CartPage({ searchParams }: CartPageProps) {
-  const { error, updated, deleted } = await searchParams;
+  const { error, updated, deleted, confirmed } = await searchParams;
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
@@ -51,6 +52,11 @@ export default async function CartPage({ searchParams }: CartPageProps) {
           {deleted === "1" ? (
             <p className="mt-4 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
               장바구니 항목이 삭제되었습니다.
+            </p>
+          ) : null}
+          {confirmed === "1" ? (
+            <p className="mt-4 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
+              주문이 생성되었습니다. 결제를 진행해 주세요.
             </p>
           ) : null}
           {error ? (
