@@ -1,4 +1,5 @@
 import type { AdminOrder } from "@/lib/backend/orders";
+import { updateOrderPaymentStatusAction } from "./actions";
 
 type OrderManagementPanelProps = {
   orders: AdminOrder[];
@@ -124,13 +125,16 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
               <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
                 합계
               </th>
+              <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
+                처리
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/10">
             {orders.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-6 py-10 text-center text-sm font-medium text-on-surface-variant"
                 >
                   주문 데이터가 없습니다.
@@ -169,6 +173,42 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
                 <td className="px-6 py-4 text-right text-sm font-bold text-primary">
                   {order.totalPrice.toLocaleString("ko-KR")}원
                 </td>
+                <td className="px-6 py-4 text-right">
+                  {order.paymentStatus === "pending" ? (
+                    <div className="inline-flex items-center gap-2">
+                      <form action={updateOrderPaymentStatusAction}>
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <input
+                          type="hidden"
+                          name="paymentStatus"
+                          value="paid"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-sm bg-[#1d7a3a] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                          결제완료
+                        </button>
+                      </form>
+                      <form action={updateOrderPaymentStatusAction}>
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <input
+                          type="hidden"
+                          name="paymentStatus"
+                          value="failed"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-sm bg-[#b42318] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                          결제실패
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-on-surface-variant">-</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -177,4 +217,3 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
     </section>
   );
 }
-

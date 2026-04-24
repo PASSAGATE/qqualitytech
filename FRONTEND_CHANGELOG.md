@@ -127,6 +127,8 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Added: `lib/backend/orders.ts` (`/orders/admin` fetch helper + typed response).
 - Added: `app/admin/order-management-panel.tsx` (주문 목록 table, 상태/결제상태/합계 표시).
 - Updated: `app/admin/page.tsx` da backenddan real 주문 데이터 yuklanib panelga chiqariladi.
+- Added: `app/admin/actions.ts` -> `updateOrderPaymentStatusAction` (admin에서 결제상태 변경).
+- Updated: `주문 관리` panelda `결제대기` 주문 uchun `결제완료 / 결제실패` 처리 버튼 qo‘shildi.
 
 ### Next
 

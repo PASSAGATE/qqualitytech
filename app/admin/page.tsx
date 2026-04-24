@@ -42,6 +42,8 @@ type AdminPageProps = {
     deleted?: string;
     archived?: string;
     archivedReason?: string;
+    paymentUpdated?: string;
+    paymentError?: string;
     q?: string;
     type?: string;
     status?: string;
@@ -114,6 +116,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     deleted,
     archived,
     archivedReason,
+    paymentUpdated,
+    paymentError,
     q,
     type,
     status,
@@ -309,9 +313,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <AddEquipmentModal />
           </section>
 
-          {createError || updateError || deleteError ? (
+          {createError || updateError || deleteError || paymentError ? (
             <p className="mb-6 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
-              {createError ?? updateError ?? deleteError}
+              {createError ?? updateError ?? deleteError ?? paymentError}
             </p>
           ) : null}
           {!createError && created === "1" ? (
@@ -333,6 +337,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="mb-6 rounded-sm bg-[#fff7e6] px-4 py-3 text-sm font-semibold text-[#9a6700]">
               {archivedReason?.trim() ||
                 "연관 주문 이력이 있어 장비를 완전 삭제하지 않고 비활성(아카이브) 처리했습니다."}
+            </p>
+          ) : null}
+          {!createError &&
+          !updateError &&
+          !deleteError &&
+          !paymentError &&
+          paymentUpdated === "1" ? (
+            <p className="mb-6 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
+              주문 결제 상태가 업데이트되었습니다.
             </p>
           ) : null}
 
