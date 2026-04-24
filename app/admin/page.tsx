@@ -21,6 +21,8 @@ import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { AddEquipmentModal } from "./add-equipment-modal";
 import { DeliveryFeesManagementPanel } from "./delivery-fees-management-panel";
 import { EquipmentManagementPanel } from "./equipment-management-panel";
+import { OrderManagementPanel } from "./order-management-panel";
+import { fetchAdminOrders } from "@/lib/backend/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -176,6 +178,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const equipmentAdminRows = await fetchAdminEquipmentRows();
+  const adminOrders = session?.access_token
+    ? await fetchAdminOrders(session.access_token, { page: 1, limit: 20 })
+    : null;
+  const adminOrderRows = adminOrders?.items ?? [];
+  const adminOrderTotal = adminOrders?.total ?? 0;
   const equipmentBySlug = new Map(
     equipmentAdminRows.map((row) => [row.item.slug, row]),
   );
@@ -483,6 +490,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </div>
             ) : null}
           </section>
+
+          <OrderManagementPanel orders={adminOrderRows} total={adminOrderTotal} />
 
           <DeliveryFeesManagementPanel />
 

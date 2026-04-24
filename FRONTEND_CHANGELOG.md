@@ -115,6 +115,19 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
   - 설정 진행률(설정됨/활성 개수) 표시
 - Updated: `app/admin/page.tsx` — `배송비 관리` panel qo‘shildi.
 
+### Checkout address UX simplification
+
+- Updated: `app/cart/checkout-preview-panel.tsx` da userga region/fee dropdown ko‘rsatish olib tashlandi.
+- Updated: user endi faqat 주소 입력/선택 qiladi, region ichkarida manzildan auto-resolve qilinadi.
+- Updated: `주소 검색` button olib tashlanib, typing paytida debounce auto-search qo‘shildi.
+- Fixed: region aniqlanmasa preview/confirm oldidan aniq koreyscha xabar chiqadi.
+
+### Admin orders integration (real backend)
+
+- Added: `lib/backend/orders.ts` (`/orders/admin` fetch helper + typed response).
+- Added: `app/admin/order-management-panel.tsx` (주문 목록 table, 상태/결제상태/합계 표시).
+- Updated: `app/admin/page.tsx` da backenddan real 주문 데이터 yuklanib panelga chiqariladi.
+
 ### Next
 
 - Checkout confirm’dan keyingi payment flow (Phase 9) UI tayyorlash.
