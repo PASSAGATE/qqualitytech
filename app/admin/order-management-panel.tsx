@@ -4,6 +4,10 @@ import { updateOrderPaymentStatusAction } from "./actions";
 type OrderManagementPanelProps = {
   orders: AdminOrder[];
   total: number;
+  currentPage?: number;
+  paymentUpdated?: boolean;
+  paymentError?: string | null;
+  paymentOrderId?: string | null;
 };
 
 function formatDateTime(value: string | null) {
@@ -87,7 +91,14 @@ function orderItemSummary(order: AdminOrder) {
   }건`;
 }
 
-export function OrderManagementPanel({ orders, total }: OrderManagementPanelProps) {
+export function OrderManagementPanel({
+  orders,
+  total,
+  currentPage = 1,
+  paymentUpdated = false,
+  paymentError = null,
+  paymentOrderId = null,
+}: OrderManagementPanelProps) {
   return (
     <section className="mb-10 overflow-hidden rounded-sm bg-surface-container-lowest shadow-sm">
       <div className="flex items-center justify-between border-b border-outline-variant/10 px-6 py-4">
@@ -105,9 +116,6 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
                 주문일시
               </th>
               <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
-                주문ID
-              </th>
-              <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
                 고객
               </th>
               <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
@@ -121,6 +129,9 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
               </th>
               <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
                 결제
+              </th>
+              <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                상태 요약
               </th>
               <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
                 합계
@@ -146,9 +157,6 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
                 <td className="px-6 py-4 text-xs font-medium text-on-surface-variant">
                   {formatDateTime(order.createdAt)}
                 </td>
-                <td className="px-6 py-4 text-xs font-semibold text-primary">
-                  {order.id}
-                </td>
                 <td className="px-6 py-4">
                   <p className="text-sm font-semibold text-primary">
                     {order.user?.fullName || order.companyName}
@@ -170,44 +178,73 @@ export function OrderManagementPanel({ orders, total }: OrderManagementPanelProp
                 <td className="px-6 py-4 text-xs font-semibold text-secondary">
                   {toPaymentStatusLabel(order.paymentStatus)}
                 </td>
+                <td className="px-6 py-4 text-xs text-on-surface-variant">
+                  {toStatusLabel(order.status)} /{" "}
+                  {toPaymentStatusLabel(order.paymentStatus)}
+                </td>
                 <td className="px-6 py-4 text-right text-sm font-bold text-primary">
                   {order.totalPrice.toLocaleString("ko-KR")}원
                 </td>
                 <td className="px-6 py-4 text-right">
-                  {order.paymentStatus === "pending" ? (
-                    <div className="inline-flex items-center gap-2">
-                      <form action={updateOrderPaymentStatusAction}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <input
-                          type="hidden"
-                          name="paymentStatus"
-                          value="paid"
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-sm bg-[#1d7a3a] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
-                        >
-                          결제완료
-                        </button>
-                      </form>
-                      <form action={updateOrderPaymentStatusAction}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <input
-                          type="hidden"
-                          name="paymentStatus"
-                          value="failed"
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-sm bg-[#b42318] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
-                        >
-                          결제실패
-                        </button>
-                      </form>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-on-surface-variant">-</span>
-                  )}
+                  <div className="space-y-2">
+                    {order.paymentStatus === "pending" ? (
+                      <div className="inline-flex items-center gap-2">
+                        <form action={updateOrderPaymentStatusAction}>
+                          <input type="hidden" name="orderId" value={order.id} />
+                          <input
+                            type="hidden"
+                            name="paymentStatus"
+                            value="paid"
+                          />
+                          <input
+                            type="hidden"
+                            name="returnPage"
+                            value={String(currentPage)}
+                          />
+                          <button
+                            type="submit"
+                            className="rounded-sm bg-[#1d7a3a] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                          >
+                            결제완료
+                          </button>
+                        </form>
+                        <form action={updateOrderPaymentStatusAction}>
+                          <input type="hidden" name="orderId" value={order.id} />
+                          <input
+                            type="hidden"
+                            name="paymentStatus"
+                            value="failed"
+                          />
+                          <input
+                            type="hidden"
+                            name="returnPage"
+                            value={String(currentPage)}
+                          />
+                          <button
+                            type="submit"
+                            className="rounded-sm bg-[#b42318] px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                          >
+                            결제실패
+                          </button>
+                        </form>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-on-surface-variant">-</span>
+                    )}
+
+                    {paymentOrderId === order.id && paymentError ? (
+                      <p className="text-xs font-semibold text-[#b42318]">
+                        {paymentError}
+                      </p>
+                    ) : null}
+                    {paymentOrderId === order.id &&
+                    paymentUpdated &&
+                    !paymentError ? (
+                      <p className="text-xs font-semibold text-[#1d7a3a]">
+                        결제 상태가 업데이트되었습니다.
+                      </p>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}

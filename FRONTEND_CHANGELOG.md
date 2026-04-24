@@ -130,6 +130,25 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Added: `app/admin/actions.ts` -> `updateOrderPaymentStatusAction` (admin에서 결제상태 변경).
 - Updated: `주문 관리` panelda `결제대기` 주문 uchun `결제완료 / 결제실패` 처리 버튼 qo‘shildi.
 
+### Admin IA/page split
+
+- Added: `app/admin/admin-shell.tsx` (sidebar + header + footer 공통 레이아웃).
+- Added: `app/admin/admin-auth.ts` (admin 권한 체크 공통 함수).
+- Added: alohida sahifalar:
+  - `/admin` -> `장비 관리`
+  - `/admin/orders` -> `주문 관리`
+  - `/admin/delivery-fees` -> `배송비 관리 (시/도 17개)`
+- Updated: sidebar navigationda `주문 관리`, `배송비 관리` linklari qo‘shildi.
+- Updated: 결제 상태 변경 action redirect now goes to `/admin/orders`.
+
+### Admin orders UX polish
+
+- Updated: `/admin/orders` server-side pagination 10개 단위로 적용.
+- Updated: 주문 목록에서 `주문ID` column 제거.
+- Updated: `상태 요약` column to‘liq koreyscha ko‘rinishga o‘tkazildi.
+- Fixed: 결제 처리 결과 메시지 global topda emas, aynan 해당 주문 row에서 표시되도록 변경.
+- Fixed: 결제 처리 후 현재 페이지 유지(`returnPage`) qo‘shildi.
+
 ### Next
 
 - Checkout confirm’dan keyingi payment flow (Phase 9) UI tayyorlash.
