@@ -1,4 +1,5 @@
 import type { AdminOrder } from "@/lib/backend/orders";
+import Link from "next/link";
 import { updateOrderPaymentStatusAction } from "./actions";
 
 type OrderManagementPanelProps = {
@@ -137,6 +138,9 @@ export function OrderManagementPanel({
                 합계
               </th>
               <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
+                상세
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
                 처리
               </th>
             </tr>
@@ -145,7 +149,7 @@ export function OrderManagementPanel({
             {orders.length === 0 ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-6 py-10 text-center text-sm font-medium text-on-surface-variant"
                 >
                   주문 데이터가 없습니다.
@@ -184,6 +188,14 @@ export function OrderManagementPanel({
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-bold text-primary">
                   {order.totalPrice.toLocaleString("ko-KR")}원
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <Link
+                    href={`/admin/orders/${order.id}?page=${currentPage}`}
+                    className="rounded-sm bg-surface-container-high px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-surface-container-highest"
+                  >
+                    상세 보기
+                  </Link>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="space-y-2">

@@ -115,3 +115,27 @@ export async function fetchAdminOrders(
   }
 }
 
+export async function fetchAdminOrderDetail(
+  accessToken: string,
+  orderId: string,
+): Promise<AdminOrder | null> {
+  try {
+    const response = await fetch(
+      `${apiBaseUrl()}/orders/admin/${encodeURIComponent(orderId)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as AdminOrder;
+  } catch {
+    return null;
+  }
+}

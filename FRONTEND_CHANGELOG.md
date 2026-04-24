@@ -149,6 +149,20 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Fixed: 결제 처리 결과 메시지 global topda emas, aynan 해당 주문 row에서 표시되도록 변경.
 - Fixed: 결제 처리 후 현재 페이지 유지(`returnPage`) qo‘shildi.
 
+### Orders detail pages
+
+- Added: `/my-page/orders/[id]` (customer order detail page).
+- Updated: `/my-page/orders`da `상세 보기` link qo‘shildi.
+- Added: `/admin/orders/[id]` (admin order detail page).
+- Updated: `/admin/orders`da `상세 보기` link qo‘shildi (`page` query preserve).
+- Added: `lib/backend/orders.ts`ga `fetchAdminOrderDetail` helper.
+
+### Order status design tokens + timeline
+
+- Added: `lib/ui/order-status.ts` (공용 상태 라벨/배지 스타일/타임라인 계산 유틸).
+- Updated: `/my-page/orders/[id]`da 주문/결제 status badge + 진행 타임라인 qo‘shildi.
+- Updated: `/admin/orders/[id]`da xuddi shu tokenlar bilan 동일한 badge + timeline ko‘rinish qo‘shildi.
+
 ### Next
 
 - Checkout confirm’dan keyingi payment flow (Phase 9) UI tayyorlash.
