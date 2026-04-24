@@ -229,6 +229,12 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
     }
   };
 
+  const handleCheckoutConfirmed = () => {
+    setItems([]);
+    setError(null);
+    setItemErrors({});
+  };
+
   return (
     <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_340px]">
       <div className="space-y-4">
@@ -419,7 +425,10 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
               </p>
             </div>
           </section>
-          <CheckoutPreviewPanel cart={cartForPreview} />
+          <CheckoutPreviewPanel
+            cart={cartForPreview}
+            onConfirmed={handleCheckoutConfirmed}
+          />
         </aside>
       ) : null}
     </div>

@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Truck } from "lucide-react";
 import { AdminShell } from "../../admin-shell";
 import { requireAdminSession } from "../../admin-auth";
+import { updateOrderStatusAction } from "../../actions";
+import { StatusUpdateSubmitButton } from "../../status-update-submit-button";
 import { fetchAdminOrderDetail } from "@/lib/backend/orders";
 import {
   orderStatusMeta,
@@ -39,7 +41,7 @@ function formatDateTime(value: string | null) {
 
 type AdminOrderDetailPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; statusUpdated?: string; statusError?: string }>;
 };
 
 export default async function AdminOrderDetailPage({
@@ -47,7 +49,7 @@ export default async function AdminOrderDetailPage({
   searchParams,
 }: AdminOrderDetailPageProps) {
   const { id } = await params;
-  const { page } = await searchParams;
+  const { page, statusUpdated, statusError } = await searchParams;
   const { session } = await requireAdminSession();
 
   if (!session?.access_token) {
@@ -64,6 +66,22 @@ export default async function AdminOrderDetailPage({
 
   const backPage = Number.parseInt(page ?? "1", 10);
   const safeBackPage = Number.isFinite(backPage) && backPage > 0 ? backPage : 1;
+  const current = order.status;
+  const statusFlowMap: Record<string, string[]> = {
+    awaiting_payment: ["paid", "cancelled", "expired"],
+    paid: ["confirmed", "cancelled"],
+    confirmed:
+      order.orderType === "rent"
+        ? ["active_rental", "completed", "cancelled"]
+        : ["preparing", "shipped", "completed", "cancelled"],
+    preparing: ["shipped", "completed", "cancelled"],
+    shipped: ["completed", "cancelled"],
+    active_rental: ["completed", "cancelled"],
+    completed: [],
+    cancelled: [],
+    expired: [],
+  };
+  const nextStatuses = statusFlowMap[current] ?? [];
 
   return (
     <AdminShell activeNav="orders">
@@ -215,6 +233,45 @@ export default async function AdminOrderDetailPage({
                 최종 상태: {timeline.terminalLabel}
               </p>
             ) : null}
+          </div>
+
+          <div className="border-t border-outline-variant/20 pt-3">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+              주문 상태 변경
+            </p>
+            {nextStatuses.length > 0 ? (
+              <form action={updateOrderStatusAction} className="mt-2 space-y-2">
+                <input type="hidden" name="orderId" value={order.id} />
+                <input type="hidden" name="returnPage" value={String(safeBackPage)} />
+                <div className="flex items-center gap-2">
+                  <select
+                    name="status"
+                    required
+                    className="min-w-[150px] rounded-sm border border-outline-variant/30 bg-white px-3 py-1.5 text-sm text-primary outline-none focus:border-secondary"
+                    defaultValue={nextStatuses[0]}
+                  >
+                    {nextStatuses.map((nextStatus) => (
+                      <option key={nextStatus} value={nextStatus}>
+                        {orderStatusMeta(nextStatus as typeof order.status).label}
+                      </option>
+                    ))}
+                  </select>
+                  <StatusUpdateSubmitButton />
+                </div>
+                {statusError ? (
+                  <p className="text-xs font-semibold text-[#b42318]">{statusError}</p>
+                ) : null}
+                {statusUpdated === "1" ? (
+                  <p className="text-xs font-semibold text-[#1d7a3a]">
+                    주문 상태가 업데이트되었습니다.
+                  </p>
+                ) : null}
+              </form>
+            ) : (
+              <p className="mt-2 text-xs text-on-surface-variant">
+                현재 상태에서는 더 이상 변경할 수 없습니다.
+              </p>
+            )}
           </div>
 
           <div className="border-t border-outline-variant/20 pt-3">

@@ -52,9 +52,13 @@ type AddressSearchResult = {
 
 type CheckoutPreviewPanelProps = {
   cart: CartResponse;
+  onConfirmed?: () => void;
 };
 
-export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
+export function CheckoutPreviewPanel({
+  cart,
+  onConfirmed,
+}: CheckoutPreviewPanelProps) {
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">(
     "pickup",
   );
@@ -337,11 +341,17 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
         return;
       }
 
-      setConfirmSuccess("주문이 접수되었습니다. 결제를 진행해 주세요.");
+      onConfirmed?.();
       window.dispatchEvent(new CustomEvent("cart:changed"));
-      setTimeout(() => {
-        window.location.href = "/cart?confirmed=1";
-      }, 450);
+      setConfirmSuccess("주문이 생성되었습니다. 결제를 진행해 주세요.");
+      const Swal = (await import("sweetalert2")).default;
+      void Swal.fire({
+        icon: "success",
+        title: "주문이 생성되었습니다.",
+        text: "결제를 진행해 주세요.",
+        confirmButtonText: "확인",
+        confirmButtonColor: "#175cd3",
+      });
     } catch {
       setError("백엔드 연결에 실패했습니다.");
     } finally {

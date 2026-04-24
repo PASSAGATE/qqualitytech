@@ -167,3 +167,40 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 
 - Checkout confirm’dan keyingi payment flow (Phase 9) UI tayyorlash.
 - Auth + cart + checkout bo‘yicha yakuniy E2E checklist yuritish.
+
+---
+
+## 2026-04-24
+
+### Admin order detail: status update integration
+
+- Added: `app/admin/actions.ts` -> `updateOrderStatusAction` (admin에서 주문 상태 변경 API 호출).
+- Updated: `app/admin/orders/[id]/page.tsx`
+  - 상세 화면에서 다음 가능한 상태를 선택해 업데이트하는 form qo‘shildi
+  - transition 가능 상태만 selectda ko‘rsatiladi
+  - 결과 메시지 (`성공/실패`) detail panel ichida ko‘rsatiladi
+  - 목록 페이지 번호(`page`) qayta saqlanadi
+- Updated: submit UX polish:
+  - 상태 업데이트 버튼 pending holatda `업데이트 중...` ko‘rinishiga o‘tadi
+  - 서버 texnik xatolari admin uchun aniq koreyscha xabarlarga map qilindi
+- Verified: frontend build (`next build`) 성공.
+
+### Cart checkout confirm UX polish
+
+- Updated: `app/cart/checkout-preview-panel.tsx`
+  - `주문 확정` bosilganda `/cart`dan redirect olib tashlandi
+  - 성공 시 SweetAlert2 popup (`주문이 생성되었습니다. 결제를 진행해 주세요.`) qo‘shildi
+- Updated: `app/cart/cart-live-panel.tsx`
+  - checkout confirm 성공dan keyin cart list darhol bo‘shatiladi (UI refresh kutmasdan)
+- Added: `sweetalert2` dependency (`package.json`, lockfiles).
+
+### Integration Test
+
+- Scenario: `cart -> checkout preview -> 주문 확정 -> admin orders에서 상태 관리 -> my-page orders 반영`
+- Result: PASS
+- Notes: 현재 staging 흐름에서 payment provider 없이도 수동 운영 시나리오 정상 동작.
+
+### Next
+
+- Admin detailda `statusLogs` timeline/history panelini chiqarish.
+- Payment provider ulanmaguncha admin manual status workflow bilan operatsiyani davom ettirish.
