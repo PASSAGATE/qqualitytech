@@ -87,8 +87,8 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
     if (!requiresDeliveryFields) {
       return false;
     }
-    return region.trim().length === 0 || address.trim().length === 0;
-  }, [address, hasItems, loading, loadingRegions, region, requiresDeliveryFields]);
+    return address.trim().length === 0;
+  }, [address, hasItems, loading, loadingRegions, requiresDeliveryFields]);
 
   useEffect(() => {
     let mounted = true;
@@ -145,52 +145,114 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
     }
   };
 
-  const handleAddressSearch = async () => {
+  const resolveRegionFromAddressText = (addressText: string) => {
+    const tokens = addressText
+      .trim()
+      .split(/\s+/)
+      .map((token) => token.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (tokens.length === 0) {
+      return null;
+    }
+
+    const candidates = [tokens[0], tokens.slice(0, 2).join(" ")].filter(Boolean);
+    const matched = regionOptions.find((option) => {
+      const normalized = option.region.trim().toLowerCase();
+      return candidates.some(
+        (candidate) =>
+          normalized === candidate ||
+          normalized.includes(candidate) ||
+          candidate.includes(normalized),
+      );
+    });
+
+    return matched?.region ?? null;
+  };
+
+  useEffect(() => {
+    if (!requiresDeliveryFields) {
+      setAddressSearchLoading(false);
+      setAddressSearchError(null);
+      setAddressResults([]);
+      return;
+    }
+
     const keyword = addressKeyword.trim();
+    if (keyword.length === 0) {
+      setAddressSearchLoading(false);
+      setAddressSearchError(null);
+      setAddressResults([]);
+      return;
+    }
+
     if (keyword.length < 2) {
+      setAddressSearchLoading(false);
       setAddressSearchError("검색어를 2자 이상 입력해 주세요.");
       setAddressResults([]);
       return;
     }
 
-    setAddressSearchError(null);
-    setAddressSearchLoading(true);
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setAddressSearchError(null);
+      setAddressSearchLoading(true);
+      try {
+        const response = await fetch(
+          `/api/address-search?keyword=${encodeURIComponent(keyword)}`,
+          { cache: "no-store", signal: controller.signal },
+        );
 
-    try {
-      const response = await fetch(
-        `/api/address-search?keyword=${encodeURIComponent(keyword)}`,
-        { cache: "no-store" },
-      );
-
-      if (!response.ok) {
-        let message = `주소 검색 실패 (${response.status})`;
-        try {
-          const data = (await response.json()) as ApiError;
-          message = data.message ?? data.error ?? message;
-        } catch {
-          // ignore parse errors
+        if (!response.ok) {
+          let message = `주소 검색 실패 (${response.status})`;
+          try {
+            const data = (await response.json()) as ApiError;
+            message = data.message ?? data.error ?? message;
+          } catch {
+            // ignore parse errors
+          }
+          setAddressSearchError(message);
+          setAddressResults([]);
+          return;
         }
-        setAddressSearchError(message);
-        setAddressResults([]);
-        return;
-      }
 
-      const data = (await response.json()) as AddressSearchResult[];
-      setAddressResults(Array.isArray(data) ? data : []);
-      if (!Array.isArray(data) || data.length === 0) {
-        setAddressSearchError("검색 결과가 없습니다.");
+        const data = (await response.json()) as AddressSearchResult[];
+        setAddressResults(Array.isArray(data) ? data : []);
+        if (!Array.isArray(data) || data.length === 0) {
+          setAddressSearchError("검색 결과가 없습니다.");
+        }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setAddressSearchError("주소 검색 서버 연결에 실패했습니다.");
+          setAddressResults([]);
+        }
+      } finally {
+        setAddressSearchLoading(false);
       }
-    } catch {
-      setAddressSearchError("주소 검색 서버 연결에 실패했습니다.");
-      setAddressResults([]);
-    } finally {
-      setAddressSearchLoading(false);
-    }
-  };
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [addressKeyword, requiresDeliveryFields]);
 
   const handlePreview = async () => {
     setError(null);
     setConfirmSuccess(null);
+
+    const resolvedRegion = requiresDeliveryFields
+      ? region.trim() || resolveRegionFromAddressText(address)
+      : undefined;
+    if (requiresDeliveryFields && !resolvedRegion) {
+      setPreview(null);
+      setError("주소에서 지역을 확인할 수 없습니다. 도로명 주소를 다시 선택해 주세요.");
+      return;
+    }
+    if (resolvedRegion) {
+      setRegion(resolvedRegion);
+    }
+
     setLoading(true);
 
     try {
@@ -199,7 +261,7 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryMethod,
-          region: requiresDeliveryFields ? region.trim() : undefined,
+          region: resolvedRegion,
           address: requiresDeliveryFields ? address.trim() : undefined,
           companyName: companyName.trim() || undefined,
         }),
@@ -236,6 +298,18 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
 
     setError(null);
     setConfirmSuccess(null);
+
+    const resolvedRegion = requiresDeliveryFields
+      ? region.trim() || resolveRegionFromAddressText(address)
+      : undefined;
+    if (requiresDeliveryFields && !resolvedRegion) {
+      setError("주소에서 지역을 확인할 수 없습니다. 도로명 주소를 다시 선택해 주세요.");
+      return;
+    }
+    if (resolvedRegion) {
+      setRegion(resolvedRegion);
+    }
+
     setConfirming(true);
 
     try {
@@ -244,7 +318,7 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryMethod,
-          region: requiresDeliveryFields ? region.trim() : undefined,
+          region: resolvedRegion,
           address: requiresDeliveryFields ? address.trim() : undefined,
           companyName: companyName.trim() || undefined,
         }),
@@ -308,37 +382,21 @@ export function CheckoutPreviewPanel({ cart }: CheckoutPreviewPanelProps) {
 
         {requiresDeliveryFields ? (
           <div className="grid gap-3">
-            <select
-              value={region}
-              onChange={(event) => setRegion(event.target.value)}
-              className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
-            >
-              <option value="">
-                {loadingRegions ? "지역 불러오는 중..." : "배송 지역을 선택해 주세요"}
-              </option>
-              {regionOptions.map((option) => (
-                <option key={option.id} value={option.region}>
-                  {option.region} ({option.fee.toLocaleString("ko-KR")}원)
-                </option>
-              ))}
-            </select>
             <div className="grid gap-2">
-              <div className="flex gap-2">
-                <input
-                  value={addressKeyword}
-                  onChange={(event) => setAddressKeyword(event.target.value)}
-                  placeholder="도로명/건물명으로 주소 검색"
-                  className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddressSearch}
-                  disabled={addressSearchLoading}
-                  className="shrink-0 rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {addressSearchLoading ? "검색 중..." : "주소 검색"}
-                </button>
-              </div>
+              <input
+                value={addressKeyword}
+                onChange={(event) => setAddressKeyword(event.target.value)}
+                placeholder="도로명/건물명으로 주소 검색"
+                className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
+              />
+              <p className="text-[11px] text-on-surface-variant">
+                주소 검색은 입력 시 자동으로 진행됩니다.
+              </p>
+              {addressSearchLoading ? (
+                <p className="text-xs font-semibold text-on-surface-variant">
+                  검색 중...
+                </p>
+              ) : null}
 
               {addressSearchError ? (
                 <p className="text-xs font-semibold text-[#b42318]">

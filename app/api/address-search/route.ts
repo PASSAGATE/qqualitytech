@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const confmKey = "devU01TX0FWEgyMDI2MDQyMzE2NTEwNzExNzk5MDg=";
+  const confmKey = process.env.JUSO_CONFM_KEY;
   if (!confmKey) {
     return NextResponse.json(
       { message: "JUSO_CONFM_KEY is not configured." },

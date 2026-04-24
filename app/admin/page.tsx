@@ -39,6 +39,7 @@ type AdminPageProps = {
     updated?: string;
     deleted?: string;
     archived?: string;
+    archivedReason?: string;
     q?: string;
     type?: string;
     status?: string;
@@ -110,6 +111,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     updated,
     deleted,
     archived,
+    archivedReason,
     q,
     type,
     status,
@@ -322,7 +324,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ) : null}
           {!createError && !updateError && !deleteError && archived === "1" ? (
             <p className="mb-6 rounded-sm bg-[#fff7e6] px-4 py-3 text-sm font-semibold text-[#9a6700]">
-              연관 주문 이력이 있어 장비를 완전 삭제하지 않고 비활성(아카이브) 처리했습니다.
+              {archivedReason?.trim() ||
+                "연관 주문 이력이 있어 장비를 완전 삭제하지 않고 비활성(아카이브) 처리했습니다."}
             </p>
           ) : null}
 

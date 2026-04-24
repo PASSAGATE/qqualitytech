@@ -109,10 +109,10 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 - Added: `app/api/admin/delivery-fees/route.ts` (GET/POST, admin auth bilan backend proxy).
 - Added: `app/api/admin/delivery-fees/[id]/route.ts` (PATCH/DELETE, admin auth bilan backend proxy).
 - Added: `app/admin/delivery-fees-management-panel.tsx`:
-  - 배송비 목록 조회
-  - 지역/요금/활성 상태 추가
-  - inline 수정/저장
-  - 삭제
+  - 한국 시/도 17개 고정 목록(서울/부산/.../제주) 표시
+  - 각 지역별 배송비/활성 여부 입력 후 개별 저장
+  - 기존 값이 있으면 PATCH, 없으면 POST(create-or-update UX)
+  - 설정 진행률(설정됨/활성 개수) 표시
 - Updated: `app/admin/page.tsx` — `배송비 관리` panel qo‘shildi.
 
 ### Next

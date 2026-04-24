@@ -20,6 +20,7 @@ type EquipmentDetailResponse = {
 type DeleteEquipmentResponse = {
   success?: boolean;
   archived?: boolean;
+  reason?: string | null;
 };
 
 function apiBaseUrl() {
@@ -570,14 +571,15 @@ export async function deleteEquipmentAction(formData: FormData) {
     redirect(toAdminError(`삭제 실패: ${message}`, "deleteError"));
   }
 
-  let deleteResult: DeleteEquipmentResponse = {};
+  let deleteResult: DeleteEquipmentResponse | null = null;
   try {
     deleteResult = (await response.json()) as DeleteEquipmentResponse;
   } catch {
-    deleteResult = {};
+    deleteResult = null;
   }
 
-  const isArchived = deleteResult.archived === true;
+  // Fail-safe: if response parsing failed, do not remove storage images.
+  const isArchived = deleteResult?.archived !== false;
 
   if (!isArchived) {
     const bucket = process.env.SUPABASE_EQUIPMENT_BUCKET ?? "equipment-images";
@@ -599,5 +601,14 @@ export async function deleteEquipmentAction(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath("/equipment");
-  redirect(isArchived ? "/admin?archived=1&status=active" : "/admin?deleted=1");
+  if (isArchived) {
+    const reason =
+      deleteResult?.reason?.trim() ||
+      "연관 주문 이력이 있어 장비를 비활성(아카이브) 처리했습니다.";
+    redirect(
+      `/admin?archived=1&status=active&archivedReason=${encodeURIComponent(reason)}`,
+    );
+  }
+
+  redirect("/admin?deleted=1");
 }
