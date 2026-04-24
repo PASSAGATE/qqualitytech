@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCcw, Save } from "lucide-react";
 
 type DeliveryFeeRow = {
@@ -46,7 +46,8 @@ export function DeliveryFeesManagementPanel() {
   const [rows, setRows] = useState<DeliveryFeeRow[]>([]);
   const [drafts, setDrafts] = useState<Record<string, RegionDraft>>({});
   const [loading, setLoading] = useState(true);
-  const [savingRegion, setSavingRegion] = useState<string | null>(null);
+  const [savingAll, setSavingAll] = useState(false);
+  const [savingProgressRegion, setSavingProgressRegion] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -79,7 +80,30 @@ export function DeliveryFeesManagementPanel() {
     setDrafts(nextDrafts);
   };
 
-  const loadRows = async () => {
+  const isChangedRegion = useCallback(
+    (region: string) => {
+      const draft = drafts[region];
+      if (!draft) {
+        return false;
+      }
+
+      const fee = Number(draft.fee);
+      const existing = rowsByRegion.get(region);
+      if (!existing) {
+        return draft.fee.trim().length > 0;
+      }
+
+      return existing.fee !== fee || existing.isActive !== draft.isActive;
+    },
+    [drafts, rowsByRegion],
+  );
+
+  const changedRegionCount = useMemo(
+    () => KOREA_TOP_LEVEL_REGIONS.filter((region) => isChangedRegion(region)).length,
+    [isChangedRegion],
+  );
+
+  const loadRows = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -109,64 +133,88 @@ export function DeliveryFeesManagementPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     void loadRows();
-  }, []);
+  }, [loadRows]);
 
-  const saveRegion = async (region: string) => {
-    const draft = drafts[region];
-    if (!draft) {
-      return;
-    }
-
-    const fee = Number(draft.fee);
-    if (!Number.isFinite(fee) || fee < 0) {
-      setError(`${region}: 배송비는 0 이상의 숫자로 입력해 주세요.`);
-      return;
-    }
-
-    const existing = rowsByRegion.get(region);
-
-    setSavingRegion(region);
+  const saveAllRegions = async () => {
     setError(null);
     setSuccess(null);
 
-    try {
-      const endpoint = existing
-        ? `/api/admin/delivery-fees/${existing.id}`
-        : "/api/admin/delivery-fees";
-      const method = existing ? "PATCH" : "POST";
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          region,
-          fee,
-          isActive: draft.isActive,
-        }),
-      });
-
-      if (!response.ok) {
-        let message = `${region} 저장에 실패했습니다. (${response.status})`;
-        try {
-          const data = (await response.json()) as ApiError;
-          message = data.message ?? data.error ?? message;
-        } catch {
-          // ignore parse errors
-        }
-        setError(message);
+    for (const region of KOREA_TOP_LEVEL_REGIONS) {
+      const draft = drafts[region];
+      if (!draft || draft.fee.trim().length === 0) {
+        setError(`${region}: 배송비를 입력해 주세요.`);
         return;
       }
+      const fee = Number(draft.fee);
+      if (!Number.isFinite(fee) || fee < 0) {
+        setError(`${region}: 배송비는 0 이상의 숫자로 입력해 주세요.`);
+        return;
+      }
+    }
 
-      setSuccess(`${region} 배송비가 저장되었습니다.`);
+    const targetRegions = KOREA_TOP_LEVEL_REGIONS.filter((region) =>
+      isChangedRegion(region),
+    );
+
+    if (targetRegions.length === 0) {
+      setSuccess("변경된 내용이 없습니다.");
+      return;
+    }
+
+    setSavingAll(true);
+    try {
+      for (const region of targetRegions) {
+        setSavingProgressRegion(region);
+
+        const draft = drafts[region];
+        if (!draft) {
+          continue;
+        }
+
+        const fee = Number(draft.fee);
+        const existing = rowsByRegion.get(region);
+        const endpoint = existing
+          ? `/api/admin/delivery-fees/${existing.id}`
+          : "/api/admin/delivery-fees";
+        const method = existing ? "PATCH" : "POST";
+
+        const response = await fetch(endpoint, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            region,
+            fee,
+            isActive: draft.isActive,
+          }),
+        });
+
+        if (!response.ok) {
+          let message = `${region} 저장에 실패했습니다. (${response.status})`;
+          try {
+            const data = (await response.json()) as ApiError;
+            message = data.message ?? data.error ?? message;
+          } catch {
+            // ignore parse errors
+          }
+          throw new Error(message);
+        }
+      }
+
       await loadRows();
-    } catch {
-      setError("백엔드 연결에 실패했습니다.");
+      setSuccess(`${targetRegions.length}개 지역 배송비가 저장되었습니다.`);
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "백엔드 연결에 실패했습니다.",
+      );
     } finally {
-      setSavingRegion(null);
+      setSavingProgressRegion(null);
+      setSavingAll(false);
     }
   };
 
@@ -182,17 +230,28 @@ export function DeliveryFeesManagementPanel() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/10 bg-surface-container-low px-6 py-3">
         <p className="text-xs font-semibold text-on-surface-variant">
-          설정됨 {configuredCount}/17 · 활성 {activeCount}/17
+          설정됨 {configuredCount}/17 · 활성 {activeCount}/17 · 변경됨 {changedRegionCount}
         </p>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={() => void loadRows()}
-          className="inline-flex items-center gap-2 rounded-sm border border-outline-variant/35 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCcw className="size-3.5" />
-          새로고침
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={loading || savingAll}
+            onClick={() => void loadRows()}
+            className="inline-flex items-center gap-2 rounded-sm border border-outline-variant/35 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCcw className="size-3.5" />
+            새로고침
+          </button>
+          <button
+            type="button"
+            disabled={loading || savingAll}
+            onClick={() => void saveAllRegions()}
+            className="inline-flex items-center gap-2 rounded-sm bg-secondary px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Save className="size-3.5" />
+            {savingAll ? "전체 저장 중..." : "전체 저장"}
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -222,16 +281,14 @@ export function DeliveryFeesManagementPanel() {
               <th className="px-6 py-3 text-xs font-bold uppercase tracking-[0.2em]">
                 현재 상태
               </th>
-              <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
-                저장
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/10">
             {KOREA_TOP_LEVEL_REGIONS.map((region) => {
               const existing = rowsByRegion.get(region);
               const draft = drafts[region] ?? { fee: "", isActive: true };
-              const isSaving = savingRegion === region;
+              const isChanged = isChangedRegion(region);
+              const isSavingCurrent = savingAll && savingProgressRegion === region;
 
               return (
                 <tr key={region}>
@@ -275,20 +332,13 @@ export function DeliveryFeesManagementPanel() {
                     </label>
                   </td>
                   <td className="px-6 py-4 text-xs font-semibold text-on-surface-variant">
-                    {existing
-                      ? `저장됨 (${existing.isActive ? "활성" : "비활성"})`
-                      : "미설정"}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      type="button"
-                      disabled={loading || isSaving}
-                      onClick={() => void saveRegion(region)}
-                      className="inline-flex items-center gap-2 rounded-sm bg-secondary px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <Save className="size-3.5" />
-                      {isSaving ? "저장 중..." : "저장"}
-                    </button>
+                    {isSavingCurrent
+                      ? "저장 중..."
+                      : isChanged
+                        ? "수정됨 (전체 저장 필요)"
+                        : existing
+                          ? `저장됨 (${existing.isActive ? "활성" : "비활성"})`
+                          : "미설정"}
                   </td>
                 </tr>
               );
