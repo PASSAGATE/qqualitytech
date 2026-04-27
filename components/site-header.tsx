@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NavMenu } from "./nav-menu";
 import { UserRound } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
@@ -79,47 +80,17 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const navigationItems = navigation;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/85 shadow-sm backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-24 items-center justify-between">
           <Link
             href="/"
-            className="text-[1.75rem] font-black tracking-[-0.08em] text-primary"
+            className="text-[2rem] font-black tracking-[-0.08em] text-primary"
           >
             큐품질관리기술
           </Link>
 
-          <div className="hidden items-center gap-7 lg:flex">
-            {navigationItems.map((item) => (
-              <div key={item.label} className="group relative">
-                <Link
-                  href={item.href}
-                  className={
-                    item.href === activeHref
-                      ? "border-b-2 border-secondary pb-1 text-sm font-semibold tracking-tight text-secondary"
-                      : "text-sm font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
-                  }
-                >
-                  {item.label}
-                </Link>
-                {item.children ? (
-                  <div className="pointer-events-none invisible absolute left-0 top-full z-50 min-w-[180px] translate-y-1 pt-2 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    <div className="rounded-md border border-outline-variant/60 bg-white p-2 shadow-lg">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.label}
-                          href={child.href}
-                          className="block rounded-sm px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
+          <NavMenu navigation={navigationItems} activeHref={activeHref} />
 
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
