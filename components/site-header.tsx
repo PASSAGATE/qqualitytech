@@ -39,8 +39,8 @@ const navigation: readonly NavigationItem[] = [
     label: "문의하기",
     href: "/contact",
     children: [
-      { label: "오시는 길", href: "/contact" },
-      { label: "고객 문의", href: "/contact" },
+      { label: "오시는 길", href: "/contact#directions" },
+      { label: "고객 문의", href: "/contact#inquiry" },
     ],
   },
 ] as const;

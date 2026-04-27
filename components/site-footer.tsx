@@ -47,7 +47,7 @@ export function SiteFooter() {
             {[
               { label: "회사소개", href: "/about" },
               { label: "장비 카탈로그", href: "/equipment" },
-              { label: "시공 사례", href: "/cases" },
+              { label: "블로그", href: "/blog" },
               { label: "온라인 문의", href: "/contact" },
             ].map((item) => (
               <li key={item.label}>
