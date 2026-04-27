@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { CartItem, CartResponse } from "@/lib/backend/cart";
 import { CheckoutPreviewPanel } from "./checkout-preview-panel";
@@ -270,19 +271,21 @@ export function CartLivePanel({ cart, defaultImage }: CartLivePanelProps) {
                 <div className="relative aspect-square overflow-hidden rounded-sm border border-outline-variant/20 bg-surface-container-low">
                   {detailHref ? (
                     <Link href={detailHref} className="block h-full w-full">
-                      <img
+                      <Image
                         src={item.imageUrl || defaultImage}
                         alt={item.equipmentName}
-                        className="h-full w-full object-cover"
-                        referrerPolicy="no-referrer"
+                        fill
+                        sizes="128px"
+                        className="object-cover"
                       />
                     </Link>
                   ) : (
-                    <img
+                    <Image
                       src={item.imageUrl || defaultImage}
                       alt={item.equipmentName}
-                      className="h-full w-full object-cover"
-                      referrerPolicy="no-referrer"
+                      fill
+                      sizes="128px"
+                      className="object-cover"
                     />
                   )}
                 </div>

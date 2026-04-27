@@ -11,7 +11,7 @@ function apiBaseUrl() {
 export async function GET() {
   try {
     const response = await fetch(`${apiBaseUrl()}/delivery-fees`, {
-      cache: "no-store",
+      next: { revalidate: 3600 },
     });
 
     const text = await response.text();

@@ -3,23 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  BarChart3,
-  ChevronRight,
-  Mail,
-  MapPin,
-  Send,
-  Settings2,
-  ShieldCheck,
-  Wrench,
-} from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { SiteFooter } from "../../../components/site-footer";
 import { SiteHeader } from "../../../components/site-header";
 import { EquipmentGallery } from "./equipment-gallery";
-import { createEquipmentInquiryAction } from "./actions";
 import { AddToCartPanel } from "./add-to-cart-panel";
-import { type EquipmentFeature } from "../data";
 import {
   fetchAdminEquipmentRows,
   fetchEquipmentBySlug,
@@ -28,14 +16,8 @@ import {
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{
-    inquirySuccess?: string;
-    inquiryError?: string;
-    id?: string;
-  }>;
+  searchParams: Promise<{ id?: string }>;
 };
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -55,41 +37,6 @@ export async function generateMetadata({
   };
 }
 
-const featureToneStyles: Record<EquipmentFeature["tone"], string> = {
-  light: "bg-surface-container-lowest text-on-surface shadow-sm",
-  primary: "bg-primary text-white",
-  surface: "bg-surface-container text-on-surface",
-  muted: "bg-surface-container-highest text-on-surface",
-};
-
-const featureTextStyles: Record<EquipmentFeature["tone"], string> = {
-  light: "text-on-surface-variant",
-  primary: "text-blue-100",
-  surface: "text-on-surface-variant",
-  muted: "text-on-surface-variant",
-};
-
-const featureHeadingStyles: Record<EquipmentFeature["tone"], string> = {
-  light: "text-primary",
-  primary: "text-white",
-  surface: "text-primary",
-  muted: "text-primary",
-};
-
-const featureIconStyles: Record<EquipmentFeature["tone"], string> = {
-  light: "text-secondary",
-  primary: "text-[color:var(--color-secondary-fixed-dim)]",
-  surface: "text-primary",
-  muted: "text-secondary",
-};
-
-const featureIcons: Record<EquipmentFeature["icon"], LucideIcon> = {
-  wrench: Wrench,
-  chart: BarChart3,
-  shield: ShieldCheck,
-  sliders: Settings2,
-};
-
 function Icon({
   icon: IconComponent,
   className = "",
@@ -102,55 +49,25 @@ function Icon({
   );
 }
 
-function getFallbackFeatures(title: string): EquipmentFeature[] {
-  return [
-    {
-      icon: "wrench",
-      title: "현장 맞춤 셋업 지원",
-      description: `${title} 도입 시 프로젝트 환경에 맞춘 설치 및 초기 셋업 가이드를 제공합니다.`,
-      tone: "light",
-    },
-    {
-      icon: "chart",
-      title: "정밀 데이터 리포팅",
-      description:
-        "측정 결과를 빠르게 정리해 품질 보고서와 검수 문서 작성에 활용할 수 있습니다.",
-      tone: "primary",
-    },
-    {
-      icon: "shield",
-      title: "안정적인 운용 설계",
-      description:
-        "반복 시험과 장시간 사용을 고려한 안정적인 하드웨어 구성을 제공합니다.",
-      tone: "surface",
-    },
-    {
-      icon: "sliders",
-      title: "프로젝트별 운용 옵션",
-      description:
-        "시험 조건과 운영 시나리오에 맞춘 운용 옵션으로 다양한 현장 요구에 대응합니다.",
-      tone: "muted",
-    },
-  ];
-}
-
 export default async function EquipmentDetailPage({
   params,
   searchParams,
 }: PageProps) {
   const { slug } = await params;
-  const { inquirySuccess, inquiryError, id } = await searchParams;
-  const adminRows = await fetchAdminEquipmentRows();
+  const { id } = await searchParams;
+  const [adminRows, itemBySlug, equipmentCatalog] = await Promise.all([
+    fetchAdminEquipmentRows(),
+    fetchEquipmentBySlug(slug),
+    fetchEquipmentCatalog(),
+  ]);
   const preferredRow = id
     ? adminRows.find((row) => row.equipmentId === id) ?? null
     : null;
-  const item = preferredRow?.item ?? (await fetchEquipmentBySlug(slug));
+  const item = preferredRow?.item ?? itemBySlug;
 
   if (!item) {
     notFound();
   }
-
-  const equipmentCatalog = await fetchEquipmentCatalog();
   const cartTarget =
     preferredRow ??
     adminRows.find((row) => row.item.slug === item.slug) ??
@@ -167,8 +84,6 @@ export default async function EquipmentDetailPage({
       ? item.gallery
       : [{ image: item.image, alt: item.alt }];
 
-  const features =
-    item.features.length > 0 ? item.features : getFallbackFeatures(item.title);
   const technicalSpecs =
     item.technicalSpecs.length > 0
       ? item.technicalSpecs

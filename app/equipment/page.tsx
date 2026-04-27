@@ -12,8 +12,6 @@ import { SiteHeader } from "../../components/site-header";
 import { fetchAdminEquipmentRows } from "./repository";
 import { EquipmentCard } from "./equipment-card";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "시험장비 목록 | 큐품질관리기술",
   description:
