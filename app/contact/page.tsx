@@ -77,194 +77,207 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
           </p>
         </section>
 
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
-          <section className="rounded-sm border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-sm lg:col-span-7 md:p-12">
-            {sent === "1" ? (
-              <p className="mb-5 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
-                문의가 정상적으로 접수되었습니다. 빠르게 연락드리겠습니다.
-              </p>
-            ) : null}
-            {error ? (
-              <p className="mb-5 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
-                {error}
-              </p>
-            ) : null}
-
-            <form action={createContactInquiryAction} className="space-y-8">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                    업체명
-                  </label>
-                  <input
-                    type="text"
-                    name="company_name"
-                    placeholder="예: (주)큐품질관리기술"
-                    required
-                    className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all placeholder:text-outline/50 focus:border-secondary focus:ring-0"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                    담당자 성함
-                  </label>
-                  <input
-                    type="text"
-                    name="customer_name"
-                    placeholder="홍길동"
-                    required
-                    className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                    연락처
-                  </label>
-                  <input
-                    type="tel"
-                    name="customer_phone"
-                    placeholder="010-0000-0000"
-                    required
-                    className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                    이메일
-                  </label>
-                  <input
-                    type="email"
-                    name="customer_email"
-                    placeholder="example@email.com"
-                    required
-                    className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                  문의 유형
-                </label>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {inquiryTypes.map((type) => (
-                    <label
-                      key={type}
-                      className="flex cursor-pointer items-center justify-center gap-2 border border-outline-variant/20 bg-surface-container p-3 transition-colors hover:bg-surface-container-high"
-                    >
-                      <input
-                        type="radio"
-                        name="inquiry_type"
-                        value={type}
-                        required
-                        className="border-outline-variant text-secondary focus:ring-secondary"
-                      />
-                      <span className="text-sm font-medium">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
-                  상세 내용
-                </label>
-                <textarea
-                  rows={6}
-                  name="detail"
-                  placeholder="문의하실 내용을 상세히 적어주시면 더 정확한 상담이 가능합니다."
-                  required
-                  className="w-full resize-none border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
-                />
-              </div>
-
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  name="consent"
-                  required
-                  className="h-4 w-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary"
-                />
-                <span className="text-sm text-on-surface-variant">
-                  개인정보 수집 및 이용에 동의합니다.
-                </span>
-              </label>
-
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center gap-3 rounded-sm bg-primary py-5 text-lg font-bold text-white transition-all hover:bg-primary-container"
+        <section className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {contactCards.map((card) => (
+            <article
+              key={card.label}
+              className="group flex items-center gap-6 bg-surface-container-low p-6 transition-all"
+            >
+              <div
+                className={`flex h-14 w-14 items-center justify-center rounded-sm transition-colors ${card.tone}`}
               >
-                문의 제출하기
-                <Icon icon={Send} className="size-5" />
-              </button>
-            </form>
-          </section>
-
-          <aside className="space-y-8 lg:col-span-5">
-            <div className="grid grid-cols-1 gap-4">
-              {contactCards.map((card) => (
-                <article
-                  key={card.label}
-                  className="group flex items-center gap-6 bg-surface-container-low p-6 transition-all"
-                >
-                  <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-sm transition-colors ${card.tone}`}
-                  >
-                    <Icon
-                      icon={card.icon}
-                      className={`size-6 ${card.iconClassName}`}
-                    />
-                  </div>
-                  <div>
-                    <p className="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                      {card.label}
-                    </p>
-                    <p className="text-xl font-black text-primary">
-                      {card.value}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-lg font-bold text-primary">
-                <Icon icon={MapPin} className="size-5 text-secondary" />
-                오시는 길
-              </h3>
-              <div className="group relative aspect-video w-full overflow-hidden rounded-sm bg-surface-container-highest">
-                <iframe
-                  title="큐품질관리기술 위치"
-                  src="https://maps.google.com/maps?q=%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EA%B5%AC%EB%A6%AC%EC%8B%9C%20%EA%B0%88%EB%A7%A4%EB%8F%99%20545&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="absolute inset-0 h-full w-full border-0"
+                <Icon
+                  icon={card.icon}
+                  className={`size-6 ${card.iconClassName}`}
                 />
-                <div className="absolute inset-0 bg-primary/20 transition-all group-hover:bg-transparent" />
-                <div className="absolute bottom-4 left-4 border-l-4 border-secondary bg-white p-4 shadow-lg">
-                  <p className="text-sm font-bold text-primary">
-                    경기도 구리시 갈매동 545
-                  </p>
-                  <p className="mt-1 text-xs text-on-surface-variant">
-                    휴밸나인 9층 C동9051호, C동9052호
-                  </p>
-                </div>
+              </div>
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                  {card.label}
+                </p>
+                <p className="text-xl font-black text-primary">{card.value}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section
+          id="directions"
+          className="mb-16 scroll-mt-28 rounded-sm border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-sm md:p-12"
+        >
+          <h2 className="mb-6 flex items-center gap-2 text-2xl font-black tracking-tight text-primary">
+            <Icon icon={MapPin} className="size-5 text-secondary" />
+            오시는 길
+          </h2>
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+            <div className="group relative aspect-video w-full overflow-hidden rounded-sm bg-surface-container-highest lg:col-span-8">
+              <iframe
+                title="큐품질관리기술 위치"
+                src="https://maps.google.com/maps?q=%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EA%B5%AC%EB%A6%AC%EC%8B%9C%20%EA%B0%88%EB%A7%A4%EB%8F%99%20545&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-cross-origin"
+                className="absolute inset-0 h-full w-full border-0"
+              />
+              <div className="absolute inset-0 bg-primary/20 transition-all group-hover:bg-transparent" />
+              <div className="absolute bottom-4 left-4 border-l-4 border-secondary bg-white p-4 shadow-lg">
+                <p className="text-sm font-bold text-primary">
+                  경기도 구리시 갈매동 545
+                </p>
+                <p className="mt-1 text-xs text-on-surface-variant">
+                  휴밸나인 9층 C동9051호, C동9052호
+                </p>
               </div>
             </div>
 
-            <div className="rounded-sm bg-primary p-8 text-white">
-              <p className="mb-4 text-2xl font-black">전문가가 대기 중입니다</p>
-              <p className="text-sm leading-relaxed text-on-primary-container">
-                현장 상황을 고려한 맞춤형 컨설팅을 제공합니다. 문의 사항을
-                남겨주시면 평균 4시간 이내에 담당 엔지니어가 직접 검토 후 회신
-                드립니다.
+            <div className="flex flex-col justify-between gap-6 lg:col-span-4">
+              <div className="rounded-sm bg-primary p-8 text-white">
+                <p className="mb-4 text-2xl font-black">
+                  전문가가 대기 중입니다
+                </p>
+                <p className="text-sm leading-relaxed text-on-primary-container">
+                  현장 상황을 고려한 맞춤형 컨설팅을 제공합니다. 문의 사항을
+                  남겨주시면 평균 4시간 이내에 담당 엔지니어가 직접 검토 후 회신
+                  드립니다.
+                </p>
+              </div>
+              <p className="text-sm leading-relaxed text-on-surface-variant">
+                방문 전 연락주시면 담당자가 더 빠르게 안내해 드립니다.
               </p>
             </div>
-          </aside>
-        </div>
+          </div>
+        </section>
+
+        <section
+          id="inquiry"
+          className="scroll-mt-28 rounded-sm border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-sm md:p-12"
+        >
+          <h2 className="mb-6 text-2xl font-black tracking-tight text-primary">
+            고객 문의
+          </h2>
+
+          {sent === "1" ? (
+            <p className="mb-5 rounded-sm bg-[#e7f6ec] px-4 py-3 text-sm font-semibold text-[#1d7a3a]">
+              문의가 정상적으로 접수되었습니다. 빠르게 연락드리겠습니다.
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mb-5 rounded-sm bg-[#fde8e8] px-4 py-3 text-sm font-semibold text-[#b42318]">
+              {error}
+            </p>
+          ) : null}
+
+          <form action={createContactInquiryAction} className="space-y-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                  업체명
+                </label>
+                <input
+                  type="text"
+                  name="company_name"
+                  placeholder="예: (주)큐품질관리기술"
+                  required
+                  className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all placeholder:text-outline/50 focus:border-secondary focus:ring-0"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                  담당자 성함
+                </label>
+                <input
+                  type="text"
+                  name="customer_name"
+                  placeholder="홍길동"
+                  required
+                  className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                  연락처
+                </label>
+                <input
+                  type="tel"
+                  name="customer_phone"
+                  placeholder="010-0000-0000"
+                  required
+                  className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                  이메일
+                </label>
+                <input
+                  type="email"
+                  name="customer_email"
+                  placeholder="example@email.com"
+                  required
+                  className="w-full border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                문의 유형
+              </label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {inquiryTypes.map((type) => (
+                  <label
+                    key={type}
+                    className="flex cursor-pointer items-center justify-center gap-2 border border-outline-variant/20 bg-surface-container p-3 transition-colors hover:bg-surface-container-high"
+                  >
+                    <input
+                      type="radio"
+                      name="inquiry_type"
+                      value={type}
+                      required
+                      className="border-outline-variant text-secondary focus:ring-secondary"
+                    />
+                    <span className="text-sm font-medium">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold tracking-tight text-on-surface-variant">
+                상세 내용
+              </label>
+              <textarea
+                rows={6}
+                name="detail"
+                placeholder="문의하실 내용을 상세히 적어주시면 더 정확한 상담이 가능합니다."
+                required
+                className="w-full resize-none border-0 border-b-2 border-transparent bg-surface-container-highest px-4 py-3 text-on-surface transition-all focus:border-secondary focus:ring-0"
+              />
+            </div>
+
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="consent"
+                required
+                className="h-4 w-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary"
+              />
+              <span className="text-sm text-on-surface-variant">
+                개인정보 수집 및 이용에 동의합니다.
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center gap-3 rounded-sm bg-primary py-5 text-lg font-bold text-white transition-all hover:bg-primary-container"
+            >
+              문의 제출하기
+              <Icon icon={Send} className="size-5" />
+            </button>
+          </form>
+        </section>
       </main>
 
       <SiteFooter />

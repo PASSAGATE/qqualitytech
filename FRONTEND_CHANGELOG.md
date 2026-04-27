@@ -198,6 +198,19 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 
 - Scenario: `cart -> checkout preview -> 주문 확정 -> admin orders에서 상태 관리 -> my-page orders 반영`
 - Result: PASS
+
+---
+
+## 2026-04-27
+
+### Nav dropdown + Contact anchors
+
+- Updated: header `문의하기` submenu anchor linklari qo'shildi:
+  - `오시는 길` -> `/contact#directions`
+  - `고객 문의` -> `/contact#inquiry`
+- Updated: `/contact` sahifasi kontenti vertikal oqimga o'tkazildi:
+  - `오시는 길` (지도) va `고객 문의` (form) alohida bo'lim
+  - sticky header offset uchun `scroll-mt` qo'shildi
 - Notes: 현재 staging 흐름에서 payment provider 없이도 수동 운영 시나리오 정상 동작.
 
 ### Next

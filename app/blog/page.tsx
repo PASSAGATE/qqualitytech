@@ -8,7 +8,7 @@ import { SiteHeader } from "../../components/site-header";
 export const metadata: Metadata = {
   title: "블로그 | 큐품질관리기술",
   description:
-    "큐품질관리기술의 공식 네이버 블로그와 카페에서 최신 기술 인사이트를 확인하세요.",
+    "큐품질관리기술의 공식 네이버 블로그, 카페, 유튜브 채널에서 최신 기술 인사이트를 확인하세요.",
 };
 
 function Icon({
@@ -34,12 +34,12 @@ export default function BlogPage() {
             블로그 & 기술 인사이트
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-on-surface-variant">
-            공식 네이버 채널에서 최신 장비 소식, 품질관리 가이드, 실무 사례를
-            확인하실 수 있습니다.
+            공식 네이버 채널과 유튜브에서 최신 장비 소식, 품질관리 가이드,
+            실무 사례를 확인하실 수 있습니다.
           </p>
         </header>
 
-        <section className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <section className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
           <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-8 shadow-sm">
             <p className="mb-2 text-xs font-bold tracking-[0.2em] text-secondary uppercase">
               Official Channel
@@ -87,6 +87,31 @@ export default function BlogPage() {
             >
               카페 바로가기
               <Icon icon={ArrowRight} className="size-4" />
+            </Link>
+          </article>
+
+          <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-8 shadow-sm">
+            <p className="mb-2 text-xs font-bold tracking-[0.2em] text-secondary uppercase">
+              Video Channel
+            </p>
+            <h2 className="mb-3 text-2xl font-extrabold tracking-tight text-primary">
+              유튜브 채널
+            </h2>
+            <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
+              시험 장비 소개 영상과 실무 팁을 유튜브 채널에서 확인하세요.
+            </p>
+            <Link
+              href="https://www.youtube.com/channel/UC3y7kzZc2szmtO_LYMhXw6w"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:opacity-90"
+              style={{
+                background: "linear-gradient(135deg, #ff3131 0%, #cc0000 100%)",
+                boxShadow: "0 12px 24px rgba(204, 0, 0, 0.3)",
+              }}
+            >
+              유튜브 바로가기
+              <Icon icon={ExternalLink} className="size-4" />
             </Link>
           </article>
         </section>

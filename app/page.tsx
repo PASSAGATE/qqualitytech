@@ -365,7 +365,7 @@ export default async function Home() {
                   완성도를 높이고 있습니다.
                 </p>
                 <Link
-                  href="/cases"
+                  href="/#cases"
                   className="mb-10 inline-flex items-center gap-2 font-bold text-white transition-colors hover:text-secondary"
                 >
                   전체 사례 보기
@@ -396,7 +396,8 @@ export default async function Home() {
                   {homeFieldCasePreview.map((item) => (
                     <Link
                       key={item.slug}
-                      href={`/cases#${item.slug}`}
+                      id={item.slug}
+                      href={`/#${item.slug}`}
                       className="group relative aspect-video overflow-hidden"
                     >
                       <Image
