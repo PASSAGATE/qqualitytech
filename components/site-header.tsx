@@ -103,16 +103,18 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                   {item.label}
                 </Link>
                 {item.children ? (
-                  <div className="pointer-events-none invisible absolute left-0 top-[calc(100%+10px)] z-50 min-w-[180px] translate-y-1 rounded-md border border-outline-variant/60 bg-white p-2 opacity-0 shadow-lg transition duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.label}
-                        href={child.href}
-                        className="block rounded-sm px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div className="pointer-events-none invisible absolute left-0 top-full z-50 min-w-[180px] translate-y-1 pt-2 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    <div className="rounded-md border border-outline-variant/60 bg-white p-2 shadow-lg">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.href}
+                          className="block rounded-sm px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 ) : null}
               </div>
