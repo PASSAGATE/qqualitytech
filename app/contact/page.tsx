@@ -113,9 +113,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             <div className="group relative aspect-video w-full overflow-hidden rounded-sm bg-surface-container-highest lg:col-span-8">
               <iframe
                 title="큐품질관리기술 위치"
-                src="https://maps.google.com/maps?q=%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EA%B5%AC%EB%A6%AC%EC%8B%9C%20%EA%B0%88%EB%A7%A4%EB%8F%99%20545&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3159.4877855487384!2d127.12421107629939!3d37.63773472004149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357cb7621349b89f%3A0xe0c929cda93757a8!2z6rK96riw64-EIOq1rOumrOyLnCDqsIjrp6Trj5kgNTQ1!5e0!3m2!1sko!2skr!4v1777271349533!5m2!1sko!2skr"
                 loading="lazy"
-                referrerPolicy="no-referrer-when-cross-origin"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
                 className="absolute inset-0 h-full w-full border-0"
               />
               <div className="absolute inset-0 bg-primary/20 transition-all group-hover:bg-transparent" />
