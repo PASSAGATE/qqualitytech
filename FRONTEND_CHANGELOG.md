@@ -203,6 +203,14 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 
 ## 2026-04-27
 
+### Register flow switch — Supabase email confirmation
+
+- Updated: `/register` sahifasi KYC ikki bosqichli oqimdan chiqarildi.
+- Added: server action `registerWithEmailConfirmationAction` (`supabase.auth.signUp`) bilan email confirmation flow.
+- Added: register formda `비밀번호 확인` maydoni va server-side password match validation.
+- Updated: success holatda `confirm-email` state ko'rsatiladi va userga emailni tasdiqlash yo'riqnomasi beriladi.
+- Notes: `emailRedirectTo` avtomatik `NEXT_PUBLIC_SITE_URL`/`NEXT_PUBLIC_APP_URL`/`VERCEL_URL` fallback bilan aniqlanadi.
+
 ### Nav dropdown + Contact anchors
 
 - Updated: header `문의하기` submenu anchor linklari qo'shildi:
