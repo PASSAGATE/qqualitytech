@@ -114,7 +114,7 @@ export default async function Home() {
 
   return (
     <div className="bg-surface text-on-surface">
-      <SiteHeader activeHref="/" />
+      <SiteHeader activeHref="" />
 
       <main>
         <header
