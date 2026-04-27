@@ -6,14 +6,43 @@ import { logoutAction } from "@/app/admin/actions";
 import { fetchMyCart } from "@/lib/backend/cart";
 import { HeaderCartButton } from "./header-cart-button";
 
-const navigation = [
-  { label: "홈", href: "/" },
-  { label: "회사소개", href: "/about" },
-  { label: "서비스", href: "/services" },
+type NavigationItem = {
+  label: string;
+  href: string;
+  children?: readonly { label: string; href: string }[];
+};
+
+const navigation: readonly NavigationItem[] = [
+  {
+    label: "회사소개",
+    href: "/about",
+    children: [
+      { label: "기업 소개", href: "/about" },
+      { label: "연혁", href: "/about" },
+      { label: "인재채용", href: "/about" },
+    ],
+  },
+  {
+    label: "사업분야",
+    href: "/",
+    children: [
+      { label: "품질 컨설팅", href: "/" },
+      { label: "품질 (시험,관리)계획서 작성 대행", href: "/" },
+      { label: "현장 시험 및 검사", href: "/" },
+      { label: "시험 장비 대여, 판매", href: "/" },
+      { label: "시험 장비 관리", href: "/" },
+    ],
+  },
   { label: "시험장비", href: "/equipment" },
-  { label: "시공사례", href: "/cases" },
   { label: "블로그", href: "/blog" },
-  { label: "문의하기", href: "/contact" },
+  {
+    label: "문의하기",
+    href: "/contact",
+    children: [
+      { label: "오시는 길", href: "/contact" },
+      { label: "고객 문의", href: "/contact" },
+    ],
+  },
 ] as const;
 
 export async function SiteHeader({ activeHref }: { activeHref: string }) {
@@ -62,17 +91,31 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
 
           <div className="hidden items-center gap-7 lg:flex">
             {navigationItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={
-                  item.href === activeHref
-                    ? "border-b-2 border-secondary pb-1 text-sm font-semibold tracking-tight text-secondary"
-                    : "text-sm font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
-                }
-              >
-                {item.label}
-              </Link>
+              <div key={item.label} className="group relative">
+                <Link
+                  href={item.href}
+                  className={
+                    item.href === activeHref
+                      ? "border-b-2 border-secondary pb-1 text-sm font-semibold tracking-tight text-secondary"
+                      : "text-sm font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
+                  }
+                >
+                  {item.label}
+                </Link>
+                {item.children ? (
+                  <div className="pointer-events-none invisible absolute left-0 top-[calc(100%+10px)] z-50 min-w-[180px] translate-y-1 rounded-md border border-outline-variant/60 bg-white p-2 opacity-0 shadow-lg transition duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.label}
+                        href={child.href}
+                        className="block rounded-sm px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
 
@@ -149,17 +192,31 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
               <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
                   {navigationItems.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className={
-                        item.href === activeHref
-                          ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
-                          : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                      }
-                    >
-                      {item.label}
-                    </Link>
+                    <div key={item.label}>
+                      <Link
+                        href={item.href}
+                        className={
+                          item.href === activeHref
+                            ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
+                            : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                        }
+                      >
+                        {item.label}
+                      </Link>
+                      {item.children ? (
+                        <div className="ml-3 flex flex-col">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.label}
+                              href={child.href}
+                              className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                   ))}
                   {user ? (
                     <>
