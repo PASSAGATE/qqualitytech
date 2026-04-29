@@ -67,13 +67,13 @@ export function NavMenu({
         onMouseLeave={scheduleClose}
       >
         <div className="w-full border-t border-slate-200/50 bg-white shadow-md">
-          <div className="mx-auto flex h-40 w-full max-w-[1600px] items-center justify-center gap-2 px-5 sm:px-8 lg:px-12">
+          <div className="mx-auto flex h-52 w-full max-w-[1600px] items-center justify-center gap-3 px-5 sm:px-8 lg:px-12">
             {activeItem?.children?.map((child) => (
               <Link
                 key={child.label}
                 href={child.href}
                 onClick={() => setOpenMenu(null)}
-                className="rounded-sm px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                className="rounded-md px-4 py-2.5 text-base font-semibold text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
               >
                 {child.label}
               </Link>
