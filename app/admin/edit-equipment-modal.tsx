@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Pencil, X } from "lucide-react";
 import { updateEquipmentAction } from "./equipment-actions";
 import {
+  EQUIPMENT_CATEGORY_OPTIONS,
   EQUIPMENT_STATUS_OPTIONS,
   EQUIPMENT_TYPE_OPTIONS,
 } from "./equipment-enums";
@@ -15,6 +16,7 @@ type EditEquipmentModalProps = {
   modelCode: string;
   description: string;
   typeValue: string;
+  categoryValue: string;
   statusValue: string;
   salePrice: number;
   monthlyRentalPrice: number;
@@ -24,6 +26,7 @@ type EditEquipmentModalProps = {
 };
 
 const NEW_IMAGE_SLOT_COUNT = 5;
+const MAX_TOTAL_UPLOAD_BYTES = 9 * 1024 * 1024; // keep below server action 10mb limit
 
 async function readFilePreview(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -40,6 +43,7 @@ export function EditEquipmentModal({
   modelCode,
   description,
   typeValue,
+  categoryValue,
   statusValue,
   salePrice,
   monthlyRentalPrice,
@@ -159,6 +163,16 @@ export function EditEquipmentModal({
                   const input = form.elements.namedItem(`new_image_file_${index}`) as HTMLInputElement | null;
                   return Boolean(input?.files?.[0]);
                 }).length;
+                const totalNewUploadBytes = [1, 2, 3, 4, 5].reduce(
+                  (sum, index) => {
+                    const input = form.elements.namedItem(
+                      `new_image_file_${index}`,
+                    ) as HTMLInputElement | null;
+                    const file = input?.files?.[0];
+                    return sum + (file?.size ?? 0);
+                  },
+                  0,
+                );
 
                 if (available > total) {
                   event.preventDefault();
@@ -169,6 +183,14 @@ export function EditEquipmentModal({
                 if (keepCount + newCount === 0) {
                   event.preventDefault();
                   setFormError("최소 1장 이상의 이미지를 유지하거나 업로드해 주세요.");
+                  return;
+                }
+
+                if (totalNewUploadBytes > MAX_TOTAL_UPLOAD_BYTES) {
+                  event.preventDefault();
+                  setFormError(
+                    "업로드 용량이 너무 큽니다. 새 이미지 전체 용량을 9MB 이하로 줄여 주세요.",
+                  );
                   return;
                 }
 
@@ -241,6 +263,24 @@ export function EditEquipmentModal({
                   </select>
                 </label>
 
+                <label className="block space-y-2 text-sm font-semibold text-primary">
+                  장비 분류 *
+                  <select
+                    name="category"
+                    required
+                    defaultValue={categoryValue || ""}
+                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  >
+                    {EQUIPMENT_CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
                 <label className="block space-y-2 text-sm font-semibold text-primary">
                   상태
                   <select

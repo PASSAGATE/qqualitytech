@@ -9,9 +9,18 @@ export const EQUIPMENT_STATUS_OPTIONS = [
   { value: "inactive", label: "비활성 (inactive)" },
 ] as const;
 
+export const EQUIPMENT_CATEGORY_OPTIONS = [
+  { value: "architecture", label: "건축" },
+  { value: "civil", label: "토목" },
+  { value: "calibration", label: "검교정" },
+] as const;
+
 export const EQUIPMENT_TYPE_VALUES = EQUIPMENT_TYPE_OPTIONS.map(
   (option) => option.value,
 );
 export const EQUIPMENT_STATUS_VALUES = EQUIPMENT_STATUS_OPTIONS.map(
+  (option) => option.value,
+);
+export const EQUIPMENT_CATEGORY_VALUES = EQUIPMENT_CATEGORY_OPTIONS.map(
   (option) => option.value,
 );

@@ -225,3 +225,15 @@ Bu fayl frontend implementatsiyasi davomida qilingan muhim o‘zgarishlarni yozi
 
 - Admin detailda `statusLogs` timeline/history panelini chiqarish.
 - Payment provider ulanmaguncha admin manual status workflow bilan operatsiyani davom ettirish.
+
+---
+
+## 2026-04-29
+
+### Equipment category integration (`architecture`/`civil`/`calibration`)
+
+- Added: admin 장비 등록/수정 form’lariga majburiy `category` (`architecture`, `civil`, `calibration`) maydoni qo‘shildi.
+- Updated: admin equipment actionlarida `category` validation va backend payload mapping qo‘shildi.
+- Updated: equipment listing page filteri category markaziga o‘tkazildi:
+  - `전체보기`, `건축`, `토목`, `검교정`
+- Updated: repository mappingda backenddan keladigan `category` qiymati UI rowlarga ulab chiqildi.

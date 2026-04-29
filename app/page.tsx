@@ -514,7 +514,7 @@ export default async function Home() {
             </p>
             <div className="flex flex-wrap justify-center gap-6">
               <a
-                href="tel:01012345678"
+                href="tel:01066665269"
                 className="inline-flex items-center gap-3 rounded-md bg-secondary px-12 py-5 text-xl font-bold text-white transition-transform hover:scale-105"
                 style={{
                   background:
@@ -523,7 +523,7 @@ export default async function Home() {
                 }}
               >
                 <Icon icon={Phone} className="size-6" />
-                010-1234-5678
+                010-6666-5269
               </a>
               <a
                 href="mailto:qqstart@naver.com"

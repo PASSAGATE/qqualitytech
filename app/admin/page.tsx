@@ -27,6 +27,7 @@ type AdminPageProps = {
     archivedReason?: string;
     q?: string;
     type?: string;
+    category?: string;
     status?: string;
   }>;
 };
@@ -72,6 +73,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     archivedReason,
     q,
     type,
+    category,
     status,
   } = await searchParams;
 
@@ -315,9 +317,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         rows={equipmentAdminRows}
         initialQuery={q ?? ""}
         initialType={type ?? "all"}
+        initialCategory={category ?? "all"}
         initialStatus={status ?? "active"}
       />
     </AdminShell>
   );
 }
-

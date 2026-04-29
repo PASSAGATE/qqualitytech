@@ -5,11 +5,13 @@ import Image from "next/image";
 import { Plus, X } from "lucide-react";
 import { createEquipmentAction } from "./equipment-actions";
 import {
+  EQUIPMENT_CATEGORY_OPTIONS,
   EQUIPMENT_STATUS_OPTIONS,
   EQUIPMENT_TYPE_OPTIONS,
 } from "./equipment-enums";
 
 const IMAGE_SLOT_COUNT = 5;
+const MAX_TOTAL_UPLOAD_BYTES = 9 * 1024 * 1024; // keep below server action 10mb limit
 
 async function readFilePreview(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -118,7 +120,11 @@ export function AddEquipmentModal() {
                     (form.elements.namedItem(`image_file_${index}`) as HTMLInputElement | null)
                       ?.files?.[0],
                   )
-                  .filter(Boolean).length;
+                  .filter((file): file is File => Boolean(file));
+                const totalUploadBytes = selectedImages.reduce(
+                  (sum, file) => sum + file.size,
+                  0,
+                );
 
                 if (available > total) {
                   event.preventDefault();
@@ -126,9 +132,17 @@ export function AddEquipmentModal() {
                   return;
                 }
 
-                if (selectedImages === 0) {
+                if (selectedImages.length === 0) {
                   event.preventDefault();
                   setFormError("최소 1장 이상의 이미지를 업로드해 주세요.");
+                  return;
+                }
+
+                if (totalUploadBytes > MAX_TOTAL_UPLOAD_BYTES) {
+                  event.preventDefault();
+                  setFormError(
+                    "업로드 용량이 너무 큽니다. 이미지 전체 용량을 9MB 이하로 줄여 주세요.",
+                  );
                   return;
                 }
 
@@ -194,6 +208,25 @@ export function AddEquipmentModal() {
                     타입을 선택해 주세요
                   </option>
                   {EQUIPMENT_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block space-y-2 text-sm font-semibold text-primary">
+                장비 분류 *
+                <select
+                  name="category"
+                  required
+                  className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    분류를 선택해 주세요
+                  </option>
+                  {EQUIPMENT_CATEGORY_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

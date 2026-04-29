@@ -11,6 +11,7 @@ type EquipmentManagementPanelProps = {
   rows: EquipmentAdminRow[];
   initialQuery?: string;
   initialType?: string;
+  initialCategory?: string;
   initialStatus?: string;
 };
 
@@ -24,10 +25,12 @@ export function EquipmentManagementPanel({
   rows,
   initialQuery = "",
   initialType = "all",
+  initialCategory = "all",
   initialStatus = "all",
 }: EquipmentManagementPanelProps) {
   const [query, setQuery] = useState(initialQuery);
   const [type, setType] = useState(normalize(initialType) || "all");
+  const [category, setCategory] = useState(normalize(initialCategory) || "all");
   const [status, setStatus] = useState(normalize(initialStatus) || "all");
   const [page, setPage] = useState(1);
   const [previewRow, setPreviewRow] = useState<EquipmentAdminRow | null>(null);
@@ -40,11 +43,13 @@ export function EquipmentManagementPanel({
         row.item.title.toLowerCase().includes(search) ||
         row.item.model.toLowerCase().includes(search);
       const matchesType = type === "all" || row.typeValue.toLowerCase() === type;
+      const matchesCategory =
+        category === "all" || row.categoryValue.toLowerCase() === category;
       const matchesStatus =
         status === "all" || row.statusValue.toLowerCase() === status;
-      return matchesQuery && matchesType && matchesStatus;
+      return matchesQuery && matchesType && matchesCategory && matchesStatus;
     });
-  }, [query, rows, status, type]);
+  }, [category, query, rows, status, type]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -66,9 +71,15 @@ export function EquipmentManagementPanel({
     setPage(1);
   };
 
+  const onCategoryChange = (value: string) => {
+    setCategory(normalize(value) || "all");
+    setPage(1);
+  };
+
   const resetFilters = () => {
     setQuery("");
     setType("all");
+    setCategory("all");
     setStatus("all");
     setPage(1);
   };
@@ -101,6 +112,22 @@ export function EquipmentManagementPanel({
             <option value="sale">판매(sale)</option>
             <option value="rental">임대(rental)</option>
             <option value="sale_and_rental">판매+임대(sale_and_rental)</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold uppercase text-on-surface-variant">
+            분류:
+          </label>
+          <select
+            value={category}
+            onChange={(event) => onCategoryChange(event.target.value)}
+            className="rounded-sm border-none bg-surface-container-lowest px-3 py-1.5 text-xs focus:ring-1 focus:ring-secondary"
+          >
+            <option value="all">전체</option>
+            <option value="architecture">건축(architecture)</option>
+            <option value="civil">토목(civil)</option>
+            <option value="calibration">검교정(calibration)</option>
           </select>
         </div>
 
@@ -232,6 +259,7 @@ export function EquipmentManagementPanel({
                         modelCode={row.modelCode}
                         description={row.description}
                         typeValue={row.typeValue}
+                        categoryValue={row.categoryValue}
                         statusValue={row.statusValue}
                         salePrice={row.salePrice}
                         monthlyRentalPrice={row.monthlyRentalPrice}
@@ -326,6 +354,7 @@ export function EquipmentManagementPanel({
                 <p className="font-medium text-secondary">{previewRow.modelCode}</p>
                 <p className="text-on-surface">{previewRow.description || "-"}</p>
                 <div className="mt-3 space-y-1 text-on-surface-variant">
+                  <p>분류: {previewRow.categoryLabel}</p>
                   <p>타입: {previewRow.typeLabel}</p>
                   <p>상태: {previewRow.status.label}</p>
                   <p>판매가: {previewRow.salePrice.toLocaleString("ko-KR")}원</p>

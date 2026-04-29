@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { NavMenu } from "./nav-menu";
 import { UserRound } from "lucide-react";
@@ -18,24 +19,52 @@ const navigation: readonly NavigationItem[] = [
     label: "회사소개",
     href: "/about",
     children: [
-      { label: "기업 소개", href: "/about" },
-      { label: "연혁", href: "/about" },
-      { label: "인재채용", href: "/about" },
+      { label: "인사말", href: "/about" },
+      { label: "회사 개요", href: "/about" },
+      { label: "경영 이념", href: "/about" },
+      { label: "조직도", href: "/about" },
+      { label: "오시는 길", href: "/about" },
+    ],
+  },
+  {
+    label: "품질 경영",
+    href: "/",
+    children: [
+      { label: "품질 방침", href: "/" },
+      { label: "품질 인증", href: "/" },
     ],
   },
   {
     label: "사업분야",
     href: "/",
     children: [
-      { label: "품질 컨설팅", href: "/" },
+      { label: "건설 품질 관리 및 컨설팅", href: "/" },
       { label: "품질 (시험,관리)계획서 작성 대행", href: "/" },
-      { label: "현장 시험 및 검사", href: "/" },
-      { label: "시험 장비 대여, 판매", href: "/" },
-      { label: "시험 장비 관리", href: "/" },
+      { label: "건설 재료 시험 및 검사", href: "/" },
+      { label: "콘크리트 균열 및 재료 분리 관리", href: "/" },
     ],
   },
   { label: "시험장비", href: "/equipment" },
-  { label: "블로그", href: "/blog" },
+  {
+    label: "홍보센터",
+    href: "/blog",
+    children: [
+      { label: "유튜브", href: "/blog" },
+      { label: "블로그", href: "/blog" },
+      { label: "카페", href: "/blog" },
+    ],
+  },
+   {
+    label: "고객센터",
+    href: "/",
+    children: [
+      { label: "공지사항", href: "/" },
+      { label: "질문/답변", href: "/" },
+      { label: "기술자료실", href: "/" },
+      { label: "인재채용", href: "/" },
+      { label: "A/S문의", href: "/" }
+    ],
+  },
   {
     label: "문의하기",
     href: "/contact",
@@ -46,13 +75,16 @@ const navigation: readonly NavigationItem[] = [
   },
 ] as const;
 
+const adminOnlyNavigationItem: NavigationItem = {
+  label: "성적서 진위확인",
+  href: "/",
+};
+
 export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
-  } = supabase
-    ? await supabase.auth.getSession()
-    : { data: { session: null } };
+  } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
@@ -76,8 +108,8 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
 
   const dashboardHref = role === "admin" ? "/admin" : "/my-page";
   const dashboardLabel = role === "admin" ? "관리자 페이지" : "마이페이지";
-
-  const navigationItems = navigation;
+  const navigationItems =
+    role === "admin" ? [...navigation, adminOnlyNavigationItem] : navigation;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
@@ -125,7 +157,9 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                     <p className="truncate text-sm font-semibold text-primary">
                       {userName || "사용자"}
                     </p>
-                    <p className="mt-1 text-xs text-on-surface-variant">{dashboardLabel}</p>
+                    <p className="mt-1 text-xs text-on-surface-variant">
+                      {dashboardLabel}
+                    </p>
                     <form action={logoutAction} className="mt-3">
                       <button
                         type="submit"
@@ -149,7 +183,8 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                   href="/contact"
                   className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
                   style={{
-                    background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                    background:
+                      "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
                     boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
                   }}
                 >

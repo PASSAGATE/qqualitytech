@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
+  EQUIPMENT_CATEGORY_VALUES,
   EQUIPMENT_STATUS_VALUES,
   EQUIPMENT_TYPE_VALUES,
 } from "./equipment-enums";
@@ -92,6 +93,21 @@ function normalizeStatus(value: string): "active" | "inactive" {
   }
 
   return "active";
+}
+
+function normalizeCategory(
+  value: string,
+): "architecture" | "civil" | "calibration" | null {
+  const normalized = value.trim().toLowerCase();
+  if (
+    normalized === "architecture" ||
+    normalized === "civil" ||
+    normalized === "calibration"
+  ) {
+    return normalized;
+  }
+
+  return null;
 }
 
 function parseNonNegativeInt(input: FormDataEntryValue | null) {
@@ -217,6 +233,7 @@ export async function createEquipmentAction(formData: FormData) {
   const modelCode = String(formData.get("model_code") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const typeInput = String(formData.get("type") ?? "").trim();
+  const categoryInput = String(formData.get("category") ?? "").trim();
   const statusInput = String(formData.get("status") ?? "").trim();
   const salePrice = parseNonNegativeInt(formData.get("sale_price"));
   const monthlyRentalPrice = parseNonNegativeInt(
@@ -234,6 +251,21 @@ export async function createEquipmentAction(formData: FormData) {
 
   if (!typeInput) {
     redirect(toAdminError("장비 타입을 입력해 주세요."));
+  }
+  if (!categoryInput) {
+    redirect(toAdminError("장비 분류를 선택해 주세요."));
+  }
+
+  if (
+    !EQUIPMENT_CATEGORY_VALUES.includes(
+      categoryInput as (typeof EQUIPMENT_CATEGORY_VALUES)[number],
+    )
+  ) {
+    redirect(
+      toAdminError(
+        `지원하지 않는 장비 분류입니다. (${EQUIPMENT_CATEGORY_VALUES.join(", ")})`,
+      ),
+    );
   }
 
   if (
@@ -288,8 +320,12 @@ export async function createEquipmentAction(formData: FormData) {
   );
 
   const type = normalizeType(typeInput);
+  const category = normalizeCategory(categoryInput);
   if (!type) {
     redirect(toAdminError("지원하지 않는 장비 타입입니다."));
+  }
+  if (!category) {
+    redirect(toAdminError("지원하지 않는 장비 분류입니다."));
   }
 
   let response: Response;
@@ -305,6 +341,7 @@ export async function createEquipmentAction(formData: FormData) {
         description,
         code: modelCode || undefined,
         type,
+        category,
         status: normalizeStatus(statusInput),
         saleEnabled: type !== "rental",
         rentalEnabled: type !== "sale",
@@ -356,6 +393,7 @@ export async function updateEquipmentAction(formData: FormData) {
   const modelCode = String(formData.get("model_code") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const typeInput = String(formData.get("type") ?? "").trim();
+  const categoryInput = String(formData.get("category") ?? "").trim();
   const statusInput = String(formData.get("status") ?? "").trim();
   const salePrice = parseNonNegativeInt(formData.get("sale_price"));
   const monthlyRentalPrice = parseNonNegativeInt(
@@ -382,6 +420,22 @@ export async function updateEquipmentAction(formData: FormData) {
 
   if (!typeInput) {
     redirect(toAdminError("장비 타입을 입력해 주세요.", "updateError"));
+  }
+  if (!categoryInput) {
+    redirect(toAdminError("장비 분류를 선택해 주세요.", "updateError"));
+  }
+
+  if (
+    !EQUIPMENT_CATEGORY_VALUES.includes(
+      categoryInput as (typeof EQUIPMENT_CATEGORY_VALUES)[number],
+    )
+  ) {
+    redirect(
+      toAdminError(
+        `지원하지 않는 장비 분류입니다. (${EQUIPMENT_CATEGORY_VALUES.join(", ")})`,
+        "updateError",
+      ),
+    );
   }
 
   if (
@@ -463,8 +517,12 @@ export async function updateEquipmentAction(formData: FormData) {
   }
 
   const type = normalizeType(typeInput);
+  const category = normalizeCategory(categoryInput);
   if (!type) {
     redirect(toAdminError("지원하지 않는 장비 타입입니다.", "updateError"));
+  }
+  if (!category) {
+    redirect(toAdminError("지원하지 않는 장비 분류입니다.", "updateError"));
   }
 
   let response: Response;
@@ -480,6 +538,7 @@ export async function updateEquipmentAction(formData: FormData) {
         description,
         code: modelCode || undefined,
         type,
+        category,
         status: normalizeStatus(statusInput),
         saleEnabled: type !== "rental",
         rentalEnabled: type !== "sale",

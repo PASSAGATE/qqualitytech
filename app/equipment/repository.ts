@@ -12,6 +12,7 @@ type EquipmentApiItem = {
   totalCount: number;
   availableCount: number;
   type: string;
+  category?: string;
   status: string;
   saleEnabled: boolean;
   rentalEnabled: boolean;
@@ -93,6 +94,8 @@ export type EquipmentAdminRow = {
   imageUrls: string[];
   typeValue: string;
   typeLabel: string;
+  categoryValue: string;
+  categoryLabel: string;
   statusValue: string;
   status: { label: string; tone: "active" | "inactive" };
   salePrice: number;
@@ -264,7 +267,10 @@ function slugify(value: string): string {
 }
 
 function toCategoryLabel(category: string): string {
-  const normalized = category.toLowerCase();
+  const normalized = category.trim().toLowerCase();
+  if (normalized === "architecture") return "건축";
+  if (normalized === "civil") return "토목";
+  if (normalized === "calibration") return "검교정";
   if (normalized === "sale") return "판매 장비";
   if (normalized === "rental") return "임대 장비";
   if (normalized === "sale_and_rental") return "판매/임대 장비";
@@ -452,7 +458,7 @@ async function fetchEquipmentRowsFromApi(): Promise<EquipmentDbRow[] | null> {
     const items = Array.isArray(data.items) ? data.items : [];
     return items.map((item) => {
       const normalizedType = item.type?.toLowerCase() ?? "sale";
-      const category = normalizedType === "rental" ? "rental" : "sale";
+      const category = item.category?.trim()?.toLowerCase() || "architecture";
 
       const normalizedImageUrls = Array.isArray(item.imageUrls)
         ? item.imageUrls.filter((url): url is string => typeof url === "string" && url.trim().length > 0)
@@ -557,7 +563,8 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
       const item = buildItemFromDb(row) ?? buildMinimalItem(row);
 
       const statusInfo = toStatus(row.status);
-      const rawType = row.type?.trim()?.toLowerCase() || row.category?.trim()?.toLowerCase() || "sale";
+      const rawType = row.type?.trim()?.toLowerCase() || "sale";
+      const rawCategory = row.category?.trim()?.toLowerCase() || "architecture";
       const rawId =
         typeof row.id === "string" || typeof row.id === "number"
           ? String(row.id)
@@ -585,6 +592,8 @@ export async function fetchAdminEquipmentRows(): Promise<EquipmentAdminRow[]> {
             : [item.image],
         typeValue: rawType,
         typeLabel: toTypeLabel(rawType),
+        categoryValue: rawCategory,
+        categoryLabel: toCategoryLabel(rawCategory),
         statusValue: statusInfo.value,
         status: { label: statusInfo.label, tone: statusInfo.tone },
         salePrice: row.sale_price ?? 0,

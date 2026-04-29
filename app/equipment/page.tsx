@@ -18,18 +18,13 @@ export const metadata: Metadata = {
     "큐품질관리기술의 전문 시험장비 카탈로그에서 콘크리트, 토질, 아스팔트, 금속 및 비파괴 시험 장비를 확인하세요.",
 };
 
-const typeFilters = [
+const categoryFilters = [
   { label: "전체보기", value: "all" },
-  { label: "판매 장비", value: "sale" },
-  { label: "임대 장비", value: "rental" },
-  { label: "판매/임대 장비", value: "sale_and_rental" },
+  { label: "건축", value: "architecture" },
+  { label: "토목", value: "civil" },
+  { label: "검교정", value: "calibration" },
 ] as const;
-
-const statusFilters = [
-  { label: "전체 상태", value: "all" },
-  { label: "활성", value: "active" },
-  { label: "비활성", value: "inactive" },
-] as const;
+const PAGE_SIZE = 12;
 
 function Icon({
   icon: IconComponent,
@@ -46,35 +41,56 @@ function Icon({
 type EquipmentPageProps = {
   searchParams: Promise<{
     q?: string;
-    type?: string;
-    status?: string;
+    category?: string;
     sort?: string;
+    page?: string;
   }>;
 };
+
+function buildPageHref({
+  q,
+  category,
+  sort,
+  page,
+}: {
+  q?: string;
+  category?: string;
+  sort?: string;
+  page: number;
+}) {
+  const params = new URLSearchParams();
+  if (q?.trim()) params.set("q", q.trim());
+  if (category && category !== "all") params.set("category", category);
+  if (sort && sort !== "latest") params.set("sort", sort);
+  params.set("page", String(page));
+  const query = params.toString();
+  return query ? `/equipment?${query}` : "/equipment";
+}
 
 export default async function EquipmentPage({
   searchParams,
 }: EquipmentPageProps) {
-  const { q, type, status, sort } = await searchParams;
+  const { q, category, sort, page } = await searchParams;
   const searchQuery = (q ?? "").trim().toLowerCase();
-  const selectedType = (type ?? "all").toLowerCase();
-  const selectedStatus = (status ?? "all").toLowerCase();
+  const selectedCategory = category ?? "all";
   const selectedSort = (sort ?? "latest").toLowerCase();
+  const currentPageRaw = Number(page ?? "1");
+  const currentPage = Number.isFinite(currentPageRaw)
+    ? Math.max(1, Math.floor(currentPageRaw))
+    : 1;
 
   const equipmentRows = await fetchAdminEquipmentRows();
   const filteredRows = equipmentRows.filter((row) => {
+    const isActive = row.statusValue.toLowerCase() === "active";
     const matchesQuery =
       searchQuery.length === 0 ||
       row.item.title.toLowerCase().includes(searchQuery) ||
       row.item.model.toLowerCase().includes(searchQuery) ||
       row.item.summary.toLowerCase().includes(searchQuery);
-    const matchesType =
-      selectedType === "all" || row.typeValue.toLowerCase() === selectedType;
-    const matchesStatus =
-      selectedStatus === "all" ||
-      row.statusValue.toLowerCase() === selectedStatus;
+    const matchesCategory =
+      selectedCategory === "all" || row.categoryValue === selectedCategory;
 
-    return matchesQuery && matchesType && matchesStatus;
+    return isActive && matchesQuery && matchesCategory;
   });
 
   const sortedRows = [...filteredRows].sort((a, b) => {
@@ -87,6 +103,10 @@ export default async function EquipmentPage({
     // latest: keep repository order (created_at desc)
     return 0;
   });
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const paginatedRows = sortedRows.slice(pageStart, pageStart + PAGE_SIZE);
 
   return (
     <div className="bg-surface text-on-surface">
@@ -129,14 +149,14 @@ export default async function EquipmentPage({
             </div>
 
             <div className="flex flex-1 flex-wrap gap-2">
-              {typeFilters.map((filter) => (
+              {categoryFilters.map((filter) => (
                 <button
                   key={filter.value}
                   type="submit"
-                  name="type"
+                  name="category"
                   value={filter.value}
                   className={
-                    selectedType === filter.value
+                    selectedCategory === filter.value
                       ? "rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition-all"
                       : "rounded-full bg-surface-container-high px-5 py-2 text-sm font-semibold text-on-surface-variant transition-all hover:bg-surface-container-highest"
                   }
@@ -144,23 +164,6 @@ export default async function EquipmentPage({
                   {filter.label}
                 </button>
               ))}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                상태
-              </label>
-              <select
-                name="status"
-                defaultValue={selectedStatus}
-                className="rounded-md border-none bg-surface-container-high px-3 py-2 text-sm font-semibold text-on-surface-variant outline-none focus:ring-2 focus:ring-secondary"
-              >
-                {statusFilters.map((filter) => (
-                  <option key={filter.value} value={filter.value}>
-                    {filter.label}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="flex items-center gap-2">
@@ -198,7 +201,7 @@ export default async function EquipmentPage({
         </section>
 
         <section className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sortedRows.length === 0 ? (
+          {paginatedRows.length === 0 ? (
             <article className="col-span-full rounded-md border border-outline-variant/20 bg-surface-container-lowest p-10 text-center">
               <h3 className="text-xl font-bold text-primary">
                 검색 결과가 없습니다
@@ -209,10 +212,52 @@ export default async function EquipmentPage({
             </article>
           ) : null}
 
-          {sortedRows.map((row) => (
+          {paginatedRows.map((row) => (
             <EquipmentCard key={row.equipmentId} row={row} />
           ))}
         </section>
+
+        {sortedRows.length > 0 ? (
+          <section className="mt-10 flex items-center justify-center gap-2">
+            {safePage > 1 ? (
+              <Link
+                href={buildPageHref({
+                  q,
+                  category: selectedCategory,
+                  sort: selectedSort,
+                  page: safePage - 1,
+                })}
+                className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+              >
+                이전
+              </Link>
+            ) : (
+              <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
+                이전
+              </span>
+            )}
+            <span className="px-3 text-sm font-semibold text-on-surface-variant">
+              {safePage} / {totalPages}
+            </span>
+            {safePage < totalPages ? (
+              <Link
+                href={buildPageHref({
+                  q,
+                  category: selectedCategory,
+                  sort: selectedSort,
+                  page: safePage + 1,
+                })}
+                className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+              >
+                다음
+              </Link>
+            ) : (
+              <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
+                다음
+              </span>
+            )}
+          </section>
+        ) : null}
 
         <section className="relative mt-24 overflow-hidden rounded-xl bg-primary-container p-12 lg:p-20">
           <div className="pointer-events-none absolute top-0 right-0 h-full w-1/2 opacity-20">
