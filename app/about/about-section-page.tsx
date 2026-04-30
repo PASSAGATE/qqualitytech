@@ -1,7 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
-import { Building2, Handshake, Lightbulb, MapPin, ShieldCheck } from "lucide-react";
+import {
+  Building2,
+  Handshake,
+  Lightbulb,
+  MapPin,
+  Rocket,
+  Scale,
+  ShieldCheck,
+  Target,
+} from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
@@ -313,28 +322,28 @@ function PhilosophySection() {
   const values = [
     {
       description: "원칙은 상황에 따라 바뀌지 않습니다.",
+      icon: Scale,
       label: "Integrity",
-      number: "01",
     },
     {
       description: "작은 오차도 놓치지 않는 정확함.",
+      icon: Target,
       label: "Precision",
-      number: "02",
     },
     {
       description: "끝까지 책임지는 실행력.",
+      icon: ShieldCheck,
       label: "Responsibility",
-      number: "03",
     },
     {
       description: "한 번의 거래보다 오래가는 신뢰.",
+      icon: Handshake,
       label: "Trust",
-      number: "04",
     },
     {
       description: "오늘의 성과보다 지속 가능한 성장.",
+      icon: Rocket,
       label: "Growth",
-      number: "05",
     },
   ] as const;
 
@@ -388,12 +397,15 @@ function PhilosophySection() {
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           {values.map((value) => (
             <article
-              key={value.number}
-              className="group rounded-sm border border-outline-variant/15 bg-white p-6 shadow-sm transition-colors hover:border-secondary/50"
+              key={value.label}
+              className="group relative overflow-hidden rounded-sm border border-outline-variant/15 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-secondary/50 hover:shadow-[0_18px_45px_rgba(15,23,42,0.12)]"
             >
-              <p className="text-xs font-black tracking-[0.2em] text-secondary">
-                {value.number}
-              </p>
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-secondary/10 transition-transform group-hover:scale-125" />
+              <div className="relative flex items-center gap-4">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-white shadow-[0_12px_26px_rgba(255,107,44,0.26)]">
+                  <Icon icon={value.icon} className="size-7" />
+                </div>
+              </div>
               <h2 className="mt-5 text-2xl font-black text-primary">
                 {value.label}
               </h2>
