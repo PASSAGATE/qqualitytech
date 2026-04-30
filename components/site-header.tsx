@@ -43,9 +43,18 @@ const navigation: readonly NavigationItem[] = [
         label: "건설 품질 관리 및 컨설팅",
         href: "/business/quality-management-consulting",
       },
-      { label: "품질 (시험,관리)계획서 작성 대행", href: "/#services" },
-      { label: "건설 재료 시험 및 검사", href: "/#equipment" },
-      { label: "콘크리트 균열 및 재료 분리 관리", href: "/#services" },
+      {
+        label: "품질 (시험,관리)계획서 작성 대행",
+        href: "/business/quality-plan-writing",
+      },
+      {
+        label: "건설 재료 시험 및 검사",
+        href: "/business/construction-material-testing",
+      },
+      {
+        label: "콘크리트 균열 및 재료 분리 관리",
+        href: "/business/concrete-crack-segregation-management",
+      },
     ],
   },
   { label: "시험장비", href: "/equipment" },
