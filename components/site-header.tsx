@@ -18,13 +18,13 @@ type NavigationItem = {
 const navigation: readonly NavigationItem[] = [
   {
     label: "회사소개",
-    href: "/about",
+    href: "/about/greeting",
     children: [
-      { label: "인사말", href: "/about#greeting" },
-      { label: "회사 개요", href: "/about#overview" },
-      { label: "경영 이념", href: "/about#philosophy" },
-      { label: "조직도", href: "/about#organization" },
-      { label: "오시는 길", href: "/about#directions" },
+      { label: "인사말", href: "/about/greeting" },
+      { label: "회사 개요", href: "/about/overview" },
+      { label: "경영 이념", href: "/about/philosophy" },
+      { label: "조직도", href: "/about/organization" },
+      { label: "오시는 길", href: "/about/directions" },
     ],
   },
   {

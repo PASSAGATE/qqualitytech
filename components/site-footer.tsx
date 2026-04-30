@@ -45,7 +45,7 @@ export function SiteFooter() {
           <h4 className="mb-6 font-bold text-white">메뉴</h4>
           <ul className="space-y-4">
             {[
-              { label: "회사소개", href: "/about" },
+              { label: "회사소개", href: "/about/greeting" },
               { label: "장비 카탈로그", href: "/equipment" },
               { label: "블로그", href: "/blog/naver-blog" },
               { label: "온라인 문의", href: "/contact" },
