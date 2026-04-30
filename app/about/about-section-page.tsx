@@ -315,86 +315,99 @@ function OverviewSection() {
 }
 
 function PhilosophySection() {
+  const values = [
+    {
+      description: "원칙은 상황에 따라 바뀌지 않습니다.",
+      label: "Integrity",
+      number: "01",
+    },
+    {
+      description: "작은 오차도 놓치지 않는 정확함.",
+      label: "Precision",
+      number: "02",
+    },
+    {
+      description: "끝까지 책임지는 실행력.",
+      label: "Responsibility",
+      number: "03",
+    },
+    {
+      description: "한 번의 거래보다 오래가는 신뢰.",
+      label: "Trust",
+      number: "04",
+    },
+    {
+      description: "오늘의 성과보다 지속 가능한 성장.",
+      label: "Growth",
+      number: "05",
+    },
+  ] as const;
+
   return (
     <section
       id="philosophy"
       className="border-y border-outline-variant/20 bg-surface py-24 scroll-mt-28"
     >
       <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
-        <div className="mb-10">
-          <h1 className="text-4xl font-extrabold tracking-[-0.06em] text-primary">
-            경영 이념
-          </h1>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-on-surface-variant">
-            큐품질관리기술은 품질을 단순한 결과가 아닌 과정의 신뢰로
-            정의합니다. 모든 프로젝트에서 고객의 시간과 비용을 보호하고, 현장의
-            안전과 품질 기준을 높이는 것을 최우선 가치로 삼습니다.
-          </p>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <article className="rounded-sm bg-primary p-8 text-white shadow-sm lg:col-span-5 lg:p-10">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-secondary">
+              Management Philosophy
+            </p>
+            <h1 className="mt-5 text-4xl font-black leading-tight md:text-5xl">
+              기준은 높게,
+              <br />
+              실행은 정확하게,
+              <br />
+              신뢰는 오래가게.
+            </h1>
+            <p className="mt-8 text-sm leading-relaxed text-on-primary-container md:text-base">
+              큐품질관리기술은 품질관리의 본질이 단순한 점검이 아니라 고객의
+              시간, 비용, 안전, 신뢰를 지키는 일이라고 믿습니다.
+            </p>
+          </article>
+
+          <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm lg:col-span-7 lg:p-10">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              Philosophy Statement
+            </p>
+            <div className="mt-6 space-y-5 text-base leading-[1.9] text-on-surface-variant">
+              <p>
+                우리는 원칙을 지키기 위해 타협하지 않으며, 결과로 증명하기 위해
+                책임 있게 행동합니다.
+              </p>
+              <p>
+                정확한 기준과 체계적인 실행으로 고객에게는 신뢰를, 현장에는
+                안정성을, 조직에는 지속 성장을 만들어갑니다.
+              </p>
+            </div>
+            <div className="mt-8 border-l-4 border-secondary bg-white px-6 py-5 shadow-sm">
+              <p className="text-xl font-black leading-relaxed text-primary">
+                품질관리의 본질은 고객의 시간, 비용, 안전, 신뢰를 지키는
+                일입니다.
+              </p>
+            </div>
+          </article>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Mission
-            </p>
-            <h2 className="mt-3 text-2xl font-black text-primary">
-              하자 없는 표준 시공 품질 실현
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
-              건설 품질관리의 전 과정을 체계화하여 고객의 경제적 손실을 줄이고,
-              현장 중심의 실질적인 품질 향상을 완성합니다.
-            </p>
-          </article>
-
-          <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Vision
-            </p>
-            <h2 className="mt-3 text-2xl font-black text-primary">
-              데이터 기반 품질기술 선도 기업
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
-              기술 전문성과 실행력을 기반으로 국내 건설 품질관리의 기준을 높이고,
-              신뢰받는 장기 파트너로 성장합니다.
-            </p>
-          </article>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Core Values
-            </p>
-            <ul className="mt-4 grid grid-cols-2 gap-3 text-sm font-semibold text-primary">
-              <li className="rounded-sm bg-surface-container-low px-3 py-2">
-                신뢰
-              </li>
-              <li className="rounded-sm bg-surface-container-low px-3 py-2">
-                전문성
-              </li>
-              <li className="rounded-sm bg-surface-container-low px-3 py-2">
-                책임
-              </li>
-              <li className="rounded-sm bg-surface-container-low px-3 py-2">
-                안전
-              </li>
-              <li className="rounded-sm bg-surface-container-low px-3 py-2">
-                지속개선
-              </li>
-            </ul>
-          </article>
-
-          <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Execution Principles
-            </p>
-            <ul className="mt-4 space-y-3 text-sm leading-relaxed text-on-surface-variant">
-              <li>PDCA 기반의 계획 · 실행 · 평가 · 개선 사이클 운영</li>
-              <li>착공부터 준공까지 단계별 품질 점검과 리스크 사전 통제</li>
-              <li>문서·대관감사 대응 표준화로 프로젝트 신뢰도 강화</li>
-              <li>투명한 보고와 빠른 피드백으로 고객 의사결정 지원</li>
-            </ul>
-          </article>
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {values.map((value) => (
+            <article
+              key={value.number}
+              className="group rounded-sm border border-outline-variant/15 bg-white p-6 shadow-sm transition-colors hover:border-secondary/50"
+            >
+              <p className="text-xs font-black tracking-[0.2em] text-secondary">
+                {value.number}
+              </p>
+              <h2 className="mt-5 text-2xl font-black text-primary">
+                {value.label}
+              </h2>
+              <div className="mt-5 h-1 w-10 bg-secondary transition-all group-hover:w-16" />
+              <p className="mt-5 text-sm font-semibold leading-relaxed text-on-surface-variant">
+                {value.description}
+              </p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
