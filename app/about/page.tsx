@@ -346,6 +346,79 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section
+          id="philosophy"
+          className="bg-surface py-24 scroll-mt-28"
+        >
+          <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+            <div className="mb-10">
+              <h2 className="text-4xl font-extrabold tracking-[-0.06em] text-primary">
+                경영 이념
+              </h2>
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-on-surface-variant">
+                큐품질관리기술은 품질을 단순한 결과가 아닌 과정의 신뢰로
+                정의합니다. 모든 프로젝트에서 고객의 시간과 비용을 보호하고,
+                현장의 안전과 품질 기준을 높이는 것을 최우선 가치로 삼습니다.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                  Mission
+                </p>
+                <h3 className="mt-3 text-2xl font-black text-primary">
+                  하자 없는 표준 시공 품질 실현
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                  건설 품질관리의 전 과정을 체계화하여 고객의 경제적 손실을
+                  줄이고, 현장 중심의 실질적인 품질 향상을 완성합니다.
+                </p>
+              </article>
+
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                  Vision
+                </p>
+                <h3 className="mt-3 text-2xl font-black text-primary">
+                  데이터 기반 품질기술 선도 기업
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                  기술 전문성과 실행력을 기반으로 국내 건설 품질관리의 기준을
+                  높이고, 신뢰받는 장기 파트너로 성장합니다.
+                </p>
+              </article>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                  Core Values
+                </p>
+                <ul className="mt-4 grid grid-cols-2 gap-3 text-sm font-semibold text-primary">
+                  <li className="rounded-sm bg-surface-container-low px-3 py-2">신뢰</li>
+                  <li className="rounded-sm bg-surface-container-low px-3 py-2">전문성</li>
+                  <li className="rounded-sm bg-surface-container-low px-3 py-2">책임</li>
+                  <li className="rounded-sm bg-surface-container-low px-3 py-2">안전</li>
+                  <li className="rounded-sm bg-surface-container-low px-3 py-2">지속개선</li>
+                </ul>
+              </article>
+
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                  Execution Principles
+                </p>
+                <ul className="mt-4 space-y-3 text-sm leading-relaxed text-on-surface-variant">
+                  <li>PDCA 기반의 계획 · 실행 · 평가 · 개선 사이클 운영</li>
+                  <li>착공부터 준공까지 단계별 품질 점검과 리스크 사전 통제</li>
+                  <li>문서·대관감사 대응 표준화로 프로젝트 신뢰도 강화</li>
+                  <li>투명한 보고와 빠른 피드백으로 고객 의사결정 지원</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-surface-container-low py-32">
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="mb-16 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
