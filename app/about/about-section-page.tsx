@@ -421,7 +421,8 @@ function OrganizationSection() {
       ],
       headerClassName: "bg-[#123f7b]",
       icon: Handshake,
-      title: "영업지원실",
+      teams: ["마케팅 부서", "관리부서"],
+      title: "영업지원부서",
       subtitle: "Business Support",
     },
     {
@@ -434,7 +435,8 @@ function OrganizationSection() {
       ],
       headerClassName: "bg-[#ff6b1a]",
       icon: Lightbulb,
-      title: "기술지원실",
+      teams: ["기술지원", "CSI 기술관리"],
+      title: "기술지원부서",
       subtitle: "Technical Solution",
     },
     {
@@ -447,19 +449,11 @@ function OrganizationSection() {
       ],
       headerClassName: "bg-[#5d8f3d]",
       icon: Building2,
-      title: "현장관리실",
+      teams: ["현장 컨설팅", "현장 시험"],
+      title: "현장관리부서",
       subtitle: "Field Management",
     },
   ] as const;
-
-  const teams = [
-    "마케팅 부서",
-    "관리부서",
-    "기술지원",
-    "CSI 기술관리",
-    "현장 컨설팅",
-    "현장 시험",
-  ];
 
   return (
     <section id="organization" className="bg-surface py-24 scroll-mt-28">
@@ -500,62 +494,61 @@ function OrganizationSection() {
               <div className="absolute right-[14.3%] top-10 h-14 w-px bg-[#bfc8d5]" />
             </div>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
               {departments.map((department) => (
-                <article
-                  key={department.title}
-                  className={`relative rounded-xl border bg-white pt-14 shadow-[0_14px_34px_rgba(15,23,42,0.08)] ${department.borderClassName}`}
-                >
-                  <div
-                    className={`absolute left-0 right-0 top-0 h-6 rounded-t-[11px] ${department.headerClassName}`}
-                  />
-                  <div
-                    className={`absolute left-1/2 top-[-34px] flex h-[86px] w-[86px] -translate-x-1/2 items-center justify-center rounded-full border-2 bg-white shadow-md ${department.borderClassName} ${department.colorClassName}`}
+                <div key={department.title} className="flex h-full flex-col">
+                  <article
+                    className={`relative flex-1 rounded-xl border bg-white pt-14 shadow-[0_14px_34px_rgba(15,23,42,0.08)] ${department.borderClassName}`}
                   >
-                    <Icon icon={department.icon} className="size-10" />
-                  </div>
-
-                  <div className="px-6 pb-7 text-center md:px-8">
-                    <h2
-                      className={`text-3xl font-black tracking-[-0.04em] ${department.colorClassName}`}
-                    >
-                      {department.title}
-                    </h2>
-                    <p className="mt-2 text-sm font-black uppercase tracking-[0.12em] text-slate-400">
-                      {department.subtitle}
-                    </p>
                     <div
-                      className={`mx-auto mt-5 h-px w-4/5 ${department.headerClassName}`}
+                      className={`absolute left-0 right-0 top-0 h-6 rounded-t-[11px] ${department.headerClassName}`}
                     />
-                    <ul className="mt-6 space-y-2 text-base font-semibold leading-relaxed text-primary">
-                      {department.duties.map((duty) => (
-                        <li key={duty}>{duty}</li>
-                      ))}
-                    </ul>
+                    <div
+                      className={`absolute left-1/2 top-[-34px] flex h-[86px] w-[86px] -translate-x-1/2 items-center justify-center rounded-full border-2 bg-white shadow-md ${department.borderClassName} ${department.colorClassName}`}
+                    >
+                      <Icon icon={department.icon} className="size-10" />
+                    </div>
+
+                    <div className="px-6 pb-7 text-center md:px-8">
+                      <h2
+                        className={`text-3xl font-black tracking-[-0.04em] ${department.colorClassName}`}
+                      >
+                        {department.title}
+                      </h2>
+                      <p className="mt-2 text-sm font-black uppercase tracking-[0.12em] text-slate-400">
+                        {department.subtitle}
+                      </p>
+                      <div
+                        className={`mx-auto mt-5 h-px w-4/5 ${department.headerClassName}`}
+                      />
+                      <ul className="mt-6 space-y-2 text-base font-semibold leading-relaxed text-primary">
+                        {department.duties.map((duty) => (
+                          <li key={duty}>{duty}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </article>
+
+                  <div className="relative hidden h-16 lg:block">
+                    <div className="absolute left-1/2 top-0 h-8 w-px -translate-x-1/2 bg-[#cbd2dd]" />
+                    <div className="absolute left-1/4 right-1/4 top-8 h-px bg-[#cbd2dd]" />
+                    <div className="absolute left-1/4 top-8 h-8 w-px bg-[#cbd2dd]" />
+                    <div className="absolute right-1/4 top-8 h-8 w-px bg-[#cbd2dd]" />
                   </div>
-                </article>
-              ))}
-            </div>
 
-            <div className="relative hidden h-20 lg:block">
-              <div className="absolute left-1/2 top-0 h-10 w-px -translate-x-1/2 bg-[#cbd2dd]" />
-              <div className="absolute left-[8.333%] right-[8.333%] top-10 h-px bg-[#cbd2dd]" />
-              <div className="absolute left-[8.333%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute left-1/4 top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute left-[41.667%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute right-[41.667%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute right-1/4 top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute right-[8.333%] top-10 h-10 w-px bg-[#cbd2dd]" />
-            </div>
-
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0 lg:grid-cols-6">
-              {teams.map((team) => (
-                <article
-                  key={team}
-                  className="rounded-md border border-[#dbe2eb] bg-[linear-gradient(180deg,#ffffff_0%,#f3f6f9_100%)] px-5 py-5 text-center shadow-sm"
-                >
-                  <p className="text-lg font-black text-primary">{team}</p>
-                </article>
+                  <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0">
+                    {department.teams.map((team) => (
+                      <article
+                        key={team}
+                        className={`rounded-md border bg-[linear-gradient(180deg,#ffffff_0%,#f3f6f9_100%)] px-5 py-5 text-center shadow-sm ${department.borderClassName}`}
+                      >
+                        <p className="text-lg font-black text-primary">
+                          {team}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             <div className="mt-8 rounded-xl border border-[#dbe2eb] bg-white p-6 shadow-sm md:p-8">
