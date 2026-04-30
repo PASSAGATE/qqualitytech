@@ -52,9 +52,9 @@ const navigation: readonly NavigationItem[] = [
     label: "홍보센터",
     href: "/blog",
     children: [
-      { label: "유튜브", href: "/blog" },
-      { label: "블로그", href: "/blog" },
-      { label: "카페", href: "/blog" },
+      { label: "유튜브", href: "/blog#youtube" },
+      { label: "블로그", href: "/blog#naver-blog" },
+      { label: "카페", href: "/blog#cafe" },
     ],
   },
   {
