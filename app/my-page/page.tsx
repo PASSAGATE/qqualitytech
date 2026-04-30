@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  ArrowRight,
+  CircleHelp,
   CheckCircle2,
   ClipboardList,
   Home,
   LogOut,
+  PackageCheck,
   Save,
+  ShoppingCart,
+  Truck,
   UserRound,
 } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -41,6 +46,32 @@ type UserProfile = {
   createdAt: string;
 };
 
+type MyOrder = {
+  id: string;
+  totalPrice: number;
+  status:
+    | "awaiting_payment"
+    | "paid"
+    | "confirmed"
+    | "preparing"
+    | "shipped"
+    | "active_rental"
+    | "completed"
+    | "cancelled"
+    | "expired";
+  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  createdAt: string;
+  items: Array<{
+    equipmentName: string | null;
+    equipmentCode: string | null;
+  }>;
+};
+
+type MyOrderListResponse = {
+  total: number;
+  items: MyOrder[];
+};
+
 async function readApiError(response: Response) {
   try {
     const data = (await response.json()) as ApiError;
@@ -63,6 +94,69 @@ async function fetchMyProfile(accessToken: string): Promise<UserProfile> {
   }
 
   return (await response.json()) as UserProfile;
+}
+
+async function fetchMyOrders(accessToken: string): Promise<MyOrderListResponse> {
+  const response = await fetch(`${apiBaseUrl()}/orders/me?page=1&limit=5`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(await readApiError(response));
+  }
+
+  return (await response.json()) as MyOrderListResponse;
+}
+
+function statusLabel(status: MyOrder["status"]) {
+  switch (status) {
+    case "awaiting_payment":
+      return "결제대기";
+    case "paid":
+      return "결제완료";
+    case "confirmed":
+      return "주문확정";
+    case "preparing":
+      return "준비중";
+    case "shipped":
+      return "배송중";
+    case "active_rental":
+      return "임대진행";
+    case "completed":
+      return "완료";
+    case "cancelled":
+      return "취소";
+    case "expired":
+      return "만료";
+    default:
+      return status;
+  }
+}
+
+function paymentStatusLabel(status: MyOrder["paymentStatus"]) {
+  switch (status) {
+    case "pending":
+      return "결제대기";
+    case "paid":
+      return "결제완료";
+    case "failed":
+      return "결제실패";
+    case "refunded":
+      return "환불";
+    default:
+      return status;
+  }
+}
+
+function formatDate(input: string) {
+  const date = new Date(input);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+  return date.toLocaleDateString("ko-KR");
 }
 
 type MyPageProps = {
@@ -99,8 +193,10 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   }
 
   let profile: UserProfile;
+  let myOrders: MyOrderListResponse | null = null;
   try {
     profile = await fetchMyProfile(session.access_token);
+    myOrders = await fetchMyOrders(session.access_token);
   } catch (fetchError) {
     await supabase.auth.signOut();
     const message =
@@ -116,6 +212,17 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   const createdAt = new Date(profile.createdAt).toLocaleDateString("ko-KR");
   const roleLabel =
     profile.role?.toLowerCase() === "admin" ? "관리자" : "일반 사용자";
+  const totalOrders = myOrders?.total ?? 0;
+  const inProgressOrders =
+    myOrders?.items.filter((item) =>
+      ["awaiting_payment", "paid", "confirmed", "preparing", "shipped"].includes(
+        item.status,
+      ),
+    ).length ?? 0;
+  const completedOrders =
+    myOrders?.items.filter((item) => item.status === "completed").length ?? 0;
+  const pendingPayments =
+    myOrders?.items.filter((item) => item.paymentStatus === "pending").length ?? 0;
 
   return (
     <div className="min-h-screen bg-surface text-on-surface xl:pl-64">
@@ -197,6 +304,137 @@ export default async function MyPage({ searchParams }: MyPageProps) {
                 {error}
               </div>
             ) : null}
+
+            <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm">
+                <div className="mb-3 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                  <ClipboardList className="size-4" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  총 주문
+                </p>
+                <p className="mt-1 text-2xl font-black text-primary">{totalOrders}</p>
+              </article>
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm">
+                <div className="mb-3 inline-flex rounded-full bg-[#eef4ff] p-2 text-primary">
+                  <Truck className="size-4" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  진행중
+                </p>
+                <p className="mt-1 text-2xl font-black text-primary">
+                  {inProgressOrders}
+                </p>
+              </article>
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm">
+                <div className="mb-3 inline-flex rounded-full bg-[#e7f6ec] p-2 text-[#1d7a3a]">
+                  <PackageCheck className="size-4" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  완료
+                </p>
+                <p className="mt-1 text-2xl font-black text-primary">
+                  {completedOrders}
+                </p>
+              </article>
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm">
+                <div className="mb-3 inline-flex rounded-full bg-[#fff3e8] p-2 text-[#b45309]">
+                  <ShoppingCart className="size-4" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                  결제 대기
+                </p>
+                <p className="mt-1 text-2xl font-black text-primary">
+                  {pendingPayments}
+                </p>
+              </article>
+            </section>
+
+            <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest shadow-sm xl:col-span-8">
+                <div className="flex items-center justify-between border-b border-outline-variant/10 px-5 py-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-primary">최근 주문</h2>
+                    <p className="text-xs text-on-surface-variant">
+                      최근 5건 기준 요약입니다.
+                    </p>
+                  </div>
+                  <Link
+                    href="/my-page/orders"
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-secondary transition-colors hover:opacity-80"
+                  >
+                    전체 보기
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+                <div className="divide-y divide-outline-variant/10">
+                  {myOrders && myOrders.items.length > 0 ? (
+                    myOrders.items.map((order) => (
+                      <div
+                        key={order.id}
+                        className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div>
+                          <p className="text-sm font-semibold text-primary">
+                            {order.items[0]?.equipmentName ??
+                              order.items[0]?.equipmentCode ??
+                              "주문 품목"}
+                            {order.items.length > 1
+                              ? ` 외 ${order.items.length - 1}건`
+                              : ""}
+                          </p>
+                          <p className="mt-1 text-xs text-on-surface-variant">
+                            {formatDate(order.createdAt)} · {statusLabel(order.status)}
+                          </p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <p className="text-sm font-bold text-primary">
+                            {order.totalPrice.toLocaleString("ko-KR")}원
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-secondary">
+                            {paymentStatusLabel(order.paymentStatus)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="px-5 py-8 text-sm text-on-surface-variant">
+                      표시할 주문 내역이 없습니다.
+                    </p>
+                  )}
+                </div>
+              </article>
+
+              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm xl:col-span-4">
+                <h2 className="text-lg font-bold text-primary">빠른 실행</h2>
+                <p className="mt-1 text-xs text-on-surface-variant">
+                  자주 쓰는 메뉴로 바로 이동하세요.
+                </p>
+                <div className="mt-4 space-y-2">
+                  <Link
+                    href="/equipment"
+                    className="inline-flex w-full items-center justify-between rounded-sm bg-surface-container-low px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-high"
+                  >
+                    장비 보러가기
+                    <ArrowRight className="size-4" />
+                  </Link>
+                  <Link
+                    href="/my-page/orders"
+                    className="inline-flex w-full items-center justify-between rounded-sm bg-surface-container-low px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-high"
+                  >
+                    주문 내역 관리
+                    <ArrowRight className="size-4" />
+                  </Link>
+                  <Link
+                    href="/contact#inquiry"
+                    className="inline-flex w-full items-center justify-between rounded-sm bg-surface-container-low px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-high"
+                  >
+                    A/S 문의
+                    <CircleHelp className="size-4" />
+                  </Link>
+                </div>
+              </article>
+            </section>
 
             <div className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-3">
