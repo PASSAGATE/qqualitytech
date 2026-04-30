@@ -108,9 +108,12 @@ function GreetingSection() {
 
         <div className="relative z-10 mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
           <div className="max-w-5xl">
-            <span className="mb-4 block text-sm font-bold uppercase tracking-[0.28em] text-secondary">
-              CEO Message
-            </span>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="h-px w-8 bg-secondary" />
+              <span className="text-sm font-bold uppercase tracking-[0.28em] text-secondary">
+                CEO Message
+              </span>
+            </div>
             <h1 className="mb-8 text-5xl font-black leading-[1.08] tracking-[-0.02em] text-white md:text-7xl">
               품질은 타협의 대상이 아니라,
               <br />
@@ -174,40 +177,45 @@ function GreetingSection() {
           <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
             {[
               {
+                num: "01",
                 label: "기준",
                 text: "품질은 결과가 아니라 처음부터 지켜야 할 기준입니다.",
               },
               {
+                num: "02",
                 label: "책임",
                 text: "고객의 시간, 비용, 리스크를 함께 책임지는 관리 체계를 만듭니다.",
               },
               {
+                num: "03",
                 label: "결과",
                 text: "형식보다 본질을 보고, 말보다 결과로 증명합니다.",
               },
             ].map((item) => (
               <article
                 key={item.label}
-                className="rounded-sm border border-outline-variant/15 bg-white p-6 shadow-sm"
+                className="relative overflow-hidden rounded-sm border border-outline-variant/15 bg-white p-6 pt-5 shadow-sm"
               >
-                <p className="text-sm font-black text-secondary">{item.label}</p>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-primary">
+                <div className="absolute left-0 right-0 top-0 h-1 bg-secondary" />
+                <p className="text-5xl font-black leading-none text-primary/[0.06] select-none">
+                  {item.num}
+                </p>
+                <p className="mt-2 text-base font-black text-secondary">{item.label}</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-primary">
                   {item.text}
                 </p>
               </article>
             ))}
           </div>
 
-          <div className="mt-8 rounded-sm border border-outline-variant/15 bg-white p-8 text-right shadow-sm">
-            <p className="text-sm font-semibold text-on-surface-variant">
-              큐품질관리기술 대표이사
-            </p>
-            <div className="mt-3 flex flex-col items-end gap-2 sm:flex-row sm:items-end sm:justify-end">
-              <p className="text-3xl font-black tracking-[0.08em] text-primary">
-                이민희
+          <div className="mt-8 rounded-sm border border-outline-variant/15 bg-white px-10 py-8 shadow-sm">
+            <div className="flex flex-col items-end gap-1">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                큐품질관리기술 대표이사
               </p>
-              <p className="rounded-full bg-surface-container-low px-3 py-1 text-xs font-bold text-on-surface-variant">
-                사인
+              <div className="mt-4 h-px w-40 bg-outline-variant/30" />
+              <p className="mt-3 text-4xl font-black tracking-[0.06em] text-primary">
+                이민희
               </p>
             </div>
           </div>
