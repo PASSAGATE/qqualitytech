@@ -34,28 +34,34 @@ export function NavMenu({
 
   return (
     <div className="hidden items-center gap-10 lg:flex">
-      {navigation.map((item) => (
-        <div
-          key={item.label}
-          className="relative flex h-full items-center"
-          onMouseEnter={() => {
-            cancelClose();
-            setOpenMenu(item.children ? item.label : null);
-          }}
-          onMouseLeave={scheduleClose}
-        >
-          <Link
-            href={item.href}
-            className={
-              item.href === activeHref
-                ? "border-b-2 border-secondary pb-1 text-base font-semibold tracking-tight text-secondary"
-                : "text-base font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
-            }
+      {navigation.map((item) => {
+        const isActive =
+          item.href === activeHref ||
+          item.children?.some((child) => child.href === activeHref);
+
+        return (
+          <div
+            key={item.label}
+            className="relative flex h-full items-center"
+            onMouseEnter={() => {
+              cancelClose();
+              setOpenMenu(item.children ? item.label : null);
+            }}
+            onMouseLeave={scheduleClose}
           >
-            {item.label}
-          </Link>
-        </div>
-      ))}
+            <Link
+              href={item.href}
+              className={
+                isActive
+                  ? "border-b-2 border-secondary pb-1 text-base font-semibold tracking-tight text-secondary"
+                  : "text-base font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
+              }
+            >
+              {item.label}
+            </Link>
+          </div>
+        );
+      })}
 
       <div
         className={`fixed inset-x-0 top-[calc(6rem-1px)] z-50 transition-all duration-300 ease-out ${

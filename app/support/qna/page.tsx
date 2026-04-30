@@ -77,7 +77,7 @@ export default function SupportQnaPage() {
           </div>
         </header>
 
-        <section className="bg-[#dfe8f1] py-24">
+        <section className="bg-surface py-24">
           <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-8 px-5 sm:px-8 lg:grid-cols-12 lg:px-12">
             <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm lg:col-span-4">
               <div className="mb-5 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
@@ -90,7 +90,12 @@ export default function SupportQnaPage() {
               </p>
               <Link
                 href="/contact#inquiry"
-                className="mt-7 inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="mt-7 inline-flex items-center gap-2 rounded-md bg-secondary px-6 py-3 text-sm font-bold text-white transition-all duration-200 hover:opacity-85 active:scale-95"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
+                }}
               >
                 문의 남기기
                 <Icon icon={ArrowRight} className="size-4" />

@@ -50,11 +50,11 @@ const navigation: readonly NavigationItem[] = [
   { label: "시험장비", href: "/equipment" },
   {
     label: "홍보센터",
-    href: "/blog",
+    href: "/blog/youtube",
     children: [
-      { label: "유튜브", href: "/blog#youtube" },
-      { label: "블로그", href: "/blog#naver-blog" },
-      { label: "카페", href: "/blog#cafe" },
+      { label: "유튜브", href: "/blog/youtube" },
+      { label: "블로그", href: "/blog/naver-blog" },
+      { label: "카페", href: "/blog/cafe" },
     ],
   },
   {
@@ -65,7 +65,7 @@ const navigation: readonly NavigationItem[] = [
       { label: "질문/답변", href: "/support/qna" },
       { label: "기술자료실", href: "/support/resources" },
       { label: "인재채용", href: "/support/careers" },
-      { label: "A/S문의", href: "/contact#inquiry" },
+      { label: "A/S문의", href: "/support/contact" },
     ],
   },
   {
@@ -192,33 +192,39 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
 
               <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
-                  {navigationItems.map((item) => (
-                    <div key={item.label}>
-                      <Link
-                        href={item.href}
-                        className={
-                          item.href === activeHref
-                            ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
-                            : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                        }
-                      >
-                        {item.label}
-                      </Link>
-                      {item.children ? (
-                        <div className="ml-3 flex flex-col">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.label}
-                              href={child.href}
-                              className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
+                  {navigationItems.map((item) => {
+                    const isActive =
+                      item.href === activeHref ||
+                      item.children?.some((child) => child.href === activeHref);
+
+                    return (
+                      <div key={item.label}>
+                        <Link
+                          href={item.href}
+                          className={
+                            isActive
+                              ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
+                              : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                          }
+                        >
+                          {item.label}
+                        </Link>
+                        {item.children ? (
+                          <div className="ml-3 flex flex-col">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                   {user ? (
                     <>
                       <Link

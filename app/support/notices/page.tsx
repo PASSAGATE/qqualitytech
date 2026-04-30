@@ -94,7 +94,7 @@ export default function SupportNoticesPage() {
           </div>
         </header>
 
-        <section className="bg-[#dfe8f1] py-24">
+        <section className="bg-surface py-24">
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
@@ -105,7 +105,12 @@ export default function SupportNoticesPage() {
               </div>
               <Link
                 href="/contact#inquiry"
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-md bg-secondary px-6 py-3 text-sm font-bold text-white transition-all duration-200 hover:opacity-85 active:scale-95"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                  boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
+                }}
               >
                 문의하기
                 <Icon icon={ArrowRight} className="size-4" />
