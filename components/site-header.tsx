@@ -9,9 +9,10 @@ import { fetchMyCart } from "@/lib/backend/cart";
 import { HeaderCartButton } from "./header-cart-button";
 
 type NavigationItem = {
+  disabled?: boolean;
   label: string;
   href: string;
-  children?: readonly { label: string; href: string }[];
+  children?: readonly { disabled?: boolean; label: string; href: string }[];
 };
 
 const navigation: readonly NavigationItem[] = [
@@ -70,7 +71,8 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "성적서 진위확인",
-    href: "/contact#inquiry",
+    href: "#",
+    disabled: true,
   },
 ] as const;
 
@@ -194,31 +196,55 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
                   {navigationItems.map((item) => {
                     const isActive =
-                      item.href === activeHref ||
-                      item.children?.some((child) => child.href === activeHref);
+                      !item.disabled &&
+                      (item.href === activeHref ||
+                        item.children?.some(
+                          (child) => !child.disabled && child.href === activeHref,
+                        ));
 
                     return (
                       <div key={item.label}>
-                        <Link
-                          href={item.href}
-                          className={
-                            isActive
-                              ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
-                              : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                          }
-                        >
-                          {item.label}
-                        </Link>
+                        {item.disabled ? (
+                          <button
+                            type="button"
+                            aria-disabled="true"
+                            className="cursor-default rounded-md px-4 py-3 text-left text-sm font-semibold tracking-tight text-primary"
+                          >
+                            {item.label}
+                          </button>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className={
+                              isActive
+                                ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
+                                : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                            }
+                          >
+                            {item.label}
+                          </Link>
+                        )}
                         {item.children ? (
                           <div className="ml-3 flex flex-col">
                             {item.children.map((child) => (
-                              <Link
-                                key={child.label}
-                                href={child.href}
-                                className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
-                              >
-                                {child.label}
-                              </Link>
+                              child.disabled ? (
+                                <button
+                                  key={child.label}
+                                  type="button"
+                                  aria-disabled="true"
+                                  className="cursor-default rounded-md px-4 py-2 text-left text-sm font-medium text-on-surface-variant"
+                                >
+                                  {child.label}
+                                </button>
+                              ) : (
+                                <Link
+                                  key={child.label}
+                                  href={child.href}
+                                  className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
+                                >
+                                  {child.label}
+                                </Link>
+                              )
                             ))}
                           </div>
                         ) : null}
