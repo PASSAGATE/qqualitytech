@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import {
   ClipboardCheck,
@@ -101,6 +102,9 @@ const certificationItems: Array<{
   },
 ];
 
+const heroImage =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuDd2hEPYEu2WZcVDQr9vBj6s8SV9HsPs6Ho25OssPka3jDIDkwu2bT79STfDSS522-ArQZTWrY2oeVTeXz3bfZmD2ZF-VKKRboJgqTkkVlhj3jXkJoTRO61-wjMoaZowMySZPK9ETyyktR85MB6POrfQ4BxhwEz-kuPNUPwRh7ea8P6befp5_7GoyX8xCND1FSto1Su6Ds_LCt8s4S-1qQFHkqAaHu_r5dEC_XLuxsBAJo1wXm_vNaOv0B2wlaOQn_aOrjhKWyrIdpB";
+
 export function getQualitySectionMetadata(
   section: QualitySectionSlug,
 ): Metadata {
@@ -128,31 +132,45 @@ function QualityHero({ section }: { section: QualitySectionSlug }) {
   const isPolicy = section === "policy";
 
   return (
-    <section className="border-b border-outline-variant/20 bg-surface py-24">
-      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
-        <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-secondary">
-          Quality Management
-        </p>
-        <h1 className="max-w-4xl text-5xl font-black leading-tight text-primary md:text-6xl">
-          {isPolicy ? (
-            <>
-              현장 품질을 기준으로 만들고,
-              <br />
-              데이터로 신뢰를 증명합니다.
-            </>
-          ) : (
-            <>
-              품질 기준을 체계화하고,
-              <br />
-              문서로 신뢰를 증명합니다.
-            </>
-          )}
-        </h1>
-        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-on-surface-variant">
-          {isPolicy
-            ? "큐품질관리기술은 건설 현장의 시공 품질을 최우선 가치로 삼고, 고객의 신뢰를 바탕으로 정확하고 체계적인 품질관리 서비스를 제공합니다."
-            : "인증과 기준은 보여주기 위한 문서가 아니라 현장 품질을 유지하는 운영 체계입니다. 프로젝트별 요구사항에 맞춰 필요한 기준과 대응 자료를 체계적으로 관리합니다."}
-        </p>
+    <section className="relative min-h-[620px] overflow-hidden bg-primary">
+      <div className="absolute inset-0">
+        <Image
+          src={heroImage}
+          alt="Construction quality management background"
+          fill
+          preload
+          sizes="100vw"
+          className="object-cover opacity-35 mix-blend-luminosity"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(65deg,var(--color-primary)_18%,rgba(0,21,42,0.9)_55%,rgba(0,21,42,0.28)_100%)]" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-[620px] w-full max-w-[1600px] items-center px-5 py-24 sm:px-8 lg:px-12">
+        <div className="max-w-4xl">
+          <p className="mb-5 text-sm font-bold uppercase tracking-[0.24em] text-secondary">
+            Quality Management
+          </p>
+          <h1 className="text-5xl font-black leading-tight text-white md:text-6xl">
+            {isPolicy ? (
+              <>
+                현장 품질을 기준으로 만들고,
+                <br />
+                데이터로 신뢰를 증명합니다.
+              </>
+            ) : (
+              <>
+                품질 기준을 체계화하고,
+                <br />
+                문서로 신뢰를 증명합니다.
+              </>
+            )}
+          </h1>
+          <p className="mt-7 max-w-3xl text-lg leading-relaxed text-on-primary-container md:text-xl">
+            {isPolicy
+              ? "큐품질관리기술은 건설 현장의 시공 품질을 최우선 가치로 삼고, 고객의 신뢰를 바탕으로 정확하고 체계적인 품질관리 서비스를 제공합니다."
+              : "인증과 기준은 보여주기 위한 문서가 아니라 현장 품질을 유지하는 운영 체계입니다. 프로젝트별 요구사항에 맞춰 필요한 기준과 대응 자료를 체계적으로 관리합니다."}
+          </p>
+        </div>
       </div>
     </section>
   );

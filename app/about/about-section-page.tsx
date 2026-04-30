@@ -89,7 +89,7 @@ function GreetingSection() {
     <>
       <section
         id="greeting"
-        className="relative flex min-h-[716px] items-center overflow-hidden scroll-mt-28"
+        className="relative flex min-h-[716px] items-center overflow-hidden scroll-mt-28 bg-primary"
       >
         <div className="absolute inset-0 z-0">
           <Image
@@ -98,24 +98,24 @@ function GreetingSection() {
             fill
             preload
             sizes="100vw"
-            className="object-cover grayscale opacity-20"
+            className="object-cover grayscale opacity-30 mix-blend-luminosity"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(60deg,var(--color-primary)_8%,rgba(0,21,42,0.95)_48%,rgba(0,21,42,0.18)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(65deg,var(--color-primary)_18%,rgba(0,21,42,0.92)_56%,rgba(0,21,42,0.24)_100%)]" />
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
-          <div className="max-w-3xl">
+          <div className="max-w-5xl">
             <span className="mb-4 block text-sm font-bold uppercase tracking-[0.28em] text-secondary">
               CEO Message
             </span>
             <h1 className="mb-8 text-5xl font-black leading-[1.08] tracking-[-0.02em] text-white md:text-7xl">
-              기술력과 창의력을 보유한
+              품질은 타협의 대상이 아니라,
               <br />
-              진취적인 기업, 큐품질관리기술
+              반드시 지켜야 할 기준입니다.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-on-primary-container md:text-xl">
-              큐품질관리기술을 방문해주신 여러분을 응원하고 진심으로
-              환영합니다.
+            <p className="max-w-3xl text-lg leading-relaxed text-on-primary-container md:text-xl">
+              현장은 속도로 움직이지만, 결과는 기준으로 완성됩니다. 큐품질관리기술은
+              시험, 검증, 문서, 대응, 관리 전 과정을 체계적으로 운영합니다.
             </p>
           </div>
         </div>
@@ -123,50 +123,90 @@ function GreetingSection() {
 
       <section className="border-b border-outline-variant/20 bg-surface py-24">
         <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
-          <article className="rounded-sm border-l-4 border-secondary bg-surface-container-lowest p-10 shadow-sm">
-            <h2 className="mb-6 text-3xl font-black tracking-tight text-primary">
-              인사말
-            </h2>
-            <div className="space-y-4 text-sm leading-relaxed text-on-surface-variant md:text-base">
-              <p>
-                큐품질관리기술은 건설공사의 필수적인 시공품질을 중점적으로
-                최고의 건설품질관리 서비스를 제공하는 회사로써 지속적으로
-                계획하고, 실행하며, 평가하고, 개선하고있으며 품질향상을
-                목적으로 하자없는 표준 건축물이 되도록 만들어 보겠습니다.
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            <aside className="rounded-sm bg-primary p-8 text-white shadow-sm lg:col-span-4 lg:p-10">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-secondary">
+                Greeting
               </p>
-              <p>
-                회사의 기술전문가들의 컨설팅을 통해 유능한 인재를 선별 및
-                교육을 통하여 인재양성과 최상의 품질서비스를 만족 드리며
-                착공부터 준공까지 전반적인 품질관리업무, 서류 및 대관감사로
-                체계적인 품질관리를 보다 꼼꼼하고 디테일하게 품질검사를 통하여
-                경제적 손실을 예방하는 서비스를 제공합니다.
+              <h2 className="mt-4 text-3xl font-black leading-tight">
+                안녕하십니까.
+                <br />
+                큐품질관리기술 대표이사입니다.
+              </h2>
+              <div className="mt-8 h-1.5 w-16 bg-secondary" />
+              <p className="mt-8 text-sm leading-relaxed text-on-primary-container">
+                쉬운 길보다 옳은 길을 선택하겠습니다. 형식보다 본질을 보겠습니다.
+                말보다 결과로 증명하겠습니다.
               </p>
-              <p>
-                저희 큐품질관리기술은 회사의 경영진들과 임직원들이
-                품질경영시스템 및 전문성을 바탕으로 지속적인 품질솔루션을
-                받고있으며 각 분야의 전문가들을 통하여 품질 컨설팅을 바탕으로
-                주요 업무인 건설 품질 뿐만이 아닌 다른분야의 품질 전문성을
-                키우는 회사로 성장했습니다.
+            </aside>
+
+            <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm lg:col-span-8 lg:p-12">
+              <div className="space-y-6 text-base leading-[1.9] text-on-surface-variant">
+                <p>
+                  현장은 속도로 움직이지만, 결과는 기준으로 완성됩니다. 일정은
+                  앞당길 수 있어도 품질은 건너뛸 수 없습니다. 보이지 않는 작은
+                  오차 하나가 큰 손실이 되고, 느슨한 관리 하나가 기업의 신뢰를
+                  무너뜨립니다.
+                </p>
+                <p>
+                  큐품질관리기술은 이러한 현실을 누구보다 잘 알고 있습니다.
+                  그래서 우리는 단순한 검사 업무에 머물지 않습니다. 시험, 검증,
+                  문서, 대응, 관리 전 과정을 체계적으로 운영하며 고객의
+                  시간·비용·리스크를 함께 책임집니다.
+                </p>
+                <p className="border-l-4 border-secondary bg-white px-6 py-5 text-xl font-black leading-relaxed text-primary shadow-sm">
+                  저희가 지키는 것은 단순한 규정이 아닙니다.
+                  <br />
+                  고객의 사업 일정이며, 현장의 안전이며, 기업의 신뢰입니다.
+                </p>
+                <p>
+                  큐품질관리기술은 앞으로도 높은 기준과 강한 책임감으로 고객이
+                  가장 먼저 찾는 품질관리 전문기업이 되겠습니다.
+                </p>
+                <p>감사합니다.</p>
+              </div>
+            </article>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              {
+                label: "기준",
+                text: "품질은 결과가 아니라 처음부터 지켜야 할 기준입니다.",
+              },
+              {
+                label: "책임",
+                text: "고객의 시간, 비용, 리스크를 함께 책임지는 관리 체계를 만듭니다.",
+              },
+              {
+                label: "결과",
+                text: "형식보다 본질을 보고, 말보다 결과로 증명합니다.",
+              },
+            ].map((item) => (
+              <article
+                key={item.label}
+                className="rounded-sm border border-outline-variant/15 bg-white p-6 shadow-sm"
+              >
+                <p className="text-sm font-black text-secondary">{item.label}</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-primary">
+                  {item.text}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-sm border border-outline-variant/15 bg-white p-8 text-right shadow-sm">
+            <p className="text-sm font-semibold text-on-surface-variant">
+              큐품질관리기술 대표이사
+            </p>
+            <div className="mt-3 flex flex-col items-end gap-2 sm:flex-row sm:items-end sm:justify-end">
+              <p className="text-3xl font-black tracking-[0.08em] text-primary">
+                이민희
               </p>
-              <p>
-                여러분들과 저희 큐품질관리기술과 함께 국내 최고의 품질기술과
-                믿음과 신뢰를 기본으로 유능한 인재양성과 적극적인 품질지도관리를
-                실천하겠습니다.
-              </p>
-              <p>
-                저희가 가진 모든 노하우와 전문성을 다해서 고객님의 품질관리 및
-                경영에 동참하여 큰 힘을 보태 드리겠습니다.
+              <p className="rounded-full bg-surface-container-low px-3 py-1 text-xs font-bold text-on-surface-variant">
+                사인
               </p>
             </div>
-          </article>
-
-          <div className="mt-8 rounded-sm bg-primary px-8 py-6 text-right text-white shadow-sm">
-            <p className="text-lg font-semibold text-on-primary-container">
-              꿈과 목표를 가지고 성장하는 기업
-            </p>
-            <p className="mt-2 text-2xl font-black tracking-[0.03em]">
-              큐품질관리기술 임직원 일동
-            </p>
           </div>
         </div>
       </section>
