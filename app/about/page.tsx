@@ -7,9 +7,11 @@ import {
   Award,
   Box,
   Building2,
+  CalendarDays,
   Lightbulb,
   MapPin,
   MessageSquare,
+  Phone,
   SearchCheck,
   Shield,
   ShieldCheck,
@@ -203,6 +205,105 @@ export default function AboutPage() {
               <p className="mt-2 text-2xl font-black tracking-[0.03em]">
                 큐품질관리기술 임직원 일동
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="overview"
+          className="bg-surface-container-low py-24 scroll-mt-28"
+        >
+          <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-10 shadow-sm lg:col-span-5">
+                <h2 className="mb-4 text-3xl font-black tracking-tight text-primary">
+                  회사 개요
+                </h2>
+                <p className="text-xl font-bold leading-relaxed text-primary">
+                  큐품질관리기술은 건설 현장의 시공 품질을
+                  <br />
+                  데이터와 전문성으로 완성하는
+                  <br />
+                  품질관리 전문 파트너입니다.
+                </p>
+                <div className="mt-6 h-1.5 w-16 bg-secondary" />
+                <p className="mt-6 text-sm leading-relaxed text-on-surface-variant">
+                  착공부터 준공까지 전 과정에서 품질관리 업무, 서류 체계화,
+                  대관감사 대응, 현장 점검을 통합 지원합니다. 고객의 시간과 비용
+                  손실을 줄이고, 하자 없는 표준 시공 품질을 목표로 실행과 개선을
+                  반복합니다.
+                </p>
+              </article>
+
+              <article className="rounded-sm border border-outline-variant/15 bg-surface-container-lowest p-10 shadow-sm lg:col-span-7">
+                <ul className="space-y-6">
+                  <li className="flex items-start gap-4">
+                    <span className="mt-1 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                      <CalendarDays className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                        운영 철학
+                      </p>
+                      <p className="mt-1 text-base font-semibold text-primary">
+                        계획 · 실행 · 평가 · 개선의 품질 사이클 정착
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-1 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                      <Building2 className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                        핵심 서비스
+                      </p>
+                      <p className="mt-1 text-base font-semibold text-primary">
+                        건설 품질관리 컨설팅, 품질검사, 문서 및 대관감사 지원
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-1 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                      <Wrench className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                        전문 역량
+                      </p>
+                      <p className="mt-1 text-base font-semibold text-primary">
+                        기술 전문가 중심의 현장 진단 및 디테일 품질 점검 체계
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-1 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                      <MapPin className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                        본사
+                      </p>
+                      <p className="mt-1 text-base font-semibold text-primary">
+                        경기도 구리시 갈매동 545, 휴밸나인 9층
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-1 inline-flex rounded-full bg-secondary/15 p-2 text-secondary">
+                      <Phone className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                        대표 문의
+                      </p>
+                      <p className="mt-1 text-base font-semibold text-primary">
+                        010-6666-5269 / qqstart@naver.com
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </article>
             </div>
           </div>
         </section>

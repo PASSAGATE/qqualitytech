@@ -20,7 +20,7 @@ const navigation: readonly NavigationItem[] = [
     href: "/about",
     children: [
       { label: "인사말", href: "/about#greeting" },
-      { label: "회사 개요", href: "/about" },
+      { label: "회사 개요", href: "/about#overview" },
       { label: "경영 이념", href: "/about" },
       { label: "조직도", href: "/about" },
       { label: "오시는 길", href: "/about#directions" },
