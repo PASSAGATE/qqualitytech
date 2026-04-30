@@ -59,12 +59,12 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "고객센터",
-    href: "/contact",
+    href: "/support/notices",
     children: [
-      { label: "공지사항", href: "/blog" },
-      { label: "질문/답변", href: "/#faq" },
-      { label: "기술자료실", href: "/blog" },
-      { label: "인재채용", href: "/register" },
+      { label: "공지사항", href: "/support/notices" },
+      { label: "질문/답변", href: "/support/qna" },
+      { label: "기술자료실", href: "/support/resources" },
+      { label: "인재채용", href: "/support/careers" },
       { label: "A/S문의", href: "/contact#inquiry" },
     ],
   },
