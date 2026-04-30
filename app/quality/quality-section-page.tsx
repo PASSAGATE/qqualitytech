@@ -241,6 +241,47 @@ function CertificationsSection() {
           </p>
         </div>
 
+        <div className="mb-12 grid grid-cols-1 overflow-hidden rounded-[28px] border border-outline-variant/15 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.12)] lg:grid-cols-12">
+          <article className="flex flex-col justify-center bg-[linear-gradient(135deg,#00152a_0%,#123f7b_100%)] p-8 text-white md:p-10 lg:col-span-5 lg:p-12">
+            <p className="text-sm font-black uppercase tracking-[0.24em] text-secondary">
+              Certification
+            </p>
+            <h3 className="mt-5 text-3xl font-black leading-tight tracking-[-0.05em] md:text-4xl">
+              ISO 9001 품질경영시스템
+              <br />
+              전문 심사원 교육 수료
+            </h3>
+            <p className="mt-6 text-base leading-relaxed text-on-primary-container">
+              큐품질관리기술은 품질 기준과 검증 절차를 문서로만 관리하지 않고,
+              전문성과 책임 있는 실행으로 현장 품질의 신뢰를 증명합니다.
+            </p>
+            <dl className="mt-8 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+              <div className="rounded-sm border border-white/15 bg-white/10 p-4">
+                <dt className="font-bold text-white/65">Course</dt>
+                <dd className="mt-1 font-black text-white">ISO 9001:2015</dd>
+              </div>
+              <div className="rounded-sm border border-white/15 bg-white/10 p-4">
+                <dt className="font-bold text-white/65">Certified</dt>
+                <dd className="mt-1 font-black text-white">Quality Management</dd>
+              </div>
+            </dl>
+          </article>
+
+          <div className="relative bg-[radial-gradient(circle_at_top,#fff8ef_0%,#ffffff_42%,#eef3f8_100%)] p-5 md:p-8 lg:col-span-7 lg:p-10">
+            <div className="pointer-events-none absolute inset-x-10 top-8 h-24 rounded-full bg-secondary/20 blur-3xl" />
+            <div className="relative mx-auto max-w-[640px] rounded-[18px] border border-[#ead6c3] bg-white p-3 shadow-[0_24px_65px_rgba(15,23,42,0.22)]">
+              <Image
+                src="/certifications/qquality-iso-certificate.png"
+                alt="ISO 9001 quality management system auditor certificate"
+                width={625}
+                height={886}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="h-auto w-full rounded-[12px] object-contain"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {certificationItems.map((item) => (
             <article
