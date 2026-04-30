@@ -29,10 +29,10 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "품질 경영",
-    href: "/quality",
+    href: "/quality/policy",
     children: [
-      { label: "품질 방침", href: "/quality#policy" },
-      { label: "품질 인증", href: "/quality#certifications" },
+      { label: "품질 방침", href: "/quality/policy" },
+      { label: "품질 인증", href: "/quality/certifications" },
     ],
   },
   {
