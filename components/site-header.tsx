@@ -36,9 +36,12 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "사업분야",
-    href: "/#services",
+    href: "/business/quality-management-consulting",
     children: [
-      { label: "건설 품질 관리 및 컨설팅", href: "/#services" },
+      {
+        label: "건설 품질 관리 및 컨설팅",
+        href: "/business/quality-management-consulting",
+      },
       { label: "품질 (시험,관리)계획서 작성 대행", href: "/#services" },
       { label: "건설 재료 시험 및 검사", href: "/#equipment" },
       { label: "콘크리트 균열 및 재료 분리 관리", href: "/#services" },
