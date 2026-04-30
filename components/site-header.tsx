@@ -19,7 +19,7 @@ const navigation: readonly NavigationItem[] = [
     label: "회사소개",
     href: "/about",
     children: [
-      { label: "인사말", href: "/about" },
+      { label: "인사말", href: "/about#greeting" },
       { label: "회사 개요", href: "/about" },
       { label: "경영 이념", href: "/about" },
       { label: "조직도", href: "/about" },
@@ -28,20 +28,20 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "품질 경영",
-    href: "/",
+    href: "/#services",
     children: [
-      { label: "품질 방침", href: "/" },
-      { label: "품질 인증", href: "/" },
+      { label: "품질 방침", href: "/#services" },
+      { label: "품질 인증", href: "/about#certifications" },
     ],
   },
   {
     label: "사업분야",
-    href: "/",
+    href: "/#services",
     children: [
-      { label: "건설 품질 관리 및 컨설팅", href: "/" },
-      { label: "품질 (시험,관리)계획서 작성 대행", href: "/" },
-      { label: "건설 재료 시험 및 검사", href: "/" },
-      { label: "콘크리트 균열 및 재료 분리 관리", href: "/" },
+      { label: "건설 품질 관리 및 컨설팅", href: "/#services" },
+      { label: "품질 (시험,관리)계획서 작성 대행", href: "/#services" },
+      { label: "건설 재료 시험 및 검사", href: "/#equipment" },
+      { label: "콘크리트 균열 및 재료 분리 관리", href: "/#services" },
     ],
   },
   { label: "시험장비", href: "/equipment" },
@@ -56,18 +56,18 @@ const navigation: readonly NavigationItem[] = [
   },
   {
     label: "고객센터",
-    href: "/",
+    href: "/contact",
     children: [
-      { label: "공지사항", href: "/" },
-      { label: "질문/답변", href: "/" },
-      { label: "기술자료실", href: "/" },
-      { label: "인재채용", href: "/" },
-      { label: "A/S문의", href: "/contact#inquiry" }
+      { label: "공지사항", href: "/blog" },
+      { label: "질문/답변", href: "/#faq" },
+      { label: "기술자료실", href: "/blog" },
+      { label: "인재채용", href: "/register" },
+      { label: "A/S문의", href: "/contact#inquiry" },
     ],
   },
   {
     label: "성적서 진위확인",
-    href: "/",
+    href: "/contact#inquiry",
   },
 ] as const;
 

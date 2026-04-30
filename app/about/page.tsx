@@ -123,7 +123,10 @@ export default function AboutPage() {
       <SiteHeader activeHref="/about" />
 
       <main>
-        <section className="relative flex min-h-[716px] items-center overflow-hidden">
+        <section
+          id="greeting"
+          className="relative flex min-h-[716px] items-center overflow-hidden scroll-mt-28"
+        >
           <div className="absolute inset-0 z-0">
             <Image
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgUO24FinZdvbpQ5eVLHoNl3cwCsL4K0VZ0_WDEsQ9Eg488mFw22koYYE4Kqconat4H7DKdH0W3nfdGmuAOuNLgksRX2Nm16rB44UJSjOsupgppLtIACjauFl9T8mlWGtS_Xqn4jlUl39rV0mfb3GaPFD7L-UIQ4xa2wEU-HrKcMBx9D7JGYZavYFTgBJoICpd9Tb6iLw8NiPmeuSV1JMpvvFcWbiQnkUum3qwnX3IG8y7Sn6rKQK0kku32f7rRFX2oIg5PMS8CTTJ"
@@ -139,16 +142,66 @@ export default function AboutPage() {
           <div className="relative z-10 mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="max-w-3xl">
               <span className="mb-4 block text-sm font-bold uppercase tracking-[0.28em] text-secondary">
-                Innovation in Engineering
+                CEO Message
               </span>
               <h1 className="mb-8 text-5xl font-black leading-[1.08] tracking-[-0.02em] text-white md:text-7xl">
-                신뢰와 기술로
+                기술력과 창의력을 보유한
                 <br />
-                미래를 짓습니다
+                진취적인 기업, 큐품질관리기술
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-on-primary-container md:text-xl">
-                큐품질관리기술은 정밀한 시험장비와 고도화된 품질 관리 시스템을
-                통해 건설 현장의 안전과 가치를 혁신하는 엔지니어링 파트너입니다.
+                큐품질관리기술을 방문해주신 여러분을 응원하고 진심으로
+                환영합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-surface py-24">
+          <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+            <article className="rounded-sm border-l-4 border-secondary bg-surface-container-lowest p-10 shadow-sm">
+              <h2 className="mb-6 text-3xl font-black tracking-tight text-primary">
+                인사말
+              </h2>
+              <div className="space-y-4 text-sm leading-relaxed text-on-surface-variant md:text-base">
+                <p>
+                  큐품질관리기술은 건설공사의 필수적인 시공품질을 중점적으로
+                  최고의 건설품질관리 서비스를 제공하는 회사로써 지속적으로
+                  계획하고, 실행하며, 평가하고, 개선하고있으며 품질향상을
+                  목적으로 하자없는 표준 건축물이 되도록 만들어 보겠습니다.
+                </p>
+                <p>
+                  회사의 기술전문가들의 컨설팅을 통해 유능한 인재를 선별 및
+                  교육을 통하여 인재양성과 최상의 품질서비스를 만족 드리며
+                  착공부터 준공까지 전반적인 품질관리업무, 서류 및 대관감사로
+                  체계적인 품질관리를 보다 꼼꼼하고 디테일하게 품질검사를
+                  통하여 경제적 손실을 예방하는 서비스를 제공합니다.
+                </p>
+                <p>
+                  저희 큐품질관리기술은 회사의 경영진들과 임직원들이
+                  품질경영시스템 및 전문성을 바탕으로 지속적인 품질솔루션을
+                  받고있으며 각 분야의 전문가들을 통하여 품질 컨설팅을 바탕으로
+                  주요 업무인 건설 품질 뿐만이 아닌 다른분야의 품질 전문성을
+                  키우는 회사로 성장했습니다.
+                </p>
+                <p>
+                  여러분들과 저희 큐품질관리기술과 함께 국내 최고의 품질기술과
+                  믿음과 신뢰를 기본으로 유능한 인재양성과 적극적인
+                  품질지도관리를 실천하겠습니다.
+                </p>
+                <p>
+                  저희가 가진 모든 노하우와 전문성을 다해서 고객님의 품질관리 및
+                  경영에 동참하여 큰 힘을 보태 드리겠습니다.
+                </p>
+              </div>
+            </article>
+
+            <div className="mt-8 rounded-sm bg-primary px-8 py-6 text-right text-white shadow-sm">
+              <p className="text-lg font-semibold text-on-primary-container">
+                꿈과 목표를 가지고 성장하는 기업
+              </p>
+              <p className="mt-2 text-2xl font-black tracking-[0.03em]">
+                큐품질관리기술 임직원 일동
               </p>
             </div>
           </div>
