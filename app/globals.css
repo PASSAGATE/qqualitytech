@@ -5,7 +5,12 @@
   --foreground: #171c1f;
   --color-primary: #00152a;
   --color-primary-container: #102a43;
-   --color-secondary: #a04100;
+  --color-secondary: #ff6b2c;
+  --color-secondary-gradient: linear-gradient(
+    135deg,
+    #ff9a3c 0%,
+    #ff6b2c 100%
+  );
   --color-surface: #f6fafe;
   --color-surface-container-lowest: #ffffff;
   --color-surface-container-low: #f0f4f8;
@@ -25,6 +30,7 @@
   --color-primary: var(--color-primary);
   --color-primary-container: var(--color-primary-container);
   --color-secondary: var(--color-secondary);
+  --color-secondary-gradient: var(--color-secondary-gradient);
   --color-surface: var(--color-surface);
   --color-surface-container-lowest: var(--color-surface-container-lowest);
   --color-surface-container-low: var(--color-surface-container-low);
@@ -68,6 +74,6 @@ img {
 }
 
 ::selection {
-  background: var(--color-secondary);
+  background: #102a43;
   color: #ffffff;
 }
