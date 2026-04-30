@@ -4,9 +4,10 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 
 type NavigationItem = {
+  disabled?: boolean;
   label: string;
   href: string;
-  children?: readonly { label: string; href: string }[];
+  children?: readonly { disabled?: boolean; label: string; href: string }[];
 };
 
 export function NavMenu({
@@ -36,8 +37,11 @@ export function NavMenu({
     <div className="hidden items-center gap-10 lg:flex">
       {navigation.map((item) => {
         const isActive =
-          item.href === activeHref ||
-          item.children?.some((child) => child.href === activeHref);
+          !item.disabled &&
+          (item.href === activeHref ||
+            item.children?.some(
+              (child) => !child.disabled && child.href === activeHref,
+            ));
 
         return (
           <div
@@ -49,16 +53,26 @@ export function NavMenu({
             }}
             onMouseLeave={scheduleClose}
           >
-            <Link
-              href={item.href}
-              className={
-                isActive
-                  ? "border-b-2 border-secondary pb-1 text-base font-semibold tracking-tight text-secondary"
-                  : "text-base font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
-              }
-            >
-              {item.label}
-            </Link>
+            {item.disabled ? (
+              <button
+                type="button"
+                aria-disabled="true"
+                className="cursor-default text-base font-semibold tracking-tight text-primary"
+              >
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                href={item.href}
+                className={
+                  isActive
+                    ? "border-b-2 border-secondary pb-1 text-base font-semibold tracking-tight text-secondary"
+                    : "text-base font-semibold tracking-tight text-primary transition-colors hover:text-secondary"
+                }
+              >
+                {item.label}
+              </Link>
+            )}
           </div>
         );
       })}
@@ -74,16 +88,27 @@ export function NavMenu({
       >
         <div className="w-full border-t border-slate-200/50 bg-white shadow-md">
           <div className="mx-auto flex h-52 w-full max-w-[1600px] items-center justify-center gap-3 px-5 sm:px-8 lg:px-12">
-            {activeItem?.children?.map((child) => (
-              <Link
-                key={child.label}
-                href={child.href}
-                onClick={() => setOpenMenu(null)}
-                className="rounded-md px-4 py-2.5 text-base font-semibold text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-              >
-                {child.label}
-              </Link>
-            ))}
+            {activeItem?.children?.map((child) =>
+              child.disabled ? (
+                <button
+                  key={child.label}
+                  type="button"
+                  aria-disabled="true"
+                  className="cursor-default rounded-md px-4 py-2.5 text-base font-semibold text-primary"
+                >
+                  {child.label}
+                </button>
+              ) : (
+                <Link
+                  key={child.label}
+                  href={child.href}
+                  onClick={() => setOpenMenu(null)}
+                  className="rounded-md px-4 py-2.5 text-base font-semibold text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                >
+                  {child.label}
+                </Link>
+              ),
+            )}
           </div>
         </div>
       </div>
