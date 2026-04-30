@@ -23,7 +23,7 @@ const navigation: readonly NavigationItem[] = [
       { label: "회사 개요", href: "/about" },
       { label: "경영 이념", href: "/about" },
       { label: "조직도", href: "/about" },
-      { label: "오시는 길", href: "/about" },
+      { label: "오시는 길", href: "/about#directions" },
     ],
   },
   {
@@ -54,7 +54,7 @@ const navigation: readonly NavigationItem[] = [
       { label: "카페", href: "/blog" },
     ],
   },
-   {
+  {
     label: "고객센터",
     href: "/",
     children: [
@@ -62,23 +62,14 @@ const navigation: readonly NavigationItem[] = [
       { label: "질문/답변", href: "/" },
       { label: "기술자료실", href: "/" },
       { label: "인재채용", href: "/" },
-      { label: "A/S문의", href: "/" }
+      { label: "A/S문의", href: "/contact#inquiry" }
     ],
   },
   {
-    label: "문의하기",
-    href: "/contact",
-    children: [
-      { label: "오시는 길", href: "/contact#directions" },
-      { label: "고객 문의", href: "/contact#inquiry" },
-    ],
+    label: "성적서 진위확인",
+    href: "/",
   },
 ] as const;
-
-const adminOnlyNavigationItem: NavigationItem = {
-  label: "성적서 진위확인",
-  href: "/",
-};
 
 export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const supabase = await createServerSupabaseClient();
@@ -108,8 +99,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
 
   const dashboardHref = role === "admin" ? "/admin" : "/my-page";
   const dashboardLabel = role === "admin" ? "관리자 페이지" : "마이페이지";
-  const navigationItems =
-    role === "admin" ? [...navigation, adminOnlyNavigationItem] : navigation;
+  const navigationItems = navigation;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
