@@ -452,7 +452,14 @@ function OrganizationSection() {
     },
   ] as const;
 
-  const teams = ["품질기획팀", "시험·분석팀", "프로젝트관리팀", "고객관리팀"];
+  const teams = [
+    "마케팅 부서",
+    "관리부서",
+    "기술지원",
+    "CSI 기술관리",
+    "현장 컨설팅",
+    "현장 시험",
+  ];
 
   return (
     <section id="organization" className="bg-surface py-24 scroll-mt-28">
@@ -532,14 +539,16 @@ function OrganizationSection() {
 
             <div className="relative hidden h-20 lg:block">
               <div className="absolute left-1/2 top-0 h-10 w-px -translate-x-1/2 bg-[#cbd2dd]" />
-              <div className="absolute left-[11.5%] right-[11.5%] top-10 h-px bg-[#cbd2dd]" />
-              <div className="absolute left-[11.5%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute left-[37.2%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute right-[37.2%] top-10 h-10 w-px bg-[#cbd2dd]" />
-              <div className="absolute right-[11.5%] top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute left-[8.333%] right-[8.333%] top-10 h-px bg-[#cbd2dd]" />
+              <div className="absolute left-[8.333%] top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute left-1/4 top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute left-[41.667%] top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute right-[41.667%] top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute right-1/4 top-10 h-10 w-px bg-[#cbd2dd]" />
+              <div className="absolute right-[8.333%] top-10 h-10 w-px bg-[#cbd2dd]" />
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0 lg:grid-cols-4">
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0 lg:grid-cols-6">
               {teams.map((team) => (
                 <article
                   key={team}
