@@ -430,7 +430,7 @@ export default async function Home() {
                   Latest Insights
                 </h2>
                 <Link
-                  href="/blog"
+                  href="/blog/naver-blog"
                   className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-secondary"
                 >
                   전체 글 보기
@@ -441,7 +441,7 @@ export default async function Home() {
                 {blogPreviewPosts.map((item) => (
                   <Link
                     key={item.slug}
-                    href={`/blog#${item.slug}`}
+                    href="/blog/naver-blog"
                     className="group flex cursor-pointer flex-col gap-6 sm:flex-row"
                   >
                     <div className="relative h-32 w-full overflow-hidden rounded-sm bg-surface-container sm:w-32 sm:shrink-0">

@@ -19,55 +19,58 @@ const navigation: readonly NavigationItem[] = [
     label: "회사소개",
     href: "/about",
     children: [
-      { label: "인사말", href: "/about" },
-      { label: "회사 개요", href: "/about" },
-      { label: "경영 이념", href: "/about" },
-      { label: "조직도", href: "/about" },
+      { label: "인사말", href: "/about#greeting" },
+      { label: "회사 개요", href: "/about#overview" },
+      { label: "경영 이념", href: "/about#philosophy" },
+      { label: "조직도", href: "/about#organization" },
       { label: "오시는 길", href: "/about#directions" },
     ],
   },
   {
     label: "품질 경영",
-    href: "/",
+    href: "/quality",
     children: [
-      { label: "품질 방침", href: "/" },
-      { label: "품질 인증", href: "/" },
+      { label: "품질 방침", href: "/quality#policy" },
+      { label: "품질 인증", href: "/quality#certifications" },
     ],
   },
   {
     label: "사업분야",
-    href: "/",
+    href: "/business/quality-management-consulting",
     children: [
-      { label: "건설 품질 관리 및 컨설팅", href: "/" },
-      { label: "품질 (시험,관리)계획서 작성 대행", href: "/" },
-      { label: "건설 재료 시험 및 검사", href: "/" },
-      { label: "콘크리트 균열 및 재료 분리 관리", href: "/" },
+      {
+        label: "건설 품질 관리 및 컨설팅",
+        href: "/business/quality-management-consulting",
+      },
+      { label: "품질 (시험,관리)계획서 작성 대행", href: "/#services" },
+      { label: "건설 재료 시험 및 검사", href: "/#equipment" },
+      { label: "콘크리트 균열 및 재료 분리 관리", href: "/#services" },
     ],
   },
   { label: "시험장비", href: "/equipment" },
   {
     label: "홍보센터",
-    href: "/blog",
+    href: "/blog/youtube",
     children: [
-      { label: "유튜브", href: "/blog" },
-      { label: "블로그", href: "/blog" },
-      { label: "카페", href: "/blog" },
+      { label: "유튜브", href: "/blog/youtube" },
+      { label: "블로그", href: "/blog/naver-blog" },
+      { label: "카페", href: "/blog/cafe" },
     ],
   },
   {
     label: "고객센터",
-    href: "/",
+    href: "/support/notices",
     children: [
-      { label: "공지사항", href: "/" },
-      { label: "질문/답변", href: "/" },
-      { label: "기술자료실", href: "/" },
-      { label: "인재채용", href: "/" },
-      { label: "A/S문의", href: "/contact#inquiry" }
+      { label: "공지사항", href: "/support/notices" },
+      { label: "질문/답변", href: "/support/qna" },
+      { label: "기술자료실", href: "/support/resources" },
+      { label: "인재채용", href: "/support/careers" },
+      { label: "A/S문의", href: "/support/contact" },
     ],
   },
   {
     label: "성적서 진위확인",
-    href: "/",
+    href: "/contact#inquiry",
   },
 ] as const;
 
@@ -189,33 +192,39 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
 
               <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
-                  {navigationItems.map((item) => (
-                    <div key={item.label}>
-                      <Link
-                        href={item.href}
-                        className={
-                          item.href === activeHref
-                            ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
-                            : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                        }
-                      >
-                        {item.label}
-                      </Link>
-                      {item.children ? (
-                        <div className="ml-3 flex flex-col">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.label}
-                              href={child.href}
-                              className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
+                  {navigationItems.map((item) => {
+                    const isActive =
+                      item.href === activeHref ||
+                      item.children?.some((child) => child.href === activeHref);
+
+                    return (
+                      <div key={item.label}>
+                        <Link
+                          href={item.href}
+                          className={
+                            isActive
+                              ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
+                              : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
+                          }
+                        >
+                          {item.label}
+                        </Link>
+                        {item.children ? (
+                          <div className="ml-3 flex flex-col">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                   {user ? (
                     <>
                       <Link

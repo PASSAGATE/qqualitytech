@@ -47,7 +47,7 @@ export function SiteFooter() {
             {[
               { label: "회사소개", href: "/about" },
               { label: "장비 카탈로그", href: "/equipment" },
-              { label: "블로그", href: "/blog" },
+              { label: "블로그", href: "/blog/naver-blog" },
               { label: "온라인 문의", href: "/contact" },
             ].map((item) => (
               <li key={item.label}>
@@ -69,7 +69,7 @@ export function SiteFooter() {
               { label: "이용약관", href: "#" },
               { label: "개인정보처리방침", href: "#" },
               { label: "자주 묻는 질문", href: "/#faq" },
-              { label: "A/S 신청", href: "/contact" },
+              { label: "A/S 신청", href: "/support/contact" },
             ].map((item) => (
               <li key={item.label}>
                 {item.href === "#" ? (

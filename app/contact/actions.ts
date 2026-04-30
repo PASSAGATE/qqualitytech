@@ -3,11 +3,22 @@
 import { redirect } from "next/navigation";
 import { sendInquiryEmail } from "@/lib/email/send-inquiry-email";
 
-function buildContactErrorRedirect(message: string) {
-  return `/contact?error=${encodeURIComponent(message)}`;
+const allowedContactRedirectPaths = new Set(["/contact", "/support/contact"]);
+
+function getContactRedirectPath(formData: FormData) {
+  const redirectPath = String(formData.get("redirect_path") ?? "").trim();
+
+  return allowedContactRedirectPaths.has(redirectPath)
+    ? redirectPath
+    : "/contact";
+}
+
+function buildContactErrorRedirect(message: string, redirectPath: string) {
+  return `${redirectPath}?error=${encodeURIComponent(message)}#inquiry`;
 }
 
 export async function createContactInquiryAction(formData: FormData) {
+  const redirectPath = getContactRedirectPath(formData);
   const companyName = String(formData.get("company_name") ?? "").trim();
   const customerName = String(formData.get("customer_name") ?? "").trim();
   const customerPhone = String(formData.get("customer_phone") ?? "").trim();
@@ -24,12 +35,17 @@ export async function createContactInquiryAction(formData: FormData) {
     !inquiryType ||
     !detail
   ) {
-    redirect(buildContactErrorRedirect("필수 항목을 모두 입력해 주세요."));
+    redirect(
+      buildContactErrorRedirect("필수 항목을 모두 입력해 주세요.", redirectPath),
+    );
   }
 
   if (!consentChecked) {
     redirect(
-      buildContactErrorRedirect("개인정보 수집 및 이용 동의가 필요합니다."),
+      buildContactErrorRedirect(
+        "개인정보 수집 및 이용 동의가 필요합니다.",
+        redirectPath,
+      ),
     );
   }
 
@@ -62,8 +78,8 @@ export async function createContactInquiryAction(formData: FormData) {
       error instanceof Error
         ? error.message
         : "알 수 없는 오류로 이메일 전송에 실패했습니다.";
-    redirect(buildContactErrorRedirect(messageText));
+    redirect(buildContactErrorRedirect(messageText, redirectPath));
   }
 
-  redirect("/contact?sent=1");
+  redirect(`${redirectPath}?sent=1#inquiry`);
 }
