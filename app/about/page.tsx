@@ -14,7 +14,7 @@ import { SiteHeader } from "../../components/site-header";
 export const metadata: Metadata = {
   title: "회사소개 | 큐품질관리기술",
   description:
-    "큐품질관리기술의 비전, 핵심 가치, 사업 분야, 주요 연혁과 인증 현황을 소개합니다.",
+    "큐품질관리기술의 인사말, 회사 개요, 경영 이념, 조직도와 오시는 길을 소개합니다.",
 };
 
 function Icon({
@@ -69,7 +69,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-surface py-24">
+        <section className="border-b border-outline-variant/20 bg-surface py-24">
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <article className="rounded-sm border-l-4 border-secondary bg-surface-container-lowest p-10 shadow-sm">
               <h2 className="mb-6 text-3xl font-black tracking-tight text-primary">
@@ -121,7 +121,7 @@ export default function AboutPage() {
 
         <section
           id="overview"
-          className="bg-surface-container-low py-24 scroll-mt-28"
+          className="bg-[#dfe8f1] py-24 scroll-mt-28"
         >
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -220,7 +220,7 @@ export default function AboutPage() {
 
         <section
           id="philosophy"
-          className="bg-surface py-24 scroll-mt-28"
+          className="border-y border-outline-variant/20 bg-surface py-24 scroll-mt-28"
         >
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="mb-10">
@@ -295,7 +295,7 @@ export default function AboutPage() {
 
         <section
           id="organization"
-          className="bg-surface py-24 scroll-mt-28"
+          className="bg-[#dfe8f1] py-24 scroll-mt-28"
         >
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="mb-10">
@@ -397,7 +397,7 @@ export default function AboutPage() {
 
         <section
           id="directions"
-          className="bg-surface-container-low py-24 scroll-mt-28"
+          className="border-t border-outline-variant/20 bg-surface py-24 scroll-mt-28"
         >
           <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
             <div className="rounded-sm border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-sm md:p-12">
