@@ -15,6 +15,7 @@ const contactCards: Array<{
   icon: LucideIcon;
   label: string;
   value: string;
+  href: string;
   tone: string;
   iconClassName: string;
 }> = [
@@ -22,6 +23,7 @@ const contactCards: Array<{
     icon: Phone,
     label: "Direct Call",
     value: "010-6666-5269",
+    href: "tel:01066665269",
     tone: "bg-primary text-white group-hover:bg-secondary",
     iconClassName: "text-white",
   },
@@ -29,6 +31,7 @@ const contactCards: Array<{
     icon: Mail,
     label: "Email Support",
     value: "qqstart@naver.com",
+    href: "mailto:qqstart@naver.com",
     tone: "bg-primary text-white group-hover:bg-secondary",
     iconClassName: "text-white",
   },
@@ -82,12 +85,13 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
         <section className="mx-auto w-full max-w-[1600px] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
           <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {contactCards.map((card) => (
-              <article
+              <a
                 key={card.label}
-                className="group flex items-center gap-6 bg-surface-container-low p-6 transition-all"
+                href={card.href}
+                className="group flex items-center gap-6 bg-surface-container-low p-6 transition-all hover:bg-surface-container"
               >
                 <div
-                  className={`flex h-14 w-14 items-center justify-center rounded-sm transition-colors ${card.tone}`}
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-sm transition-colors ${card.tone}`}
                 >
                   <Icon
                     icon={card.icon}
@@ -98,9 +102,11 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
                   <p className="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                     {card.label}
                   </p>
-                  <p className="text-xl font-black text-primary">{card.value}</p>
+                  <p className="text-xl font-black text-primary transition-colors group-hover:text-secondary">
+                    {card.value}
+                  </p>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
 
