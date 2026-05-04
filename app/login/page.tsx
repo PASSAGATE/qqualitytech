@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight, Lock, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, User } from "lucide-react";
 import { loginAction } from "./actions";
 
 export const metadata: Metadata = {
-  title: "관리자 로그인 | 큐품질관리기술",
+  title: "로그인 | 큐품질관리기술",
   description:
-    "큐품질관리기술 관리자 시스템 로그인 페이지에서 권한이 있는 계정으로 접속할 수 있습니다.",
+    "큐품질관리기술 로그인 페이지에서 권한이 있는 계정으로 접속할 수 있습니다.",
 };
 
 function Icon({
@@ -44,29 +44,30 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,21,42,0.92)_0%,rgba(16,42,67,0.85)_100%)]" />
       </div>
 
-      <div className="pointer-events-none fixed bottom-0 right-0 z-20 h-1 w-1/4 bg-secondary/30" />
-      <div className="pointer-events-none fixed bottom-12 right-12 z-10 hidden select-none text-[100px] font-black uppercase text-white/[0.03] lg:block">
-        Master
-      </div>
-
       <div className="relative z-10 grid w-full max-w-[1200px] gap-0 md:grid-cols-12">
-        <section className="hidden flex-col justify-center pr-12 md:col-span-7 md:flex">
-          <div className="mb-8">
-            <span className="mb-4 inline-block bg-secondary px-3 py-1 text-xs font-bold tracking-[0.28em] text-white uppercase">
-              Precision Engineering
-            </span>
-            <h1 className="text-5xl font-black leading-[1.1] tracking-[-0.03em] text-white lg:text-7xl">
-              QualityTech
-              <br />
-              <span className="text-[#ffb693]">EQUIP-MASTER</span>
-            </h1>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-on-primary-container">
-              산업용 장비의 정밀 측정 및 유지보수 관리를 위한 통합 스마트
-              솔루션. 최고 수준의 엔지니어링 표준을 디지털로 경험하십시오.
-            </p>
-          </div>
+        {/* Left branding panel */}
+        <section className="hidden flex-col justify-center pr-12 md:col-span-5 md:flex">
+          <Link
+            href="/"
+            className="mb-8 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-all hover:bg-white/90 active:scale-95"
+          >
+            <ArrowLeft className="size-4" strokeWidth={1.8} />
+            홈으로 돌아가기
+          </Link>
+          <span className="mb-4 inline-block bg-secondary px-3 py-1 text-xs font-bold tracking-[0.28em] text-white uppercase">
+            Member Login
+          </span>
+          <h1 className="text-5xl font-black leading-[1.1] tracking-[-0.03em] text-white">
+            큐품질관리기술
+            <br />
+            <span className="text-[#ffb693]">로그인</span>
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-on-primary-container">
+            산업 현장의 품질관리 전문기업. 시험장비 구매 및 임대, 상담 서비스를
+            이용하시려면 로그인하세요.
+          </p>
 
-          <div className="mt-12 flex gap-12">
+          <div className="mt-10 flex gap-12">
             <div>
               <div className="text-3xl font-bold text-white">99.9%</div>
               <div className="text-sm font-medium text-on-primary-container">
@@ -82,26 +83,26 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </section>
 
-        <section className="flex items-center md:col-span-5">
+        {/* Right form panel */}
+        <section className="flex items-center md:col-span-7">
           <div className="w-full border border-white/20 bg-white/95 p-8 shadow-[0px_16px_48px_rgba(23,28,31,0.08)] backdrop-blur-md md:p-12">
-            <div className="mb-10 text-center md:hidden">
+            {/* Mobile homepage link */}
+            <div className="mb-6 md:hidden">
               <Link
                 href="/"
-                className="text-2xl font-black tracking-tight text-primary"
+                className="inline-flex items-center gap-2 rounded-md border border-outline-variant/40 px-4 py-2 text-sm font-semibold text-on-surface-variant transition-all hover:border-secondary hover:text-secondary"
               >
-                QualityTech
+                <ArrowLeft className="size-4" strokeWidth={1.8} />
+                홈으로 돌아가기
               </Link>
-              <p className="mt-1 text-sm text-on-surface-variant">
-                관리자 시스템 로그인
-              </p>
             </div>
 
-            <div className="mb-10 hidden md:block">
+            <div className="mb-8">
               <h2 className="text-2xl font-bold tracking-tight text-primary">
-                관리자 로그인
+                로그인
               </h2>
               <p className="mt-2 text-sm text-on-surface-variant">
-                시스템 권한이 있는 관리자 계정으로 접속하십시오.
+                계정 정보를 입력하여 로그인하세요.
               </p>
             </div>
 
@@ -112,7 +113,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant"
                 >
                   <Icon icon={User} className="size-[18px]" />
-                  관리자 이메일
+                  이메일
                 </label>
                 <input
                   id="admin-email"
@@ -120,7 +121,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="admin@company.com"
+                  placeholder="example@email.com"
                   className="w-full border-b-2 border-transparent bg-surface-container-highest px-4 py-3 font-medium text-primary outline-none transition-all focus:border-secondary"
                 />
               </div>
@@ -187,38 +188,27 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </p>
             </form>
 
-            <div className="mt-12 flex flex-col items-center gap-4 border-t border-outline-variant/20 pt-8">
-              <Link
-                href="/register"
-                className="text-sm font-bold text-secondary transition-colors hover:text-[#fd7629]"
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4 border-t border-outline-variant/20 pt-6 text-center">
+              <a
+                href="#"
+                className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
-                회원가입
+                이용약관
+              </a>
+              <span className="text-[11px] text-outline-variant">|</span>
+              <a
+                href="#"
+                className="text-[11px] font-bold text-on-surface-variant transition-colors hover:text-primary"
+              >
+                개인정보처리방침
+              </a>
+              <span className="text-[11px] text-outline-variant">|</span>
+              <Link
+                href="/contact"
+                className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
+              >
+                고객지원
               </Link>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-center">
-                <a
-                  href="#"
-                  className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
-                >
-                  이용약관
-                </a>
-                <span className="text-[11px] text-outline-variant">|</span>
-                <a
-                  href="#"
-                  className="text-[11px] font-bold text-on-surface-variant transition-colors hover:text-primary"
-                >
-                  개인정보처리방침
-                </a>
-                <span className="text-[11px] text-outline-variant">|</span>
-                <Link
-                  href="/contact"
-                  className="text-[11px] font-medium text-on-surface-variant transition-colors hover:text-primary"
-                >
-                  고객지원
-                </Link>
-              </div>
-              <p className="text-center text-[10px] font-medium tracking-[0.28em] text-outline-variant uppercase">
-                © 2024 QualityTech Industrial Systems Inc.
-              </p>
             </div>
           </div>
         </section>
