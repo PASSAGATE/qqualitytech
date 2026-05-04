@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { NavMenu } from "./nav-menu";
-import { UserRound } from "lucide-react";
+import { Phone, UserRound } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { logoutAction } from "@/app/admin/actions";
@@ -185,14 +185,17 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                 </Link>
                 <Link
                   href="/contact"
-                  className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
-                    boxShadow: "0 12px 24px rgba(255, 107, 44, 0.35)",
-                  }}
+                  className="group hidden overflow-hidden rounded-md transition-all duration-200 active:scale-95 sm:inline-flex"
                 >
-                  상담 및 견적 요청
+                  <span
+                    className="flex items-center px-3 py-2.5"
+                    style={{ background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)" }}
+                  >
+                    <Phone className="size-4 text-white" strokeWidth={1.8} />
+                  </span>
+                  <span className="flex items-center bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors group-hover:bg-primary-container">
+                    상담 및 견적 요청
+                  </span>
                 </Link>
               </div>
             )}
