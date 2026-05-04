@@ -1,22 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ArrowLeft,
-  ClipboardList,
-  Home,
-  LogOut,
-  Truck,
-  UserRound,
-} from "lucide-react";
+import { ArrowLeft, Truck } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { logoutAction } from "../../../admin/actions";
 import {
   orderStatusMeta,
   orderTimeline,
   orderTypeLabel,
   paymentStatusMeta,
 } from "@/lib/ui/order-status";
+import { MyPageShell } from "../../_components/my-page-shell";
 
 export const metadata: Metadata = {
   title: "주문 상세 | 큐품질관리기술",
@@ -154,210 +147,154 @@ export default async function MyOrderDetailPage({ params }: MyOrderDetailPagePro
   const timeline = orderTimeline(order.orderType, order.status);
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface xl:pl-64">
-      <aside className="border-b border-outline-variant/20 bg-surface xl:fixed xl:inset-y-0 xl:left-0 xl:flex xl:w-64 xl:flex-col xl:border-r xl:border-b-0">
-        <div className="p-6">
-          <h1 className="text-xl font-black tracking-[-0.04em] text-primary">
-            사용자 센터
-          </h1>
-          <p className="mt-1 text-xs text-on-surface-variant">내 계정 v1.0</p>
-        </div>
-
-        <nav className="flex flex-col gap-1 px-3 pb-4 xl:flex-1 xl:overflow-y-auto xl:pb-0">
-          <Link
-            href="/"
-            className="inline-flex w-full items-center gap-3 rounded-sm px-4 py-3 text-left font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high"
-          >
-            <Home className="size-5" />
-            <span>홈페이지</span>
-          </Link>
-          <Link
-            href="/my-page"
-            className="inline-flex w-full items-center gap-3 rounded-sm px-4 py-3 text-left font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high"
-          >
-            <UserRound className="size-5" />
-            <span>내 프로필</span>
-          </Link>
+    <MyPageShell activeNav="orders">
+      <div className="w-full space-y-6">
+        <div className="flex items-center justify-between gap-3 border-b border-outline-variant/10 pb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-[-0.03em] text-primary">
+              주문 상세
+            </h1>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              주문 상태와 품목 상세를 확인할 수 있습니다.
+            </p>
+          </div>
           <Link
             href="/my-page/orders"
-            className="inline-flex w-full items-center gap-3 rounded-sm border-r-4 border-secondary bg-surface-container px-4 py-3 text-left font-bold text-primary"
+            className="inline-flex items-center gap-2 rounded-sm bg-surface-container-high px-3 py-2 text-sm font-bold text-primary transition-colors hover:bg-surface-container-highest"
           >
-            <ClipboardList className="size-5" />
-            <span>내 주문 내역</span>
+            <ArrowLeft className="size-4" />
+            목록으로
           </Link>
-        </nav>
-
-        <div className="hidden border-t border-outline-variant/20 p-4 xl:mt-auto xl:flex xl:flex-col xl:gap-1">
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="inline-flex w-full items-center gap-3 rounded-sm px-4 py-3 text-left font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high"
-            >
-              <LogOut className="size-5" />
-              <span>로그아웃</span>
-            </button>
-          </form>
         </div>
-      </aside>
 
-      <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-40 border-b border-outline-variant/20 bg-white/85 px-5 shadow-sm backdrop-blur-md sm:px-8 lg:px-12">
-          <div className="flex min-h-16 items-center justify-between py-4">
-            <span className="text-lg font-bold tracking-[-0.03em] text-primary">
-              MY PAGE
-            </span>
-          </div>
-        </header>
-
-        <main className="flex-1 p-5 sm:p-8 lg:p-12">
-          <div className="w-full space-y-6">
-            <div className="flex items-center justify-between gap-3 border-b border-outline-variant/10 pb-6">
-              <div>
-                <h1 className="text-3xl font-extrabold tracking-[-0.03em] text-primary">
-                  주문 상세
-                </h1>
-                <p className="mt-1 text-sm text-on-surface-variant">
-                  주문 상태와 품목 상세를 확인할 수 있습니다.
-                </p>
-              </div>
-              <Link
-                href="/my-page/orders"
-                className="inline-flex items-center gap-2 rounded-sm bg-surface-container-high px-3 py-2 text-sm font-bold text-primary transition-colors hover:bg-surface-container-highest"
-              >
-                <ArrowLeft className="size-4" />
-                목록으로
-              </Link>
+        <section className="grid gap-6 lg:grid-cols-3">
+          <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm lg:col-span-2">
+            <h2 className="text-lg font-bold text-primary">주문 품목</h2>
+            <div className="mt-4 overflow-x-auto">
+              <table className="min-w-[720px] w-full border-collapse text-left">
+                <thead>
+                  <tr className="bg-surface-container-high text-on-surface-variant">
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                      품목
+                    </th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                      수량
+                    </th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
+                      임대 개월
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
+                      소계
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/10">
+                  {order.items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-4 py-3 text-sm text-on-surface">
+                        {item.equipmentName ?? item.equipmentCode ?? "-"}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-semibold text-primary">
+                        {item.count}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-semibold text-secondary">
+                        {item.rentalMonths ?? "-"}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-bold text-primary">
+                        {item.subtotalPrice.toLocaleString("ko-KR")}원
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </article>
 
-            <section className="grid gap-6 lg:grid-cols-3">
-              <article className="rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm lg:col-span-2">
-                <h2 className="text-lg font-bold text-primary">주문 품목</h2>
-                <div className="mt-4 overflow-x-auto">
-                  <table className="min-w-[720px] w-full border-collapse text-left">
-                    <thead>
-                      <tr className="bg-surface-container-high text-on-surface-variant">
-                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
-                          품목
-                        </th>
-                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
-                          수량
-                        </th>
-                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-[0.2em]">
-                          임대 개월
-                        </th>
-                        <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-[0.2em]">
-                          소계
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-outline-variant/10">
-                      {order.items.map((item) => (
-                        <tr key={item.id}>
-                          <td className="px-4 py-3 text-sm text-on-surface">
-                            {item.equipmentName ?? item.equipmentCode ?? "-"}
-                          </td>
-                          <td className="px-4 py-3 text-sm font-semibold text-primary">
-                            {item.count}
-                          </td>
-                          <td className="px-4 py-3 text-sm font-semibold text-secondary">
-                            {item.rentalMonths ?? "-"}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm font-bold text-primary">
-                            {item.subtotalPrice.toLocaleString("ko-KR")}원
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </article>
-
-              <article className="space-y-4 rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
-                <h2 className="text-lg font-bold text-primary">주문 정보</h2>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-semibold text-primary">주문 구분:</span>{" "}
-                    {orderTypeLabel(order.orderType)}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="font-semibold text-primary">주문 상태:</span>{" "}
+          <article className="space-y-4 rounded-sm border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-primary">주문 정보</h2>
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="font-semibold text-primary">주문 구분:</span>{" "}
+                {orderTypeLabel(order.orderType)}
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="font-semibold text-primary">주문 상태:</span>{" "}
+                <span
+                  className={`rounded-sm px-2 py-1 text-xs font-bold ${orderStatus.className}`}
+                >
+                  {orderStatus.label}
+                </span>
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="font-semibold text-primary">결제 상태:</span>{" "}
+                <span
+                  className={`rounded-sm px-2 py-1 text-xs font-bold ${paymentStatus.className}`}
+                >
+                  {paymentStatus.label}
+                </span>
+              </p>
+              <p>
+                <span className="font-semibold text-primary">주문일:</span>{" "}
+                {formatDateTime(order.createdAt)}
+              </p>
+              <p className="inline-flex items-center gap-1">
+                <Truck className="size-4 text-on-surface-variant" />
+                <span>{order.deliveryMethod === "delivery" ? "배송" : "픽업"}</span>
+              </p>
+              {order.address ? (
+                <p className="text-on-surface-variant">{order.address}</p>
+              ) : null}
+            </div>
+            <div className="border-t border-outline-variant/20 pt-3">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                진행 타임라인
+              </p>
+              <ol className="mt-2 space-y-2">
+                {timeline.steps.map((step, index) => (
+                  <li
+                    key={`${step.label}-${index}`}
+                    className="flex items-center gap-2"
+                  >
                     <span
-                      className={`rounded-sm px-2 py-1 text-xs font-bold ${orderStatus.className}`}
+                      className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-bold ${
+                        step.state === "done"
+                          ? "bg-[#e7f6ec] text-[#1d7a3a]"
+                          : step.state === "current"
+                            ? "bg-[#e8f1fd] text-[#175cd3]"
+                            : "bg-surface-container-high text-on-surface-variant"
+                      }`}
                     >
-                      {orderStatus.label}
+                      {index + 1}
                     </span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="font-semibold text-primary">결제 상태:</span>{" "}
                     <span
-                      className={`rounded-sm px-2 py-1 text-xs font-bold ${paymentStatus.className}`}
+                      className={`text-sm ${
+                        step.state === "upcoming"
+                          ? "text-on-surface-variant"
+                          : "font-semibold text-primary"
+                      }`}
                     >
-                      {paymentStatus.label}
+                      {step.label}
                     </span>
-                  </p>
-                  <p>
-                    <span className="font-semibold text-primary">주문일:</span>{" "}
-                    {formatDateTime(order.createdAt)}
-                  </p>
-                  <p className="inline-flex items-center gap-1">
-                    <Truck className="size-4 text-on-surface-variant" />
-                    <span>
-                      {order.deliveryMethod === "delivery" ? "배송" : "픽업"}
-                    </span>
-                  </p>
-                  {order.address ? (
-                    <p className="text-on-surface-variant">{order.address}</p>
-                  ) : null}
-                </div>
-                <div className="border-t border-outline-variant/20 pt-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
-                    진행 타임라인
-                  </p>
-                  <ol className="mt-2 space-y-2">
-                    {timeline.steps.map((step, index) => (
-                      <li key={`${step.label}-${index}`} className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                            step.state === "done"
-                              ? "bg-[#e7f6ec] text-[#1d7a3a]"
-                              : step.state === "current"
-                                ? "bg-[#e8f1fd] text-[#175cd3]"
-                                : "bg-surface-container-high text-on-surface-variant"
-                          }`}
-                        >
-                          {index + 1}
-                        </span>
-                        <span
-                          className={`text-sm ${
-                            step.state === "upcoming"
-                              ? "text-on-surface-variant"
-                              : "font-semibold text-primary"
-                          }`}
-                        >
-                          {step.label}
-                        </span>
-                      </li>
-                    ))}
-                  </ol>
-                  {timeline.isTerminal && timeline.terminalLabel ? (
-                    <p className="mt-2 text-xs font-semibold text-[#b42318]">
-                      최종 상태: {timeline.terminalLabel}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="border-t border-outline-variant/20 pt-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
-                    총 결제 금액
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-primary">
-                    {order.totalPrice.toLocaleString("ko-KR")}원
-                  </p>
-                </div>
-              </article>
-            </section>
-          </div>
-        </main>
+                  </li>
+                ))}
+              </ol>
+              {timeline.isTerminal && timeline.terminalLabel ? (
+                <p className="mt-2 text-xs font-semibold text-[#b42318]">
+                  최종 상태: {timeline.terminalLabel}
+                </p>
+              ) : null}
+            </div>
+            <div className="border-t border-outline-variant/20 pt-3">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+                총 결제 금액
+              </p>
+              <p className="mt-1 text-2xl font-black text-primary">
+                {order.totalPrice.toLocaleString("ko-KR")}원
+              </p>
+            </div>
+          </article>
+        </section>
       </div>
-    </div>
+    </MyPageShell>
   );
 }
