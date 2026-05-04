@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Plus, ShoppingCart } from "lucide-react";
-import { createPortal } from "react-dom";
 import type { EquipmentAdminRow } from "./repository";
 
 type EquipmentCardProps = {
@@ -56,13 +55,8 @@ export function EquipmentCard({ row }: EquipmentCardProps) {
   const [addFxPhase, setAddFxPhase] = useState<"hidden" | "center" | "fly">(
     "hidden",
   );
-  const [mounted, setMounted] = useState(false);
   const detailHref = `/equipment/${row.item.slug}?id=${row.equipmentId}`;
   const hasAnyMode = row.saleEnabled || row.rentalEnabled;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <>
@@ -179,24 +173,21 @@ export function EquipmentCard({ row }: EquipmentCardProps) {
         </div>
 
       </article>
-      {mounted && addFxPhase !== "hidden"
-        ? createPortal(
-            <div className="pointer-events-none fixed inset-0 z-[150]">
-              <div
-                className={
-                  addFxPhase === "center"
-                    ? "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white shadow-2xl transition-all duration-700"
-                    : "absolute left-1/2 top-1/2 flex translate-x-[42vw] -translate-y-[44vh] scale-50 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white opacity-0 shadow-2xl transition-all duration-700"
-                }
-              >
-                <ShoppingCart className="size-5" aria-hidden="true" />
-                <Plus className="size-4" aria-hidden="true" />
-                장바구니에 추가됨
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+      {addFxPhase !== "hidden" ? (
+        <div className="pointer-events-none fixed inset-0 z-[150]">
+          <div
+            className={
+              addFxPhase === "center"
+                ? "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white shadow-2xl transition-all duration-700"
+                : "absolute left-1/2 top-1/2 flex translate-x-[42vw] -translate-y-[44vh] scale-50 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white opacity-0 shadow-2xl transition-all duration-700"
+            }
+          >
+            <ShoppingCart className="size-5" aria-hidden="true" />
+            <Plus className="size-4" aria-hidden="true" />
+            장바구니에 추가됨
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
