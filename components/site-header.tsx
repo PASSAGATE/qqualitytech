@@ -59,12 +59,13 @@ const navigation: readonly NavigationItem[] = [
   },
   { label: "시험장비", href: "/equipment" },
   {
-    label: "홍보센터",
+    label: "무료자료",
     href: "/blog/youtube",
     children: [
-      { label: "유튜브", href: "/blog/youtube" },
-      { label: "블로그", href: "/blog/naver-blog" },
-      { label: "카페", href: "/blog/cafe" },
+      { label: "기술자료", href: "/blog/naver-blog" },
+      { label: "정보자료", href: "/blog/cafe" },
+      { label: "영상자료", href: "/blog/youtube" },
+      { label: "점검자료", href: "/blog/openchat" },
     ],
   },
   {
@@ -116,7 +117,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const navigationItems = navigation;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 min-w-[1244px] border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
         <div className="flex h-24 items-center justify-between">
           <Link
