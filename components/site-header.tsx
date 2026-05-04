@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { NavMenu } from "./nav-menu";
 import { Phone, UserRound } from "lucide-react";
+import { MobileMenu } from "./mobile-menu";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { resolveUserRoleFromBackend } from "@/lib/backend/user-role";
 import { logoutAction } from "@/app/admin/actions";
@@ -200,109 +201,14 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                 </Link>
               </div>
             )}
-            <details className="group lg:hidden">
-              <summary className="inline-flex list-none items-center rounded-md border border-outline-variant/80 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary [&::-webkit-details-marker]:hidden">
-                메뉴
-              </summary>
-
-              <div className="absolute left-0 right-0 top-full border-t border-slate-200/30 bg-white/95 px-5 pb-5 shadow-xl backdrop-blur-xl sm:px-8">
-                <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 pt-4">
-                  {navigationItems.map((item) => {
-                    const isActive =
-                      !item.disabled &&
-                      (item.href === activeHref ||
-                        item.children?.some(
-                          (child) => !child.disabled && child.href === activeHref,
-                        ));
-
-                    return (
-                      <div key={item.label}>
-                        {item.disabled ? (
-                          <button
-                            type="button"
-                            aria-disabled="true"
-                            className="cursor-default rounded-md px-4 py-3 text-left text-sm font-semibold tracking-tight text-primary"
-                          >
-                            {item.label}
-                          </button>
-                        ) : (
-                          <Link
-                            href={item.href}
-                            className={
-                              isActive
-                                ? "rounded-md bg-secondary/10 px-4 py-3 text-sm font-semibold tracking-tight text-secondary"
-                                : "rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                            }
-                          >
-                            {item.label}
-                          </Link>
-                        )}
-                        {item.children ? (
-                          <div className="ml-3 flex flex-col">
-                            {item.children.map((child) => (
-                              child.disabled ? (
-                                <button
-                                  key={child.label}
-                                  type="button"
-                                  aria-disabled="true"
-                                  className="cursor-default rounded-md px-4 py-2 text-left text-sm font-medium text-on-surface-variant"
-                                >
-                                  {child.label}
-                                </button>
-                              ) : (
-                                <Link
-                                  key={child.label}
-                                  href={child.href}
-                                  className="rounded-md px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-secondary"
-                                >
-                                  {child.label}
-                                </Link>
-                              )
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                  {user ? (
-                    <>
-                      <Link
-                        href={dashboardHref}
-                        className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                      >
-                        {dashboardLabel}
-                      </Link>
-                      <Link
-                        href="/cart"
-                        className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                      >
-                        장바구니
-                        {cartCount > 0 ? ` (${cartCount})` : ""}
-                      </Link>
-                    </>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="rounded-md px-4 py-3 text-sm font-semibold tracking-tight text-primary transition-colors hover:bg-surface-container-low hover:text-secondary"
-                    >
-                      로그인
-                    </Link>
-                  )}
-
-                  <Link
-                    href="/contact"
-                    className="mt-2 inline-flex items-center justify-center rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:hidden"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
-                      boxShadow: "0 10px 22px rgba(255, 107, 44, 0.35)",
-                    }}
-                  >
-                    상담 및 견적 요청
-                  </Link>
-                </div>
-              </div>
-            </details>
+            <MobileMenu
+              navigation={navigationItems}
+              activeHref={activeHref}
+              user={!!user}
+              dashboardHref={dashboardHref}
+              dashboardLabel={dashboardLabel}
+              cartCount={cartCount}
+            />
           </div>
         </div>
       </div>
