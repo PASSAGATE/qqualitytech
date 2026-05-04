@@ -61,7 +61,7 @@ export default async function EquipmentDetailPage({
     fetchEquipmentCatalog(),
   ]);
   const preferredRow = id
-    ? adminRows.find((row) => row.equipmentId === id) ?? null
+    ? (adminRows.find((row) => row.equipmentId === id) ?? null)
     : null;
   const item = preferredRow?.item ?? itemBySlug;
 
@@ -265,7 +265,7 @@ export default async function EquipmentDetailPage({
                       기술 지원 센터
                     </p>
                     <p className="text-lg font-bold text-primary">
-                      010-6666-5269
+                     010-8941-4628
                     </p>
                   </div>
                 </div>

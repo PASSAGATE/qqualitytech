@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import {
-  Download,
-  Headset,
-  MessageSquare,
-  Search,
-} from "lucide-react";
+import { Download, Headset, MessageSquare, Search } from "lucide-react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { fetchAdminEquipmentRows } from "./repository";
@@ -149,197 +144,200 @@ export default async function EquipmentPage({
         </section>
 
         <div className="mx-auto max-w-[1600px] px-5 py-12 sm:px-8 lg:px-12">
-        <section className="sticky top-24 z-40 mb-12">
-          <form
-            method="get"
-            className="flex flex-col items-center gap-6 rounded-xl bg-surface-container-lowest p-4 shadow-sm lg:flex-row"
-          >
-            <div className="group relative w-full lg:w-96">
-              <Icon
-                icon={Search}
-                className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-outline transition-colors group-focus-within:text-secondary"
-              />
-              <input
-                type="text"
-                name="q"
-                defaultValue={q ?? ""}
-                placeholder="장비 명칭 또는 모델 번호 검색"
-                className="w-full rounded-md border-none bg-surface-container-highest py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-secondary"
-              />
-            </div>
+          <section className="sticky top-24 z-40 mb-12">
+            <form
+              method="get"
+              className="flex flex-col items-center gap-6 rounded-xl bg-surface-container-lowest p-4 shadow-sm lg:flex-row"
+            >
+              <div className="group relative w-full lg:w-96">
+                <Icon
+                  icon={Search}
+                  className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-outline transition-colors group-focus-within:text-secondary"
+                />
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={q ?? ""}
+                  placeholder="장비 명칭 또는 모델 번호 검색"
+                  className="w-full rounded-md border-none bg-surface-container-highest py-3 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-secondary"
+                />
+              </div>
 
-            <div className="flex flex-1 flex-wrap gap-2">
-              {categoryFilters.map((filter) => (
-                <button
-                  key={filter.value}
-                  type="submit"
-                  name="category"
-                  value={filter.value}
-                  className={
-                    selectedCategory === filter.value
-                      ? "rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition-all"
-                      : "rounded-full bg-surface-container-high px-5 py-2 text-sm font-semibold text-on-surface-variant transition-all hover:bg-surface-container-highest"
-                  }
+              <div className="flex flex-1 flex-wrap gap-2">
+                {categoryFilters.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="submit"
+                    name="category"
+                    value={filter.value}
+                    className={
+                      selectedCategory === filter.value
+                        ? "rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition-all"
+                        : "rounded-full bg-surface-container-high px-5 py-2 text-sm font-semibold text-on-surface-variant transition-all hover:bg-surface-container-highest"
+                    }
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-bold uppercase text-on-surface-variant">
+                  정렬
+                </label>
+                <select
+                  name="sort"
+                  defaultValue={selectedSort}
+                  className="rounded-md border-none bg-surface-container-high px-3 py-2 text-sm font-semibold text-on-surface-variant outline-none focus:ring-2 focus:ring-secondary"
                 >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
+                  <option value="latest">최신 등록순</option>
+                  <option value="name_asc">이름 오름차순</option>
+                  <option value="name_desc">이름 내림차순</option>
+                </select>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase text-on-surface-variant">
-                정렬
-              </label>
-              <select
-                name="sort"
-                defaultValue={selectedSort}
-                className="rounded-md border-none bg-surface-container-high px-3 py-2 text-sm font-semibold text-on-surface-variant outline-none focus:ring-2 focus:ring-secondary"
+              <button
+                type="submit"
+                className="rounded-md bg-secondary px-4 py-2 text-sm font-bold text-white transition-all hover:opacity-90"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #ff8c3b 0%, #ff5f2f 100%)",
+                  boxShadow: "0 10px 22px rgba(255, 107, 44, 0.28)",
+                }}
               >
-                <option value="latest">최신 등록순</option>
-                <option value="name_asc">이름 오름차순</option>
-                <option value="name_desc">이름 내림차순</option>
-              </select>
-            </div>
+                필터 적용
+              </button>
+              <Link
+                href="/equipment"
+                className="text-sm font-bold text-secondary transition-colors hover:underline"
+              >
+                필터 초기화
+              </Link>
+            </form>
+          </section>
 
-            <button
-              type="submit"
-              className="rounded-md bg-secondary px-4 py-2 text-sm font-bold text-white transition-all hover:opacity-90"
-              style={{
-                background: "linear-gradient(135deg, #ff8c3b 0%, #ff5f2f 100%)",
-                boxShadow: "0 10px 22px rgba(255, 107, 44, 0.28)",
-              }}
-            >
-              필터 적용
-            </button>
-            <Link
-              href="/equipment"
-              className="text-sm font-bold text-secondary transition-colors hover:underline"
-            >
-              필터 초기화
-            </Link>
-          </form>
-        </section>
+          <section className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {paginatedRows.length === 0 ? (
+              <article className="col-span-full rounded-md border border-outline-variant/20 bg-surface-container-lowest p-10 text-center">
+                <h3 className="text-xl font-bold text-primary">
+                  검색 결과가 없습니다
+                </h3>
+                <p className="mt-2 text-sm text-on-surface-variant">
+                  다른 검색어 또는 필터 조건으로 다시 시도해 주세요.
+                </p>
+              </article>
+            ) : null}
 
-        <section className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {paginatedRows.length === 0 ? (
-            <article className="col-span-full rounded-md border border-outline-variant/20 bg-surface-container-lowest p-10 text-center">
-              <h3 className="text-xl font-bold text-primary">
-                검색 결과가 없습니다
-              </h3>
-              <p className="mt-2 text-sm text-on-surface-variant">
-                다른 검색어 또는 필터 조건으로 다시 시도해 주세요.
-              </p>
-            </article>
+            {paginatedRows.map((row) => (
+              <EquipmentCard key={row.equipmentId} row={row} />
+            ))}
+          </section>
+
+          {sortedRows.length > 0 ? (
+            <section className="mt-10 flex items-center justify-center gap-2">
+              {safePage > 1 ? (
+                <Link
+                  href={buildPageHref({
+                    q,
+                    category: selectedCategory,
+                    sort: selectedSort,
+                    page: safePage - 1,
+                  })}
+                  className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+                >
+                  이전
+                </Link>
+              ) : (
+                <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
+                  이전
+                </span>
+              )}
+              <span className="px-3 text-sm font-semibold text-on-surface-variant">
+                {safePage} / {totalPages}
+              </span>
+              {safePage < totalPages ? (
+                <Link
+                  href={buildPageHref({
+                    q,
+                    category: selectedCategory,
+                    sort: selectedSort,
+                    page: safePage + 1,
+                  })}
+                  className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+                >
+                  다음
+                </Link>
+              ) : (
+                <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
+                  다음
+                </span>
+              )}
+            </section>
           ) : null}
 
-          {paginatedRows.map((row) => (
-            <EquipmentCard key={row.equipmentId} row={row} />
-          ))}
-        </section>
-
-        {sortedRows.length > 0 ? (
-          <section className="mt-10 flex items-center justify-center gap-2">
-            {safePage > 1 ? (
-              <Link
-                href={buildPageHref({
-                  q,
-                  category: selectedCategory,
-                  sort: selectedSort,
-                  page: safePage - 1,
-                })}
-                className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
-              >
-                이전
-              </Link>
-            ) : (
-              <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
-                이전
-              </span>
-            )}
-            <span className="px-3 text-sm font-semibold text-on-surface-variant">
-              {safePage} / {totalPages}
-            </span>
-            {safePage < totalPages ? (
-              <Link
-                href={buildPageHref({
-                  q,
-                  category: selectedCategory,
-                  sort: selectedSort,
-                  page: safePage + 1,
-                })}
-                className="rounded-md border border-outline-variant/40 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
-              >
-                다음
-              </Link>
-            ) : (
-              <span className="rounded-md border border-outline-variant/20 px-3 py-2 text-sm font-semibold text-on-surface-variant/50">
-                다음
-              </span>
-            )}
-          </section>
-        ) : null}
-
-        <section className="relative mt-24 overflow-hidden rounded-xl bg-primary-container p-12 lg:p-20">
-          <div className="pointer-events-none absolute top-0 right-0 h-full w-1/2 opacity-20">
-            <div className="h-full w-full bg-gradient-to-l from-secondary to-transparent" />
-          </div>
-
-          <div className="relative z-10 grid items-center gap-12 lg:grid-cols-2">
-            <div>
-              <h2 className="mb-6 text-4xl font-black leading-tight tracking-[-0.07em] text-white">
-                원하시는 장비를 찾지 못하셨나요?
-              </h2>
-              <p className="mb-8 max-w-xl text-lg leading-relaxed text-on-primary-container">
-                큐품질관리기술은 기성 제품 외에도 프로젝트 특성에 맞는 커스텀 시험
-                설비 구축 컨설팅을 제공합니다. 전문가와 상담하여 최적의 솔루션을
-                설계하십시오.
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center gap-3 rounded-sm bg-secondary px-8 py-4 font-bold text-white transition-all hover:opacity-90"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
-                    boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
-                  }}
-                >
-                  전문가와 상담하기
-                  <Icon icon={MessageSquare} className="size-5" />
-                </Link>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center gap-3 rounded-sm border border-white/20 bg-white/10 px-8 py-4 font-bold text-white transition-all hover:bg-white/20"
-                >
-                  카탈로그 PDF 다운로드
-                  <Icon icon={Download} className="size-5" />
-                </button>
-              </div>
+          <section className="relative mt-24 overflow-hidden rounded-xl bg-primary-container p-12 lg:p-20">
+            <div className="pointer-events-none absolute top-0 right-0 h-full w-1/2 opacity-20">
+              <div className="h-full w-full bg-gradient-to-l from-secondary to-transparent" />
             </div>
 
-            <div className="hidden lg:block">
-              <div className="rounded-lg border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-                <div className="mb-6 flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-white">
-                    <Icon icon={Headset} className="size-5" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-white">실시간 기술 지원</div>
-                    <div className="text-sm text-on-primary-container">
-                      평일 09:00 - 18:00 (GMT+9)
+            <div className="relative z-10 grid items-center gap-12 lg:grid-cols-2">
+              <div>
+                <h2 className="mb-6 text-4xl font-black leading-tight tracking-[-0.07em] text-white">
+                  원하시는 장비를 찾지 못하셨나요?
+                </h2>
+                <p className="mb-8 max-w-xl text-lg leading-relaxed text-on-primary-container">
+                  큐품질관리기술은 기성 제품 외에도 프로젝트 특성에 맞는 커스텀
+                  시험 설비 구축 컨설팅을 제공합니다. 전문가와 상담하여 최적의
+                  솔루션을 설계하십시오.
+                </p>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center gap-3 rounded-sm bg-secondary px-8 py-4 font-bold text-white transition-all hover:opacity-90"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",
+                      boxShadow: "0 14px 28px rgba(255, 107, 44, 0.32)",
+                    }}
+                  >
+                    전문가와 상담하기
+                    <Icon icon={MessageSquare} className="size-5" />
+                  </Link>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center gap-3 rounded-sm border border-white/20 bg-white/10 px-8 py-4 font-bold text-white transition-all hover:bg-white/20"
+                  >
+                    카탈로그 PDF 다운로드
+                    <Icon icon={Download} className="size-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden lg:block">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-8 backdrop-blur-md">
+                  <div className="mb-6 flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-white">
+                      <Icon icon={Headset} className="size-5" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white">
+                        실시간 기술 지원
+                      </div>
+                      <div className="text-sm text-on-primary-container">
+                        평일 09:00 - 18:00 (GMT+9)
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mb-2 text-3xl font-black tracking-tight text-white">
-                  010-6666-5269
-                </div>
-                <div className="text-sm text-on-primary-container">
-                  qqstart@naver.com
+                  <div className="mb-2 text-3xl font-black tracking-tight text-white">
+                    010-8941-4628
+                  </div>
+                  <div className="text-sm text-on-primary-container">
+                    qqstart@naver.com
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         </div>
       </main>
 

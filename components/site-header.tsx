@@ -185,7 +185,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
                 </Link>
                 <Link
                   href="/contact"
-                  className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-serif text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
+                  className="hidden rounded-md bg-secondary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-85 active:scale-95 sm:inline-flex"
                   style={{
                     background:
                       "linear-gradient(135deg, #ff9a3c 0%, #ff6b2c 100%)",

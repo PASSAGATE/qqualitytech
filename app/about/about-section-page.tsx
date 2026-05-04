@@ -54,15 +54,13 @@ export const aboutSections = {
     slug: "organization",
     href: "/about/organization",
     title: "조직도 | 큐품질관리기술",
-    description:
-      "큐품질관리기술의 조직 구조와 문의 라우팅 체계를 소개합니다.",
+    description: "큐품질관리기술의 조직 구조와 문의 라우팅 체계를 소개합니다.",
   },
   directions: {
     slug: "directions",
     href: "/about/directions",
     title: "오시는 길 | 큐품질관리기술",
-    description:
-      "큐품질관리기술 본사 위치와 방문 안내 정보를 소개합니다.",
+    description: "큐품질관리기술 본사 위치와 방문 안내 정보를 소개합니다.",
   },
 } satisfies Record<AboutSectionSlug, AboutSection>;
 
@@ -120,8 +118,9 @@ function GreetingSection() {
               반드시 지켜야 할 기준입니다.
             </h1>
             <p className="max-w-3xl text-lg leading-relaxed text-on-primary-container md:text-xl">
-              현장은 속도로 움직이지만, 결과는 기준으로 완성됩니다. 큐품질관리기술은
-              시험, 검증, 문서, 대응, 관리 전 과정을 체계적으로 운영합니다.
+              현장은 속도로 움직이지만, 결과는 기준으로 완성됩니다.
+              큐품질관리기술은 시험, 검증, 문서, 대응, 관리 전 과정을 체계적으로
+              운영합니다.
             </p>
           </div>
         </div>
@@ -141,8 +140,8 @@ function GreetingSection() {
               </h2>
               <div className="mt-8 h-1.5 w-16 bg-secondary" />
               <p className="mt-8 text-sm leading-relaxed text-on-primary-container">
-                쉬운 길보다 옳은 길을 선택하겠습니다. 형식보다 본질을 보겠습니다.
-                말보다 결과로 증명하겠습니다.
+                쉬운 길보다 옳은 길을 선택하겠습니다. 형식보다 본질을
+                보겠습니다. 말보다 결과로 증명하겠습니다.
               </p>
             </aside>
 
@@ -200,7 +199,9 @@ function GreetingSection() {
                 <p className="text-5xl font-black leading-none text-primary/[0.06] select-none">
                   {item.num}
                 </p>
-                <p className="mt-2 text-base font-black text-secondary">{item.label}</p>
+                <p className="mt-2 text-base font-black text-secondary">
+                  {item.label}
+                </p>
                 <p className="mt-2 text-sm font-semibold leading-relaxed text-primary">
                   {item.text}
                 </p>
@@ -228,7 +229,8 @@ function GreetingSection() {
 function OverviewSection() {
   const proofPoints = [
     {
-      description: "현장 조건과 기준을 명확히 해석하여 흔들리지 않는 판단 기준을 세웁니다.",
+      description:
+        "현장 조건과 기준을 명확히 해석하여 흔들리지 않는 판단 기준을 세웁니다.",
       label: "정확한 기준",
     },
     {
@@ -236,7 +238,8 @@ function OverviewSection() {
       label: "철저한 검증",
     },
     {
-      description: "고객이 안심하고 선택할 수 있도록 데이터와 책임 있는 대응으로 증명합니다.",
+      description:
+        "고객이 안심하고 선택할 수 있도록 데이터와 책임 있는 대응으로 증명합니다.",
       label: "확실한 신뢰",
     },
   ] as const;
@@ -275,8 +278,8 @@ function OverviewSection() {
               </p>
               <p>
                 품질은 결과가 아니라 과정에서 결정됩니다. 당사는
-                시험·검사·품질문서·현장관리 전 과정을 체계적으로 수행하여
-                공정 리스크를 최소화하고, 안전성과 신뢰성을 높이는 솔루션을
+                시험·검사·품질문서·현장관리 전 과정을 체계적으로 수행하여 공정
+                리스크를 최소화하고, 안전성과 신뢰성을 높이는 솔루션을
                 제공합니다.
               </p>
               <p>
@@ -317,7 +320,7 @@ function OverviewSection() {
               Contact
             </p>
             <p className="mt-2 text-lg font-black text-primary">
-              010-6666-5269 / qqstart@naver.com
+              010-8941-4628 / qqstart@naver.com
             </p>
           </article>
         </div>
@@ -664,11 +667,7 @@ function AboutSectionContent({ section }: { section: AboutSectionSlug }) {
   }
 }
 
-export function AboutSectionPage({
-  section,
-}: {
-  section: AboutSectionSlug;
-}) {
+export function AboutSectionPage({ section }: { section: AboutSectionSlug }) {
   const { href } = aboutSections[section];
 
   return (

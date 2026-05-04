@@ -15,7 +15,6 @@ import {
   MessageSquare,
   Newspaper,
   Phone,
-  Plus,
   PlusCircle,
   SearchCheck,
   ShieldCheck,
@@ -476,23 +475,24 @@ export default async function Home() {
               </h2>
               <div className="space-y-4">
                 {faqs.map((item) => (
-                  <article
+                  <details
                     key={item.question}
-                    className="border border-outline-variant/10 bg-surface-container-lowest p-6"
+                    open={item.open}
+                    className="group border border-outline-variant/10 bg-surface-container-lowest"
                   >
-                    <div className="flex items-center justify-between gap-4 text-left font-bold text-primary">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 font-bold text-primary [&::-webkit-details-marker]:hidden">
                       <span>{item.question}</span>
                       <Icon
-                        icon={item.open ? ChevronDown : Plus}
-                        className="size-5 shrink-0"
+                        icon={ChevronDown}
+                        className="size-5 shrink-0 transition-transform duration-200 group-open:rotate-180"
                       />
-                    </div>
-                    {item.open ? (
-                      <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                    </summary>
+                    {item.answer ? (
+                      <p className="px-6 pb-6 text-sm leading-relaxed text-on-surface-variant">
                         {item.answer}
                       </p>
                     ) : null}
-                  </article>
+                  </details>
                 ))}
               </div>
             </div>
@@ -523,11 +523,11 @@ export default async function Home() {
                 }}
               >
                 <Icon icon={Phone} className="size-6" />
-                010-6666-5269
+                010-8941-4628
               </a>
               <a
                 href="mailto:qqstart@naver.com"
-                className="inline-flex items-center gap-3 rounded-md border border-white/20 bg-white px-12 py-5 text-xl font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
+                className="inline-flex items-center gap-3 rounded-md bg-white px-12 py-5 text-xl font-bold text-primary transition-all hover:scale-105 active:scale-95"
               >
                 <Icon icon={Mail} className="size-6" />
                 온라인 문의 작성
