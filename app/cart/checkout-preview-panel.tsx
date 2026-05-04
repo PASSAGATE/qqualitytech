@@ -2,53 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { CartResponse } from "@/lib/backend/cart";
-
-type CheckoutPreviewItem = {
-  cartItemId: string;
-  equipmentId: string;
-  equipmentName: string;
-  equipmentCode: string | null;
-  mode: "buy" | "rent";
-  count: number;
-  rentalMonths: number | null;
-  unitPrice: number;
-  lineTotal: number;
-};
-
-type CheckoutPreviewResponse = {
-  deliveryMethod: "delivery" | "pickup";
-  buyOrderPreview: {
-    itemCount: number;
-    subtotal: number;
-    items: CheckoutPreviewItem[];
-  };
-  rentOrderPreview: {
-    itemCount: number;
-    subtotal: number;
-    items: CheckoutPreviewItem[];
-  };
-  deliveryFee: number;
-  totalPrice: number;
-};
-
-type ApiError = {
-  message?: string;
-  error?: string;
-};
-
-type DeliveryFeeOption = {
-  id: string;
-  region: string;
-  fee: number;
-  isActive: boolean;
-};
-
-type AddressSearchResult = {
-  roadAddr: string;
-  jibunAddr: string;
-  zipNo: string;
-  siNm: string;
-};
+import { CheckoutAddressFields } from "./checkout-address-fields";
+import { CheckoutPreviewResult } from "./checkout-preview-result";
+import type {
+  AddressSearchResult,
+  CheckoutPreviewResponse,
+  DeliveryFeeOption,
+  DeliveryMethod,
+} from "./checkout-preview-types";
+import {
+  readApiErrorMessage,
+  resolveRegionFromAddressResult,
+  resolveRegionFromAddressText,
+} from "./checkout-preview-utils";
 
 type CheckoutPreviewPanelProps = {
   cart: CartResponse;
@@ -59,7 +25,7 @@ export function CheckoutPreviewPanel({
   cart,
   onConfirmed,
 }: CheckoutPreviewPanelProps) {
-  const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">(
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(
     "pickup",
   );
   const [region, setRegion] = useState("");
@@ -125,53 +91,14 @@ export function CheckoutPreviewPanel({
     };
   }, []);
 
-  const pickRegionFromAddress = (result: AddressSearchResult) => {
-    const candidates = [result.siNm, result.roadAddr.split(" ")[0]]
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean);
-
-    if (candidates.length === 0) {
-      return;
+  const handleSelectAddress = (result: AddressSearchResult) => {
+    setAddress(result.roadAddr);
+    const matchedRegion = resolveRegionFromAddressResult(result, regionOptions);
+    if (matchedRegion) {
+      setRegion(matchedRegion);
     }
-
-    const matched = regionOptions.find((option) => {
-      const normalized = option.region.trim().toLowerCase();
-      return candidates.some(
-        (candidate) =>
-          normalized === candidate ||
-          normalized.includes(candidate) ||
-          candidate.includes(normalized),
-      );
-    });
-
-    if (matched) {
-      setRegion(matched.region);
-    }
-  };
-
-  const resolveRegionFromAddressText = (addressText: string) => {
-    const tokens = addressText
-      .trim()
-      .split(/\s+/)
-      .map((token) => token.trim().toLowerCase())
-      .filter(Boolean);
-
-    if (tokens.length === 0) {
-      return null;
-    }
-
-    const candidates = [tokens[0], tokens.slice(0, 2).join(" ")].filter(Boolean);
-    const matched = regionOptions.find((option) => {
-      const normalized = option.region.trim().toLowerCase();
-      return candidates.some(
-        (candidate) =>
-          normalized === candidate ||
-          normalized.includes(candidate) ||
-          candidate.includes(normalized),
-      );
-    });
-
-    return matched?.region ?? null;
+    setAddressResults([]);
+    setAddressSearchError(null);
   };
 
   useEffect(() => {
@@ -208,13 +135,10 @@ export function CheckoutPreviewPanel({
         );
 
         if (!response.ok) {
-          let message = `주소 검색 실패 (${response.status})`;
-          try {
-            const data = (await response.json()) as ApiError;
-            message = data.message ?? data.error ?? message;
-          } catch {
-            // ignore parse errors
-          }
+          const message = await readApiErrorMessage(
+            response,
+            `주소 검색 실패 (${response.status})`,
+          );
           setAddressSearchError(message);
           setAddressResults([]);
           return;
@@ -246,7 +170,7 @@ export function CheckoutPreviewPanel({
     setConfirmSuccess(null);
 
     const resolvedRegion = requiresDeliveryFields
-      ? region.trim() || resolveRegionFromAddressText(address)
+      ? region.trim() || resolveRegionFromAddressText(address, regionOptions)
       : undefined;
     if (requiresDeliveryFields && !resolvedRegion) {
       setPreview(null);
@@ -273,13 +197,10 @@ export function CheckoutPreviewPanel({
       });
 
       if (!response.ok) {
-        let message = `요청 실패 (${response.status})`;
-        try {
-          const data = (await response.json()) as ApiError;
-          message = data.message ?? data.error ?? message;
-        } catch {
-          // ignore parse error
-        }
+        const message = await readApiErrorMessage(
+          response,
+          `요청 실패 (${response.status})`,
+        );
         setPreview(null);
         setError(message);
         return;
@@ -304,7 +225,7 @@ export function CheckoutPreviewPanel({
     setConfirmSuccess(null);
 
     const resolvedRegion = requiresDeliveryFields
-      ? region.trim() || resolveRegionFromAddressText(address)
+      ? region.trim() || resolveRegionFromAddressText(address, regionOptions)
       : undefined;
     if (requiresDeliveryFields && !resolvedRegion) {
       setError("주소에서 지역을 확인할 수 없습니다. 도로명 주소를 다시 선택해 주세요.");
@@ -330,13 +251,10 @@ export function CheckoutPreviewPanel({
       });
 
       if (!response.ok) {
-        let message = `요청 실패 (${response.status})`;
-        try {
-          const data = (await response.json()) as ApiError;
-          message = data.message ?? data.error ?? message;
-        } catch {
-          // ignore parse error
-        }
+        const message = await readApiErrorMessage(
+          response,
+          `요청 실패 (${response.status})`,
+        );
         setError(message);
         return;
       }
@@ -366,96 +284,21 @@ export function CheckoutPreviewPanel({
         배송 방식/지역을 선택하면 예상 결제 금액을 확인할 수 있습니다.
       </p>
 
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center gap-4 text-sm">
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="radio"
-              name="deliveryMethod"
-              value="pickup"
-              checked={deliveryMethod === "pickup"}
-              onChange={() => setDeliveryMethod("pickup")}
-            />
-            픽업
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="radio"
-              name="deliveryMethod"
-              value="delivery"
-              checked={deliveryMethod === "delivery"}
-              onChange={() => setDeliveryMethod("delivery")}
-            />
-            배송
-          </label>
-        </div>
-
-        {requiresDeliveryFields ? (
-          <div className="grid gap-3">
-            <div className="grid gap-2">
-              <input
-                value={addressKeyword}
-                onChange={(event) => setAddressKeyword(event.target.value)}
-                placeholder="도로명/건물명으로 주소 검색"
-                className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
-              />
-              <p className="text-[11px] text-on-surface-variant">
-                주소 검색은 입력 시 자동으로 진행됩니다.
-              </p>
-              {addressSearchLoading ? (
-                <p className="text-xs font-semibold text-on-surface-variant">
-                  검색 중...
-                </p>
-              ) : null}
-
-              {addressSearchError ? (
-                <p className="text-xs font-semibold text-[#b42318]">
-                  {addressSearchError}
-                </p>
-              ) : null}
-
-              {addressResults.length > 0 ? (
-                <div className="max-h-52 overflow-y-auto rounded-md border border-outline-variant/25 bg-surface-container-low">
-                  {addressResults.map((result, index) => (
-                    <button
-                      key={`${result.roadAddr}-${result.zipNo}-${index}`}
-                      type="button"
-                      onClick={() => {
-                        setAddress(result.roadAddr);
-                        pickRegionFromAddress(result);
-                        setAddressResults([]);
-                        setAddressSearchError(null);
-                      }}
-                      className="block w-full border-b border-outline-variant/15 px-3 py-2 text-left transition-colors hover:bg-surface-container-high last:border-b-0"
-                    >
-                      <p className="text-sm font-semibold text-primary">
-                        {result.roadAddr}
-                      </p>
-                      <p className="text-xs text-on-surface-variant">
-                        지번: {result.jibunAddr || "-"} / 우편번호:{" "}
-                        {result.zipNo || "-"}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <input
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              placeholder="상세 주소를 포함해 최종 배송 주소를 확인해 주세요"
-              className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
-            />
-          </div>
-        ) : null}
-
-        <input
-          value={companyName}
-          onChange={(event) => setCompanyName(event.target.value)}
-          placeholder="회사명 (선택)"
-          className="w-full rounded-md border border-outline-variant/40 px-3 py-2 text-sm outline-none focus:border-secondary"
-        />
-      </div>
+      <CheckoutAddressFields
+        address={address}
+        addressKeyword={addressKeyword}
+        addressResults={addressResults}
+        addressSearchError={addressSearchError}
+        addressSearchLoading={addressSearchLoading}
+        companyName={companyName}
+        deliveryMethod={deliveryMethod}
+        requiresDeliveryFields={requiresDeliveryFields}
+        onAddressChange={setAddress}
+        onAddressKeywordChange={setAddressKeyword}
+        onCompanyNameChange={setCompanyName}
+        onDeliveryMethodChange={setDeliveryMethod}
+        onSelectAddress={handleSelectAddress}
+      />
 
       {error ? (
         <p className="mt-4 rounded-sm bg-[#fde8e8] px-3 py-2 text-xs font-semibold text-[#b42318]">
@@ -478,45 +321,11 @@ export function CheckoutPreviewPanel({
       </button>
 
       {preview ? (
-        <div className="mt-4 rounded-md bg-surface-container-low p-4 text-sm">
-          <div className="space-y-1 text-on-surface-variant">
-            <p>
-              구매 소계:{" "}
-              <span className="font-semibold text-primary">
-                {preview.buyOrderPreview.subtotal.toLocaleString("ko-KR")}원
-              </span>
-            </p>
-            <p>
-              임대 소계:{" "}
-              <span className="font-semibold text-primary">
-                {preview.rentOrderPreview.subtotal.toLocaleString("ko-KR")}원
-              </span>
-            </p>
-            <p>
-              배송비:{" "}
-              <span className="font-semibold text-primary">
-                {preview.deliveryFee.toLocaleString("ko-KR")}원
-              </span>
-            </p>
-          </div>
-
-          <div className="mt-3 border-t border-outline-variant/20 pt-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-              Preview Total
-            </p>
-            <p className="mt-1 text-xl font-black text-primary">
-              {preview.totalPrice.toLocaleString("ko-KR")}원
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={confirming}
-            className="mt-4 w-full rounded-md bg-secondary px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {confirming ? "주문 처리 중..." : "주문 확정"}
-          </button>
-        </div>
+        <CheckoutPreviewResult
+          confirming={confirming}
+          preview={preview}
+          onConfirm={handleConfirm}
+        />
       ) : null}
     </section>
   );
