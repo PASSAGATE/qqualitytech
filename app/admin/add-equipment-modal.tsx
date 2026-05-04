@@ -1,33 +1,36 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import Image from "next/image";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { createEquipmentAction } from "./equipment-actions";
+import { AddEquipmentImageSlots } from "./add-equipment-image-slots";
 import {
-  EQUIPMENT_CATEGORY_OPTIONS,
-  EQUIPMENT_STATUS_OPTIONS,
-  EQUIPMENT_TYPE_OPTIONS,
-} from "./equipment-enums";
-
-const IMAGE_SLOT_COUNT = 5;
-const MAX_TOTAL_UPLOAD_BYTES = 9 * 1024 * 1024; // keep below server action 10mb limit
-
-async function readFilePreview(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(new Error("이미지 미리보기를 불러오지 못했습니다."));
-    reader.readAsDataURL(file);
-  });
-}
+  DescriptionField,
+  EquipmentSelectFields,
+  FormErrorMessage,
+  InventoryFields,
+  ModalActions,
+  ModalFrame,
+  PricingFields,
+  TextInputField,
+} from "./equipment-modal-fields";
+import {
+  EQUIPMENT_IMAGE_SLOT_COUNT,
+  MAX_TOTAL_UPLOAD_BYTES,
+  getSelectedFiles,
+  getTotalUploadBytes,
+  preventWithError,
+  readFilePreview,
+  replaceAt,
+  validateEquipmentFormBasics,
+} from "./equipment-modal-utils";
 
 export function AddEquipmentModal() {
   const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<Array<string | null>>(
-    Array(IMAGE_SLOT_COUNT).fill(null),
+    Array(EQUIPMENT_IMAGE_SLOT_COUNT).fill(null),
   );
 
   const handleImageChange = async (
@@ -37,27 +40,15 @@ export function AddEquipmentModal() {
     const file = event.target.files?.[0];
 
     if (!file) {
-      setImagePreviews((prev) =>
-        prev.map((value, currentIndex) =>
-          currentIndex === index ? null : value,
-        ),
-      );
+      setImagePreviews((prev) => replaceAt(prev, index, null));
       return;
     }
 
     try {
       const preview = await readFilePreview(file);
-      setImagePreviews((prev) =>
-        prev.map((value, currentIndex) =>
-          currentIndex === index ? preview : value,
-        ),
-      );
+      setImagePreviews((prev) => replaceAt(prev, index, preview));
     } catch {
-      setImagePreviews((prev) =>
-        prev.map((value, currentIndex) =>
-          currentIndex === index ? null : value,
-        ),
-      );
+      setImagePreviews((prev) => replaceAt(prev, index, null));
     }
   };
 
@@ -73,329 +64,77 @@ export function AddEquipmentModal() {
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-white p-6 shadow-2xl sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-2xl font-extrabold tracking-tight text-primary">
-                장비 등록
-              </h3>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high"
-                aria-label="닫기"
-              >
-                <X className="size-5" />
-              </button>
+        <ModalFrame
+          title="장비 등록"
+          onClose={() => setOpen(false)}
+          maxWidthClassName="max-w-2xl"
+          zIndexClassName="z-[100]"
+        >
+          <form
+            action={createEquipmentAction}
+            className="space-y-5"
+            onSubmit={(event) => {
+              setFormError(null);
+              const form = event.currentTarget;
+              const basicError = validateEquipmentFormBasics(form);
+              if (basicError) {
+                preventWithError(event, basicError, setFormError);
+                return;
+              }
+
+              const selectedImages = getSelectedFiles(form, "image_file");
+              if (selectedImages.length === 0) {
+                preventWithError(
+                  event,
+                  "최소 1장 이상의 이미지를 업로드해 주세요.",
+                  setFormError,
+                );
+                return;
+              }
+
+              if (getTotalUploadBytes(selectedImages) > MAX_TOTAL_UPLOAD_BYTES) {
+                preventWithError(
+                  event,
+                  "업로드 용량이 너무 큽니다. 이미지 전체 용량을 9MB 이하로 줄여 주세요.",
+                  setFormError,
+                );
+              }
+            }}
+          >
+            <FormErrorMessage message={formError} />
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <TextInputField
+                name="name"
+                label="장비명 *"
+                placeholder="예: 만능 재료 시험기"
+                required
+              />
+              <TextInputField
+                name="model_code"
+                label="모델 코드"
+                placeholder="예: Q-UTM600"
+              />
             </div>
 
-            <form
-              action={createEquipmentAction}
-              className="space-y-5"
-              onSubmit={(event) => {
-                setFormError(null);
-                const form = event.currentTarget;
-                const total = Number(
-                  (form.elements.namedItem("total_count") as HTMLInputElement | null)
-                    ?.value ?? "0",
-                );
-                const available = Number(
-                  (form.elements.namedItem("available_count") as HTMLInputElement | null)
-                    ?.value ?? "0",
-                );
-                const type = (
-                  (form.elements.namedItem("type") as HTMLSelectElement | null)
-                    ?.value ?? ""
-                ).toLowerCase();
-                const salePrice = Number(
-                  (form.elements.namedItem("sale_price") as HTMLInputElement | null)
-                    ?.value ?? "0",
-                );
-                const monthlyRentalPrice = Number(
-                  (form.elements.namedItem("monthly_rental_price") as HTMLInputElement | null)
-                    ?.value ?? "0",
-                );
-                const selectedImages = [1, 2, 3, 4, 5]
-                  .map((index) =>
-                    (form.elements.namedItem(`image_file_${index}`) as HTMLInputElement | null)
-                      ?.files?.[0],
-                  )
-                  .filter((file): file is File => Boolean(file));
-                const totalUploadBytes = selectedImages.reduce(
-                  (sum, file) => sum + file.size,
-                  0,
-                );
-
-                if (available > total) {
-                  event.preventDefault();
-                  setFormError("사용 가능 수량은 총 재고 수량보다 클 수 없습니다.");
-                  return;
-                }
-
-                if (selectedImages.length === 0) {
-                  event.preventDefault();
-                  setFormError("최소 1장 이상의 이미지를 업로드해 주세요.");
-                  return;
-                }
-
-                if (totalUploadBytes > MAX_TOTAL_UPLOAD_BYTES) {
-                  event.preventDefault();
-                  setFormError(
-                    "업로드 용량이 너무 큽니다. 이미지 전체 용량을 9MB 이하로 줄여 주세요.",
-                  );
-                  return;
-                }
-
-                if (type === "sale" && salePrice <= 0) {
-                  event.preventDefault();
-                  setFormError("판매 장비는 판매가를 1원 이상 입력해 주세요.");
-                  return;
-                }
-
-                if (type === "rental" && monthlyRentalPrice <= 0) {
-                  event.preventDefault();
-                  setFormError("임대 장비는 월 임대료를 1원 이상 입력해 주세요.");
-                  return;
-                }
-
-                if (
-                  type === "sale_and_rental" &&
-                  (salePrice <= 0 || monthlyRentalPrice <= 0)
-                ) {
-                  event.preventDefault();
-                  setFormError("판매+임대 장비는 판매가와 월 임대료를 모두 1원 이상 입력해 주세요.");
-                }
-              }}
-            >
-              {formError ? (
-                <p className="rounded-md border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#c92a2a]">
-                  {formError}
-                </p>
-              ) : null}
-              <div className="grid gap-5 sm:grid-cols-2">
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  장비명 *
-                  <input
-                    name="name"
-                    required
-                    placeholder="예: 만능 재료 시험기"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                </label>
-
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  모델 코드
-                  <input
-                    name="model_code"
-                    placeholder="예: Q-UTM600"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                </label>
-              </div>
-
-              <label className="block space-y-2 text-sm font-semibold text-primary">
-                장비 타입 *
-                <select
-                  name="type"
-                  required
-                  onChange={(event) => {
-                    setSelectedType(event.target.value);
-                  }}
-                  className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    타입을 선택해 주세요
-                  </option>
-                  {EQUIPMENT_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2 text-sm font-semibold text-primary">
-                장비 분류 *
-                <select
-                  name="category"
-                  required
-                  className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    분류를 선택해 주세요
-                  </option>
-                  {EQUIPMENT_CATEGORY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2 text-sm font-semibold text-primary">
-                상태
-                <select
-                  name="status"
-                  className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  defaultValue="active"
-                >
-                  {EQUIPMENT_STATUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              {selectedType === "sale" || selectedType === "sale_and_rental" ? (
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  판매가 (원)
-                  <input
-                    name="sale_price"
-                    type="number"
-                    min={0}
-                    placeholder="숫자를 입력해 주세요"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                  <p className="text-xs font-medium text-on-surface-variant">
-                    비워두면 0원으로 저장됩니다.
-                  </p>
-                </label>
-              ) : (
-                <input type="hidden" name="sale_price" value={0} />
-              )}
-
-              {selectedType === "rental" || selectedType === "sale_and_rental" ? (
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  월 임대료 (원)
-                  <input
-                    name="monthly_rental_price"
-                    type="number"
-                    min={0}
-                    placeholder="숫자를 입력해 주세요"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                  <p className="text-xs font-medium text-on-surface-variant">
-                    비워두면 0원으로 저장됩니다.
-                  </p>
-                </label>
-              ) : (
-                <input type="hidden" name="monthly_rental_price" value={0} />
-              )}
-
-              <div className="grid gap-5 sm:grid-cols-2">
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  총 재고 수량
-                  <input
-                    name="total_count"
-                    type="number"
-                    min={0}
-                    placeholder="수량을 입력해 주세요"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                  <p className="text-xs font-medium text-on-surface-variant">
-                    비워두면 0개로 저장됩니다.
-                  </p>
-                </label>
-                <label className="space-y-2 text-sm font-semibold text-primary">
-                  사용 가능 수량
-                  <input
-                    name="available_count"
-                    type="number"
-                    min={0}
-                    placeholder="수량을 입력해 주세요"
-                    className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                  />
-                  <p className="text-xs font-medium text-on-surface-variant">
-                    비워두면 0개로 저장됩니다.
-                  </p>
-                </label>
-              </div>
-
-              <fieldset className="space-y-3">
-                <legend className="mb-1 text-sm font-semibold text-primary">
-                  이미지 파일 업로드 (최대 5장)
-                </legend>
-                <p className="text-xs font-medium text-on-surface-variant">
-                  최소 1장 이상 업로드해 주세요.
-                </p>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {Array.from({ length: IMAGE_SLOT_COUNT }).map((_, index) => (
-                    <label
-                      key={`image-slot-${index + 1}`}
-                      className="space-y-2 rounded-md border border-dashed border-outline-variant/40 p-3 text-sm font-semibold text-primary transition-colors hover:border-secondary/60"
-                    >
-                      <span className="inline-flex items-center rounded-full bg-surface-container-high px-2 py-1 text-[11px] font-bold">
-                        슬롯 {index + 1}
-                      </span>
-                      <input
-                        name={`image_file_${index + 1}`}
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          void handleImageChange(index, event);
-                        }}
-                        className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium file:mr-3 file:rounded-md file:border-0 file:bg-secondary/15 file:px-3 file:py-1.5 file:font-semibold file:text-primary outline-none transition-all focus:border-secondary"
-                      />
-                    </label>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {imagePreviews.map((preview, index) => (
-                    <div
-                      key={`preview-${index + 1}`}
-                      className="relative aspect-square overflow-hidden rounded-md border border-outline-variant/30 bg-surface-container-lowest"
-                    >
-                      {preview ? (
-                        <Image
-                          src={preview}
-                          alt={`업로드 미리보기 ${index + 1}`}
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-on-surface-variant">
-                          미리보기 {index + 1}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </fieldset>
-
-              <label className="block space-y-2 text-sm font-semibold text-primary">
-                설명
-                <textarea
-                  name="description"
-                  rows={4}
-                  placeholder="장비 설명을 입력하세요."
-                  className="w-full rounded-md border border-outline-variant/40 bg-white px-3 py-2.5 text-sm font-medium outline-none transition-all focus:border-secondary"
-                />
-              </label>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="rounded-md border border-outline-variant/40 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-md bg-secondary px-5 py-2 text-sm font-bold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  등록
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <EquipmentSelectFields
+              typeValue=""
+              categoryValue=""
+              statusValue="active"
+              onTypeChange={setSelectedType}
+              layoutClassName="space-y-5"
+              withPlaceholders
+            />
+            <PricingFields selectedType={selectedType} showHelp />
+            <InventoryFields showHelp />
+            <AddEquipmentImageSlots
+              imagePreviews={imagePreviews}
+              onImageChange={handleImageChange}
+            />
+            <DescriptionField />
+            <ModalActions onCancel={() => setOpen(false)} submitLabel="등록" />
+          </form>
+        </ModalFrame>
       ) : null}
     </>
   );
