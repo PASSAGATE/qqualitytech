@@ -117,7 +117,7 @@ export async function SiteHeader({ activeHref }: { activeHref: string }) {
   const navigationItems = navigation;
 
   return (
-    <nav className="sticky top-0 z-50 min-w-[1244px] border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/30 bg-white/90 shadow-sm backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
         <div className="flex h-24 items-center justify-between">
           <Link
